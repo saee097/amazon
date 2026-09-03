@@ -27,10 +27,7 @@ export default function ProductImage({
 }: ProductImageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-
-  const imageSrc = src || getProductImage(product);
-  const imageAlt =
-    alt || product?.image?.alt_text || product?.images?.[0]?.alt_text || product?.title || "Product";
+  const [sourceIndex, setSourceIndex] = useState(0);
 
   const fallbackSrc = product
     ? CLOTHING_IMAGES[
@@ -40,7 +37,28 @@ export default function ProductImage({
       ] || CLOTHING_IMAGES["default"]
     : CLOTHING_IMAGES["default"];
 
+  const imageSources = Array.from(
+    new Set(
+      [
+        src,
+        ...(product?.images?.map((image) => image.image_url) || []),
+        product?.image?.image_url,
+        getProductImage(product),
+        fallbackSrc,
+      ].filter(Boolean) as string[]
+    )
+  );
+
+  const imageSrc = imageSources[sourceIndex] || fallbackSrc;
+  const imageAlt =
+    alt || product?.image?.alt_text || product?.images?.[0]?.alt_text || product?.title || "Product";
+
   const handleError = () => {
+    if (sourceIndex < imageSources.length - 1) {
+      setIsLoading(true);
+      setSourceIndex((index) => index + 1);
+      return;
+    }
     setHasError(true);
   };
 

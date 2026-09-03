@@ -6,10 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed": "tsx scripts/seed.ts",
+    "db:migrate": "node scripts/migrate.mjs",
+    "db:test": "node scripts/test-db.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",
+    "@supabase/supabase-js": "^2.49.1",
     "axios": "^1.18.1",
     "framer-motion": "^12.42.2",
     "lucide-react": "^1.26.0",
@@ -30,6 +34,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
+    "tsx": "^4.19.3",
     "typescript": "^5"
   }
 }

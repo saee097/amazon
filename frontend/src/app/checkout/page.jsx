@@ -13,8 +13,9 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
+  const paymentMethod = "cash_on_delivery";
   const [couponCode, setCouponCode] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!getToken()) {
@@ -46,17 +47,18 @@ export default function CheckoutPage() {
       return;
     }
 
+    setError("");
     setSubmitting(true);
     try {
-      const address = addresses.find((a) => a._id === selectedAddress) || {};
       await api.post("/store/checkout", {
         couponCode,
         paymentMethod,
-        address,
+        addressId: selectedAddress,
       });
       router.push("/orders");
     } catch (err) {
       console.error("Failed to place order:", err);
+      setError(err?.response?.data?.message || "We could not place your order. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -119,7 +121,12 @@ export default function CheckoutPage() {
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Shipping Address</h2>
               {addresses.length === 0 ? (
-                <p className="text-gray-500">No addresses found.</p>
+                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
+                  <span>No addresses found.</span>
+                  <Link href="/addresses" className="font-medium text-[#0F766E] hover:underline">
+                    Add a shipping address
+                  </Link>
+                </div>
               ) : (
                 <div className="space-y-2">
                   {addresses.map((address) => (
@@ -148,15 +155,9 @@ export default function CheckoutPage() {
 
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Payment Method</h2>
-              <select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-500 outline-none transition focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E]/20"
-              >
-                <option value="cash_on_delivery">Cash on Delivery</option>
-                <option value="credit_card">Credit Card</option>
-                <option value="paypal">PayPal</option>
-              </select>
+              <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+                Cash on Delivery
+              </div>
               <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Coupon Code
@@ -202,6 +203,7 @@ export default function CheckoutPage() {
               >
                 {submitting ? "Placing Order..." : "Place Order"}
               </button>
+              {error && <p className="mt-3 text-sm text-red-600" role="alert">{error}</p>}
             </div>
           </div>
         </div>

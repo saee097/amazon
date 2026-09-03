@@ -1,6 +1,60 @@
 # Amazon E-Commerce Platform
 
-A full-stack e-commerce platform with a Next.js frontend and Express/Node.js backend.
+A production-ready e-commerce platform with a Next.js frontend and **Supabase** backend, deployed on **Vercel**.
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | Next.js 16, React 19, Tailwind CSS 4, Redux Toolkit |
+| Backend API | Next.js API Routes (serverless on Vercel) |
+| Database | Supabase PostgreSQL |
+| Auth | Supabase Auth (JWT-compatible with existing frontend) |
+| Hosting | Vercel |
+
+## Quick Start
+
+```bash
+cd frontend
+cp .env.example .env.local
+# Add your Supabase credentials to .env.local
+npm install
+npm run seed    # Create demo customer and admin users
+npm run dev
+```
+
+## Deployment
+
+See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for full Supabase + Vercel deployment instructions.
+
+## Default Admin Credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| Customer | customer@amazonstore.com | Customer@123456 |
+| Admin | admin@amazonstore.com | Admin@123456 |
+| Super Admin | superadmin@amazonstore.com | Super@123456 |
+
+> These are local/demo seed credentials only. Set the `SEED_*_EMAIL` and `SEED_*_PASSWORD` environment variables to unique secrets for non-local environments, then rotate or remove demo accounts before launch.
+
+## Catalog Media
+
+The demo catalog references images from the official [J. Pakistan](https://www.junaidjamshed.com/collections/womens-stitched?page=1) and [6pm](https://www.6pm.com/womens) sites. Those sources are supplied only for evaluation; obtain a license and move approved assets to your own storage before production launch. Product image rendering automatically falls back to local catalog artwork when a remote source is unavailable.
+
+## Project Structure
+
+```
+amazon/
+├── frontend/              # Next.js app (UI + API routes)
+│   ├── src/app/api/       # REST API endpoints (/api/*)
+│   ├── src/server/        # Supabase backend logic
+│   └── scripts/seed.ts    # Admin user seeding
+├── supabase/
+│   ├── migrations/        # PostgreSQL schema
+│   └── seed.sql           # Sample catalog data
+└── DEPLOYMENT.md          # Production deployment guide
+```
+
 
 ---
 
