@@ -2,9 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import AdminLayout from "@/components/admin/AdminLayout";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import api from "@/lib/api";
 import { ROLES } from "@/lib/rbac";
 import RoleBadge from "@/components/RoleBadge";
@@ -76,9 +73,7 @@ export default function SuperAdminDashboard() {
   }
 
   return (
-    <ProtectedRoute allowedRoles={[ROLES.SUPERADMIN]}>
-      <AdminLayout>
-        <div className="max-w-7xl space-y-6">
+    <div className="max-w-7xl space-y-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Super Admin Dashboard</h1>
@@ -255,7 +250,5 @@ export default function SuperAdminDashboard() {
             </div>
           </div>
         </div>
-      </AdminLayout>
-    </ProtectedRoute>
   );
 }

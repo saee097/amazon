@@ -39,17 +39,25 @@ import {
   ShieldAlert,
   ScrollText,
   Sliders,
-  LogIn,
   ChevronsLeft,
   ChevronsRight,
   X,
   Activity,
   Store,
+  User,
+  CheckCircle2,
+  AlertTriangle,
+  Info,
+  TrendingUp,
+  ExternalLink,
+  ChevronDown,
 } from "lucide-react";
 import { getUser, removeToken } from "@/lib/auth";
 import { ROLES, getRoleDisplayName } from "@/lib/rbac";
+import api from "@/lib/api";
 
-const sidebarSections = [
+// ─── Sidebar navigation sections ─────────────────────────────────────────────
+const SIDEBAR_SECTIONS = [
   {
     title: "Overview",
     items: [
@@ -127,185 +135,128 @@ const sidebarSections = [
   },
 ];
 
-const navItemsFlat = sidebarSections.flatMap((s) => s.items);
+const ALL_NAV_ITEMS = SIDEBAR_SECTIONS.flatMap((s) => s.items);
 
-export default function AdminLayout({ children }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const userMenuRef = useRef(null);
-  const notifRef = useRef(null);
-  const searchRef = useRef(null);
+// ─── Small helpers ─────────────────────────────────────────────────────────
+function getInitials(user) {
+  if (!user) return "A";
+  const first = user.first_name?.[0] || "";
+  const last = user.last_name?.[0] || "";
+  return (first + last).toUpperCase() || user.email?.[0]?.toUpperCase() || "A";
+}
 
-  const notifications = [
-    { id: 1, icon: Truck, text: "New order #45821 received", time: "2 min ago", tone: "bg-emerald-50 text-emerald-700" },
-    { id: 2, icon: Boxes, text: "Low stock: Vintage Tee (3 left)", time: "15 min ago", tone: "bg-amber-50 text-amber-700" },
-    { id: 3, icon: UserPlus, text: "New customer registered", time: "1 hour ago", tone: "bg-sky-50 text-sky-700" },
-    { id: 4, icon: CreditCard, text: "Refund processed for #45789", time: "3 hours ago", tone: "bg-violet-50 text-violet-700" },
-  ];
-
-  useEffect(() => {
-    const user = getUser();
-    const token = getToken();
-    if (!token || !user || (user.role !== ROLES.ADMIN && user.role !== ROLES.SUPERADMIN)) {
-      removeToken();
-      router.push("/auth/login");
-      return;
-    }
-    setCurrentUser(user);
-    setLoading(false);
-
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-      setDarkMode(true);
-      document.documentElement.classList.add("dark");
-    }
-  }, [router]);
-
-  useEffect(() => {
-    const handleClick = (e) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setUserMenuOpen(false);
-      if (notifRef.current && !notifRef.current.contains(e.target)) setShowNotifications(false);
-      if (searchRef.current && !searchRef.current.contains(e.target)) setSearchOpen(false);
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
-
-  const toggleTheme = useCallback(() => {
-    setDarkMode((prev) => {
-      const next = !prev;
-      if (next) {
-        document.documentElement.classList.add("dark");
-        localStorage.setItem("theme", "dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-        localStorage.setItem("theme", "light");
-      }
-      return next;
-    });
-  }, []);
-
-  const isSuperAdmin = currentUser?.role === ROLES.SUPERADMIN;
-
-  const filteredSidebarSections = sidebarSections.map((section) => ({
-    ...section,
-    items: section.items.filter((item) => {
-      if (isSuperAdmin) return true;
-      return item.permission && currentUser?.permissions?.includes(item.permission);
-    }),
-  }));
-
-  const searchResults = searchQuery.trim()
-    ? navItemsFlat.filter((i) => i.label.toLowerCase().includes(searchQuery.toLowerCase()))
-    : [];
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[#0F766E] border-t-transparent" />
-          <p className="mt-4 text-sm text-gray-600 dark:text-gray-300">Loading workspace…</p>
-        </div>
-      </div>
-    );
+function getRoleBadgeStyle(role) {
+  switch (role) {
+    case ROLES.SUPERADMIN:
+      return "bg-rose-100 text-rose-700 ring-1 ring-rose-200";
+    case ROLES.ADMIN:
+      return "bg-violet-100 text-violet-700 ring-1 ring-violet-200";
+    default:
+      return "bg-sky-100 text-sky-700 ring-1 ring-sky-200";
   }
+}
 
-  const currentPageTitle =
-    navItemsFlat.find((item) => pathname === item.href || pathname?.startsWith(item.href + "/"))?.label || "Admin";
+function NotificationIcon({ type }) {
+  switch (type) {
+    case "order":
+      return <Truck size={14} className="shrink-0" />;
+    case "stock":
+      return <AlertTriangle size={14} className="shrink-0" />;
+    case "user":
+      return <UserPlus size={14} className="shrink-0" />;
+    case "refund":
+      return <CreditCard size={14} className="shrink-0" />;
+    default:
+      return <Info size={14} className="shrink-0" />;
+  }
+}
 
-  const getRoleBadgeColor = (role) => {
-    switch (role) {
-      case ROLES.SUPERADMIN:
-        return "bg-rose-100 text-rose-700 ring-1 ring-rose-200";
-      case ROLES.ADMIN:
-        return "bg-violet-100 text-violet-700 ring-1 ring-violet-200";
-      default:
-        return "bg-sky-100 text-sky-700 ring-1 ring-sky-200";
-    }
-  };
+function NotificationTone(type) {
+  switch (type) {
+    case "order":   return "bg-emerald-50 text-emerald-700";
+    case "stock":   return "bg-amber-50 text-amber-700";
+    case "user":    return "bg-sky-50 text-sky-700";
+    case "refund":  return "bg-violet-50 text-violet-700";
+    default:        return "bg-gray-100 text-gray-600";
+  }
+}
 
-  const getBreadcrumbs = () => {
-    const parts = pathname.split("/").filter(Boolean);
-    const crumbs = [{ label: "Home", href: "/admin/dashboard" }];
-    let currentPath = "";
-    parts.forEach((part) => {
-      if (part !== "admin") {
-        currentPath += `/${part}`;
-        crumbs.push({ label: part.charAt(0).toUpperCase() + part.slice(1), href: currentPath });
-      }
-    });
-    return crumbs;
-  };
+// ─── Sidebar content (shared between desktop + mobile) ────────────────────
+function SidebarContent({ collapsed, pathname, isSuperAdmin, currentUser, filteredSections, onClose }) {
+  const router = useRouter();
 
-  const breadcrumbs = getBreadcrumbs();
   const logout = () => {
     removeToken();
+    if (onClose) onClose();
     router.push("/auth/login");
   };
 
-  const SidebarContent = () => (
-    <div className="flex h-screen flex-col bg-white dark:bg-gray-900">
-      <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4 dark:border-gray-800">
-        <Link href="/admin/dashboard" className={`flex items-center gap-2 ${!sidebarOpen && "justify-center"}`}>
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F766E] to-[#0d5e58] text-white shadow-sm">
+  return (
+    <div className="flex h-screen flex-col bg-white dark:bg-gray-900 overflow-hidden">
+      {/* Brand */}
+      <div
+        className={`flex h-16 shrink-0 items-center border-b border-gray-200 dark:border-gray-800 px-4 ${
+          collapsed ? "justify-center" : "justify-between"
+        }`}
+      >
+        <Link href="/admin/dashboard" className={`flex items-center gap-2.5 min-w-0 ${collapsed ? "justify-center" : ""}`}>
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F766E] to-[#0d5e58] text-white shadow-md">
             <Activity size={18} />
           </span>
-          {sidebarOpen && (
-            <div className="leading-tight">
-              <p className="text-sm font-bold text-gray-900 dark:text-gray-100">Amazon Admin</p>
-              <p className="text-[10px] font-medium uppercase tracking-wider text-[#0F766E]">
-                {isSuperAdmin ? "Super Admin" : "Admin"}
+          {!collapsed && (
+            <div className="min-w-0 leading-tight">
+              <p className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">Amazon Admin</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-[#0F766E]">
+                {isSuperAdmin ? "Super Admin" : "Admin Panel"}
               </p>
             </div>
           )}
         </Link>
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="hidden rounded-lg p-1.5 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 lg:block"
-          aria-label="Toggle sidebar"
-        >
-          {sidebarOpen ? <ChevronsLeft size={18} /> : <ChevronsRight size={18} />}
-        </button>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 lg:hidden"
+            aria-label="Close sidebar"
+          >
+            <X size={18} />
+          </button>
+        )}
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
-        {filteredSidebarSections.map((section) =>
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
+        {filteredSections.map((section) =>
           section.items.length > 0 ? (
             <div key={section.title} className="mb-5">
-              {sidebarOpen && (
-                <h3 className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+              {!collapsed && (
+                <h3 className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
                   {section.title}
                 </h3>
               )}
               <div className="space-y-0.5">
                 {section.items.map((item) => {
                   const Icon = item.icon;
-                  const isActive = pathname === item.href || pathname?.startsWith(item.href + "/");
+                  const isActive =
+                    pathname === item.href || pathname?.startsWith(item.href + "/");
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${
+                      title={collapsed ? item.label : undefined}
+                      className={`group relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-150 ${
                         isActive
-                          ? "bg-[#0F766E]/10 text-[#0F766E]"
-                          : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
-                      } ${!sidebarOpen && "justify-center"}`}
-                      title={!sidebarOpen ? item.label : undefined}
+                          ? "bg-[#0F766E]/10 text-[#0F766E] dark:bg-[#0F766E]/20"
+                          : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+                      } ${collapsed ? "justify-center" : ""}`}
                     >
                       {isActive && (
-                        <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-[#0F766E]" />
+                        <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-[#0F766E]" />
                       )}
-                      <Icon size={18} className="shrink-0" />
-                      {sidebarOpen && <span className="truncate">{item.label}</span>}
+                      <Icon
+                        size={17}
+                        className={`shrink-0 ${isActive ? "text-[#0F766E]" : ""}`}
+                      />
+                      {!collapsed && <span className="truncate">{item.label}</span>}
                     </Link>
                   );
                 })}
@@ -314,302 +265,527 @@ export default function AdminLayout({ children }) {
           ) : null
         )}
 
+        {/* Super-admin section */}
         {isSuperAdmin && (
           <div className="mb-5">
-            {sidebarOpen && (
-              <h3 className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-rose-500">
+            {!collapsed && (
+              <h3 className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-widest text-rose-400">
                 Super Admin
               </h3>
             )}
             <div className="space-y-0.5">
-              <Link
-                href="/admin/superadmin"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                  pathname?.startsWith("/admin/superadmin")
-                    ? "bg-rose-50 text-rose-700 dark:bg-rose-900/20"
-                    : "text-gray-600 hover:bg-rose-50 hover:text-rose-700 dark:text-gray-300"
-                } ${!sidebarOpen && "justify-center"}`}
-              >
-                <ShieldAlert size={18} className="shrink-0" />
-                {sidebarOpen && <span>Super Panel</span>}
-              </Link>
-              <Link
-                href="/admin/admins"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                  pathname === "/admin/admins"
-                    ? "bg-rose-50 text-rose-700 dark:bg-rose-900/20"
-                    : "text-gray-600 hover:bg-rose-50 hover:text-rose-700 dark:text-gray-300"
-                } ${!sidebarOpen && "justify-center"}`}
-              >
-                <UserPlus size={18} className="shrink-0" />
-                {sidebarOpen && <span>Manage Admins</span>}
-              </Link>
+              {[
+                { href: "/admin/superadmin", label: "Super Panel", Icon: ShieldAlert },
+                { href: "/admin/admins", label: "Manage Admins", Icon: UserPlus },
+              ].map(({ href, label, Icon }) => {
+                const isActive = pathname === href || pathname?.startsWith(href + "/");
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    title={collapsed ? label : undefined}
+                    className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all ${
+                      isActive
+                        ? "bg-rose-50 text-rose-700 dark:bg-rose-900/20"
+                        : "text-gray-600 hover:bg-rose-50 hover:text-rose-700 dark:text-gray-400 dark:hover:bg-rose-900/10 dark:hover:text-rose-400"
+                    } ${collapsed ? "justify-center" : ""}`}
+                  >
+                    <Icon size={17} className="shrink-0" />
+                    {!collapsed && <span>{label}</span>}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
       </nav>
 
-      <div className="border-t border-gray-200 p-3 dark:border-gray-800">
+      {/* User footer */}
+      <div className="shrink-0 border-t border-gray-200 dark:border-gray-800 p-3 space-y-1">
+        <Link
+          href="/admin/profile"
+          className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 ${
+            collapsed ? "justify-center" : ""
+          }`}
+          title={collapsed ? `${currentUser?.first_name} ${currentUser?.last_name}` : undefined}
+        >
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#0F766E]/20 to-[#0F766E]/40 text-[#0F766E] text-xs font-bold">
+            {getInitials(currentUser)}
+          </div>
+          {!collapsed && (
+            <div className="min-w-0">
+              <p className="truncate text-xs font-semibold text-gray-800 dark:text-gray-200">
+                {currentUser?.first_name || "Admin"}
+              </p>
+              <p className="truncate text-[10px] text-gray-500">{currentUser?.email}</p>
+            </div>
+          )}
+        </Link>
         <button
           onClick={logout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50 dark:hover:bg-rose-900/20"
-        >
-          <LogOut size={18} className="shrink-0" />
-          {sidebarOpen && <span>Logout</span>}
-        </button>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      {/* Mobile sidebar overlay */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
-          <aside className="relative h-full w-72 bg-white shadow-xl dark:bg-gray-900">
-            <button
-              onClick={() => setMobileOpen(false)}
-              className="absolute right-3 top-3 rounded-md p-1.5 text-gray-500 hover:bg-gray-100"
-              aria-label="Close sidebar"
-            >
-              <X size={18} />
-            </button>
-            <SidebarContent />
-          </aside>
-        </div>
-      )}
-
-      <div className="flex">
-        {/* Desktop sidebar */}
-        <aside
-          className={`fixed left-0 top-0 z-30 hidden h-screen border-r border-gray-200 bg-white transition-all duration-300 dark:border-gray-800 dark:bg-gray-900 lg:block ${
-            sidebarOpen ? "w-64" : "w-[72px]"
+          title={collapsed ? "Logout" : undefined}
+          className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50 dark:hover:bg-rose-900/20 ${
+            collapsed ? "justify-center" : ""
           }`}
         >
-          <SidebarContent />
-        </aside>
-
-        <div className={`flex min-h-screen w-full flex-1 flex-col transition-all duration-300 ${sidebarOpen ? "lg:pl-64" : "lg:pl-[72px]"}`}>
-          <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-gray-200 bg-white/90 px-4 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90 sm:px-6"
-                  style={{ marginLeft: 0 }}>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setMobileOpen(true)}
-                className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 lg:hidden"
-                aria-label="Open menu"
-              >
-                <Menu size={20} />
-              </button>
-              <div>
-                <nav className="flex items-center gap-1.5 text-xs text-gray-500">
-                  {breadcrumbs.map((crumb, index) => (
-                    <span key={crumb.href} className="flex items-center gap-1.5">
-                      {index > 0 && <ChevronRight size={12} className="text-gray-400" />}
-                      {index === breadcrumbs.length - 1 ? (
-                        <span className="font-semibold text-gray-800 dark:text-gray-100">{crumb.label}</span>
-                      ) : (
-                        <Link href={crumb.href} className="hover:text-[#0F766E]">
-                          {crumb.label}
-                        </Link>
-                      )}
-                    </span>
-                  ))}
-                </nav>
-                <h1 className="mt-0.5 text-lg font-bold text-gray-900 dark:text-gray-100">{currentPageTitle}</h1>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1 sm:gap-2">
-              <div ref={searchRef} className="relative">
-                <button
-                  onClick={() => setSearchOpen(!searchOpen)}
-                  className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-                  aria-label="Search"
-                >
-                  <Search size={18} />
-                </button>
-                {searchOpen && (
-                  <div className="absolute right-0 mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800">
-                    <div className="border-b border-gray-200 p-3 dark:border-gray-700">
-                      <input
-                        type="text"
-                        placeholder="Search admin pages…"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#0F766E] dark:border-gray-600 dark:bg-gray-700"
-                        autoFocus
-                      />
-                    </div>
-                    <ul className="max-h-64 overflow-y-auto p-1">
-                      {searchResults.length === 0 ? (
-                        <li className="px-3 py-6 text-center text-sm text-gray-500">Type to search pages</li>
-                      ) : (
-                        searchResults.map((item) => {
-                          const Icon = item.icon;
-                          return (
-                            <li key={item.href}>
-                              <Link
-                                href={item.href}
-                                onClick={() => {
-                                  setSearchOpen(false);
-                                  setSearchQuery("");
-                                }}
-                                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
-                              >
-                                <Icon size={15} className="text-[#0F766E]" />
-                                {item.label}
-                              </Link>
-                            </li>
-                          );
-                        })
-                      )}
-                    </ul>
-                  </div>
-                )}
-              </div>
-
-              <button
-                onClick={toggleTheme}
-                className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-                aria-label="Toggle theme"
-              >
-                {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-              </button>
-
-              <div ref={notifRef} className="relative">
-                <button
-                  onClick={() => setShowNotifications(!showNotifications)}
-                  className="relative rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-                  aria-label="Notifications"
-                >
-                  <Bell size={18} />
-                  <span className="absolute right-1.5 top-1.5 flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
-                  </span>
-                </button>
-                {showNotifications && (
-                  <div className="absolute right-0 mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800">
-                    <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-700">
-                      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Notifications</h3>
-                      <span className="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-medium text-rose-700">
-                        {notifications.length} new
-                      </span>
-                    </div>
-                    <ul className="max-h-72 divide-y divide-gray-100 overflow-y-auto dark:divide-gray-700">
-                      {notifications.map((n) => {
-                        const Icon = n.icon;
-                        return (
-                          <li
-                            key={n.id}
-                            className="flex cursor-pointer items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                          >
-                            <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${n.tone}`}>
-                              <Icon size={16} />
-                            </span>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm text-gray-800 dark:text-gray-200">{n.text}</p>
-                              <p className="mt-0.5 text-xs text-gray-500">{n.time}</p>
-                            </div>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                    <div className="border-t border-gray-200 px-4 py-2 text-center dark:border-gray-700">
-                      <Link
-                        href="/admin/notifications"
-                        onClick={() => setShowNotifications(false)}
-                        className="text-xs font-medium text-[#0F766E] hover:underline"
-                      >
-                        View all notifications
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div ref={userMenuRef} className="relative">
-                <button
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 rounded-lg p-1.5 transition hover:bg-gray-100 dark:hover:bg-gray-800"
-                >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#0F766E] to-[#0d5e58] text-sm font-semibold text-white">
-                    {currentUser?.first_name?.charAt(0)?.toUpperCase() || "A"}
-                  </div>
-                  <div className="hidden text-left sm:block">
-                    <p className="text-sm font-semibold leading-tight text-gray-900 dark:text-gray-100">
-                      {currentUser?.first_name} {currentUser?.last_name}
-                    </p>
-                    <span
-                      className={`mt-0.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${getRoleBadgeColor(
-                        currentUser?.role
-                      )}`}
-                    >
-                      {getRoleDisplayName(currentUser?.role)}
-                    </span>
-                  </div>
-                </button>
-                {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-gray-200 bg-white py-2 shadow-xl dark:border-gray-700 dark:bg-gray-800">
-                    <div className="border-b border-gray-100 px-4 py-3 dark:border-gray-700">
-                      <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
-                        {currentUser?.first_name} {currentUser?.last_name}
-                      </p>
-                      <p className="truncate text-xs text-gray-500">{currentUser?.email}</p>
-                    </div>
-                    <Link
-                      href="/admin/profile"
-                      className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
-                    >
-                      <UserPlus size={14} /> Profile
-                    </Link>
-                    <Link
-                      href="/admin/settings"
-                      className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
-                    >
-                      <Settings size={14} /> Settings
-                    </Link>
-                    <Link
-                      href="/admin/security"
-                      className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
-                    >
-                      <ShieldCheck size={14} /> Security
-                    </Link>
-                    <div className="my-1 border-t border-gray-100 dark:border-gray-700" />
-                    <button
-                      onClick={logout}
-                      className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20"
-                    >
-                      <LogOut size={14} /> Logout
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </header>
-
-          <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
-
-          <footer className="border-t border-gray-200 bg-white px-6 py-4 text-xs text-gray-500 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
-              <p>© {new Date().getFullYear()} Amazon Admin · Built for production</p>
-              <div className="flex items-center gap-4">
-                <span className="flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-                  All systems operational
-                </span>
-                <span>v1.0.0</span>
-              </div>
-            </div>
-          </footer>
-        </div>
+          <LogOut size={17} className="shrink-0" />
+          {!collapsed && <span>Logout</span>}
+        </button>
       </div>
     </div>
   );
 }
 
-function getToken() {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("authToken");
+// ─── Main AdminLayout ──────────────────────────────────────────────────────
+export default function AdminLayout({ children }) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [darkMode, setDarkMode] = useState(false);
+
+  // Search
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchRef = useRef(null);
+
+  // Notifications
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const notifRef = useRef(null);
+
+  // User menu
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
+
+  // ── Bootstrap ──
+  useEffect(() => {
+    const user = getUser();
+    setCurrentUser(user);
+
+    const savedTheme = localStorage.getItem("admin_theme");
+    if (savedTheme === "dark") {
+      setDarkMode(true);
+      document.documentElement.classList.add("dark");
+    }
+
+    const savedCollapsed = localStorage.getItem("admin_sidebar_collapsed");
+    if (savedCollapsed === "true") setCollapsed(true);
+  }, []);
+
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  // Click-outside handler
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setUserMenuOpen(false);
+      if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setSearchOpen(false);
+        setSearchQuery("");
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  // Load live notifications from /admin/notifications
+  const loadNotifications = useCallback(async () => {
+    setNotifLoading(true);
+    try {
+      const { data } = await api.get("/admin/notifications");
+      const rows = (data?.data || []).slice(0, 8).map((n) => ({
+        id: n._id,
+        title: n.title,
+        message: n.message,
+        type: n.type || "info",
+        time: n.created_at
+          ? new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(
+              Math.round((new Date(n.created_at) - Date.now()) / 60000),
+              "minute"
+            )
+          : "",
+      }));
+      setNotifications(rows);
+    } catch {
+      // fall back to empty
+    } finally {
+      setNotifLoading(false);
+    }
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setDarkMode((prev) => {
+      const next = !prev;
+      if (next) {
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("admin_theme", "dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("admin_theme", "light");
+      }
+      return next;
+    });
+  }, []);
+
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem("admin_sidebar_collapsed", String(next));
+      return next;
+    });
+  }, []);
+
+  const isSuperAdmin = currentUser?.role === ROLES.SUPERADMIN;
+
+  // Filter sidebar by permissions
+  const filteredSections = SIDEBAR_SECTIONS.map((section) => ({
+    ...section,
+    items: section.items.filter((item) => {
+      if (isSuperAdmin) return true;
+      return item.permission && currentUser?.permissions?.includes(item.permission);
+    }),
+  }));
+
+  // Search results
+  const searchResults = searchQuery.trim()
+    ? ALL_NAV_ITEMS.filter((i) =>
+        i.label.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 8)
+    : [];
+
+  // Breadcrumbs
+  const breadcrumbs = (() => {
+    const parts = pathname.split("/").filter(Boolean);
+    const crumbs = [{ label: "Home", href: "/admin/dashboard" }];
+    let path = "";
+    parts.forEach((part) => {
+      if (part !== "admin") {
+        path += "/" + part;
+        crumbs.push({
+          label: part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, " "),
+          href: path,
+        });
+      }
+    });
+    return crumbs;
+  })();
+
+  const pageTitle =
+    ALL_NAV_ITEMS.find(
+      (item) => pathname === item.href || pathname?.startsWith(item.href + "/")
+    )?.label || "Admin";
+
+  const logout = () => {
+    removeToken();
+    router.push("/auth/login");
+  };
+
+  const unreadCount = notifications.length;
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      {/* ── Mobile Overlay ── */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+          />
+          <aside className="relative h-full w-72 shadow-2xl">
+            <SidebarContent
+              collapsed={false}
+              pathname={pathname}
+              isSuperAdmin={isSuperAdmin}
+              currentUser={currentUser}
+              filteredSections={filteredSections}
+              onClose={() => setMobileOpen(false)}
+            />
+          </aside>
+        </div>
+      )}
+
+      {/* ── Desktop Sidebar ── */}
+      <aside
+        className={`fixed left-0 top-0 z-30 hidden h-screen border-r border-gray-200 bg-white transition-all duration-300 ease-in-out dark:border-gray-800 dark:bg-gray-900 lg:block ${
+          collapsed ? "w-[70px]" : "w-64"
+        }`}
+      >
+        {/* Collapse toggle */}
+        <button
+          onClick={toggleCollapsed}
+          className="absolute -right-3 top-20 z-10 hidden h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm transition hover:border-[#0F766E] hover:text-[#0F766E] dark:border-gray-700 dark:bg-gray-900 lg:flex"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? <ChevronsRight size={13} /> : <ChevronsLeft size={13} />}
+        </button>
+
+        <SidebarContent
+          collapsed={collapsed}
+          pathname={pathname}
+          isSuperAdmin={isSuperAdmin}
+          currentUser={currentUser}
+          filteredSections={filteredSections}
+          onClose={null}
+        />
+      </aside>
+
+      {/* ── Main content area ── */}
+      <div
+        className={`flex min-h-screen flex-col transition-all duration-300 ease-in-out ${
+          collapsed ? "lg:pl-[70px]" : "lg:pl-64"
+        }`}
+      >
+        {/* ── Topbar ── */}
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-gray-200 bg-white/90 px-4 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/90 sm:px-6">
+          {/* Left */}
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="rounded-xl p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
+              aria-label="Open menu"
+            >
+              <Menu size={20} />
+            </button>
+            <div className="min-w-0">
+              <nav className="hidden items-center gap-1 text-xs text-gray-400 sm:flex">
+                {breadcrumbs.map((crumb, i) => (
+                  <span key={crumb.href} className="flex items-center gap-1">
+                    {i > 0 && <ChevronRight size={11} className="text-gray-300" />}
+                    {i === breadcrumbs.length - 1 ? (
+                      <span className="font-medium text-gray-700 dark:text-gray-200">{crumb.label}</span>
+                    ) : (
+                      <Link href={crumb.href} className="hover:text-[#0F766E] transition-colors">
+                        {crumb.label}
+                      </Link>
+                    )}
+                  </span>
+                ))}
+              </nav>
+              <h1 className="text-base font-bold text-gray-900 dark:text-gray-100 sm:text-lg leading-tight">
+                {pageTitle}
+              </h1>
+            </div>
+          </div>
+
+          {/* Right */}
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+            {/* Search */}
+            <div ref={searchRef} className="relative">
+              <button
+                onClick={() => { setSearchOpen((p) => !p); setSearchQuery(""); }}
+                className="rounded-xl p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition"
+                aria-label="Search pages"
+              >
+                <Search size={18} />
+              </button>
+              {searchOpen && (
+                <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
+                  <div className="border-b border-gray-100 p-3 dark:border-gray-700">
+                    <div className="relative">
+                      <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder="Search admin pages…"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2 text-sm outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+                  <ul className="max-h-64 overflow-y-auto p-1.5">
+                    {searchQuery.trim() === "" ? (
+                      <li className="px-3 py-8 text-center text-sm text-gray-400">
+                        Start typing to search pages
+                      </li>
+                    ) : searchResults.length === 0 ? (
+                      <li className="px-3 py-8 text-center text-sm text-gray-400">No pages found</li>
+                    ) : (
+                      searchResults.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <li key={item.href}>
+                            <Link
+                              href={item.href}
+                              onClick={() => { setSearchOpen(false); setSearchQuery(""); }}
+                              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                            >
+                              <Icon size={16} className="shrink-0 text-[#0F766E]" />
+                              {item.label}
+                              <ExternalLink size={12} className="ml-auto text-gray-300" />
+                            </Link>
+                          </li>
+                        );
+                      })
+                    )}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            {/* Dark mode toggle */}
+            <button
+              onClick={toggleTheme}
+              className="rounded-xl p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition"
+              aria-label="Toggle theme"
+            >
+              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+
+            {/* Notifications */}
+            <div ref={notifRef} className="relative">
+              <button
+                onClick={() => {
+                  setNotifOpen((p) => !p);
+                  if (!notifOpen) loadNotifications();
+                }}
+                className="relative rounded-xl p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition"
+                aria-label="Notifications"
+              >
+                <Bell size={18} />
+                {unreadCount > 0 && (
+                  <span className="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </button>
+              {notifOpen && (
+                <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
+                  <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Notifications</p>
+                    <Link
+                      href="/admin/notifications"
+                      onClick={() => setNotifOpen(false)}
+                      className="text-xs text-[#0F766E] hover:underline"
+                    >
+                      View all
+                    </Link>
+                  </div>
+                  <ul className="max-h-80 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-700">
+                    {notifLoading ? (
+                      <li className="flex items-center justify-center py-10">
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#0F766E] border-t-transparent" />
+                      </li>
+                    ) : notifications.length === 0 ? (
+                      <li className="py-10 text-center text-sm text-gray-400">No notifications</li>
+                    ) : (
+                      notifications.map((n) => (
+                        <li key={n.id}>
+                          <div className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                            <span
+                              className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${NotificationTone(n.type)}`}
+                            >
+                              <NotificationIcon type={n.type} />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate">
+                                {n.title}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{n.message}</p>
+                            </div>
+                          </div>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            {/* User menu */}
+            <div ref={userMenuRef} className="relative">
+              <button
+                onClick={() => setUserMenuOpen((p) => !p)}
+                className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#0F766E]/20 to-[#0F766E]/40 text-[#0F766E] text-xs font-bold shrink-0">
+                  {getInitials(currentUser)}
+                </div>
+                <div className="hidden text-left sm:block">
+                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200 leading-none">
+                    {currentUser?.first_name || "Admin"}
+                  </p>
+                  <span
+                    className={`inline-block rounded-full px-1.5 py-0.5 text-[9px] font-semibold ${getRoleBadgeStyle(currentUser?.role)}`}
+                  >
+                    {getRoleDisplayName(currentUser?.role)}
+                  </span>
+                </div>
+                <ChevronDown size={14} className="hidden text-gray-400 sm:block" />
+              </button>
+
+              {userMenuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
+                  <div className="border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+                    <p className="text-xs font-bold text-gray-900 dark:text-gray-100">
+                      {currentUser?.first_name} {currentUser?.last_name}
+                    </p>
+                    <p className="truncate text-xs text-gray-500">{currentUser?.email}</p>
+                  </div>
+                  <ul className="p-1">
+                    {[
+                      { href: "/admin/profile", label: "My Profile", Icon: User },
+                      { href: "/admin/settings", label: "Settings", Icon: Settings },
+                      { href: "/admin/security", label: "Security", Icon: ShieldAlert },
+                    ].map(({ href, label, Icon }) => (
+                      <li key={href}>
+                        <Link
+                          href={href}
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                        >
+                          <Icon size={15} className="shrink-0 text-gray-400" />
+                          {label}
+                        </Link>
+                      </li>
+                    ))}
+                    <li>
+                      <hr className="my-1 border-gray-100 dark:border-gray-700" />
+                    </li>
+                    <li>
+                      <button
+                        onClick={logout}
+                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-rose-600 transition hover:bg-rose-50 dark:hover:bg-rose-900/20"
+                      >
+                        <LogOut size={15} className="shrink-0" />
+                        Sign out
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* ── Page content ── */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          {children}
+        </main>
+
+        {/* ── Footer ── */}
+        <footer className="border-t border-gray-200 bg-white px-6 py-3 dark:border-gray-800 dark:bg-gray-900">
+          <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
+            <p className="text-xs text-gray-400">
+              © {new Date().getFullYear()} Amazon Admin. All rights reserved.
+            </p>
+            <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
+              All systems operational
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+  );
 }

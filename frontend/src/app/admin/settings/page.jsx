@@ -1,9 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import AdminLayout from "@/components/admin/AdminLayout";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import api from "@/lib/api";
 import { ROLES } from "@/lib/rbac";
 import {
@@ -83,9 +80,7 @@ export default function AdminSettingsPage() {
   const currentSettings = settings[activeTab];
 
   return (
-    <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.SUPERADMIN]} requiredPermissions={["settings:view"]}>
-      <AdminLayout>
-        <div className="max-w-5xl space-y-6">
+    <div className="max-w-5xl space-y-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Settings</h1>
@@ -311,7 +306,5 @@ export default function AdminSettingsPage() {
             </form>
           </div>
         </div>
-      </AdminLayout>
-    </ProtectedRoute>
   );
 }

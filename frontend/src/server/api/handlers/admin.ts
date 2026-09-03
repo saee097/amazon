@@ -41,6 +41,32 @@ export async function handleAdmin(
     return jsonOk((data || []).map(mapCategory));
   }
 
+  // POST /admin/categories
+  if (method === "POST" && resource === "categories") {
+    const body = await request.json();
+    const { data, error } = await supabase.from("categories").insert(body).select().single();
+    if (error) return jsonError(error.message, 400);
+    await logAudit(admin!._id, "create_category", "categories", data.id, body, request.headers.get("x-forwarded-for"));
+    return jsonOk(mapCategory(data), 201);
+  }
+
+  // PUT /admin/categories/:id
+  if (method === "PUT" && resource === "categories" && id) {
+    const body = await request.json();
+    const { data, error } = await supabase.from("categories").update(body).eq("id", id).select().single();
+    if (error) return jsonError(error.message, 400);
+    await logAudit(admin!._id, "update_category", "categories", id, body, request.headers.get("x-forwarded-for"));
+    return jsonOk(mapCategory(data));
+  }
+
+  // DELETE /admin/categories/:id
+  if (method === "DELETE" && resource === "categories" && id) {
+    const { error } = await supabase.from("categories").delete().eq("id", id);
+    if (error) return jsonError(error.message, 400);
+    await logAudit(admin!._id, "delete_category", "categories", id, {}, request.headers.get("x-forwarded-for"));
+    return jsonOk({ message: "Category deleted" });
+  }
+
   // GET /admin/orders
   if (method === "GET" && resource === "orders" && !id) {
     const { data: orders } = await supabase.from("orders").select("*").order("created_at", { ascending: false });

@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { getUser, removeToken } from "@/lib/auth";
+import { getUser, getToken, removeToken } from "@/lib/auth";
 import { ROLES } from "@/lib/rbac";
 
 export default function AdminLayoutWrapper({ children }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [currentUser, setCurrentUser] = useState(null);
+  const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,25 +22,22 @@ export default function AdminLayoutWrapper({ children }) {
       return;
     }
 
-    setCurrentUser(user);
+    setAuthorized(true);
     setLoading(false);
   }, [router, pathname]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin" />
+          <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">Loading workspace…</p>
         </div>
       </div>
     );
   }
 
-  return <AdminLayout>{children}</AdminLayout>;
-}
+  if (!authorized) return null;
 
-function getToken() {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("authToken");
+  return <AdminLayout>{children}</AdminLayout>;
 }

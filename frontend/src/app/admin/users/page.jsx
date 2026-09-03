@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import AdminLayout from "@/components/admin/AdminLayout";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import api from "@/lib/api";
 import { ROLES } from "@/lib/rbac";
 import RoleBadge from "@/components/RoleBadge";
@@ -151,9 +149,7 @@ export default function AdminUsers() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.SUPERADMIN]} requiredPermissions={["users:view"]}>
-      <AdminLayout>
-        <div className="max-w-7xl space-y-6">
+    <div className="max-w-7xl space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{isSuperAdmin ? "All Users" : "Customers"}</h1>
@@ -460,8 +456,6 @@ export default function AdminUsers() {
             </div>
           )}
         </div>
-      </AdminLayout>
-    </ProtectedRoute>
   );
 }
 

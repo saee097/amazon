@@ -1,9 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import AdminLayout from "@/components/admin/AdminLayout";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import api from "@/lib/api";
 import { ROLES } from "@/lib/rbac";
 import {
@@ -123,9 +120,7 @@ export default function AdminLogsPage() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.SUPERADMIN]} requiredPermissions={["logs:view"]}>
-      <AdminLayout>
-        <div className="max-w-7xl space-y-6">
+    <div className="max-w-7xl space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Activity Logs</h1>
@@ -341,7 +336,5 @@ export default function AdminLogsPage() {
             </div>
           )}
         </div>
-      </AdminLayout>
-    </ProtectedRoute>
   );
 }
