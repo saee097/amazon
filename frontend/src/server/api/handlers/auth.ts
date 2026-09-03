@@ -32,12 +32,9 @@ export async function handleAuth(
       const lower = error.message.toLowerCase();
       if (lower.includes("rate limit") || lower.includes("too many")) {
         return jsonError(
-          "Too many sign-in attempts. Supabase temporarily blocked this IP. Please wait a few minutes before trying again.",
+          "Too many sign-in attempts. Please wait a few minutes before trying again.",
           429
         );
-      }
-      if (lower.includes("email not confirmed")) {
-        return jsonError("Please verify your email before signing in.", 403);
       }
       if (lower.includes("invalid") || lower.includes("credentials")) {
         return jsonError("Invalid email or password", 401);
@@ -70,17 +67,29 @@ export async function handleAuth(
       return jsonError("Required fields missing", 400);
     }
 
-    const { data, error } = await supabase.auth.signUp({
+    // Use admin.createUser so email is auto-confirmed — no verification email needed
+    const { data: authData, error } = await supabase.auth.admin.createUser({
       email,
       password,
-      options: {
-        data: { first_name: firstName, last_name: lastName, username, phone },
+      email_confirm: true,       // ← skip email verification
+      user_metadata: {
+        first_name: firstName,
+        last_name: lastName,
+        username: username || email.split("@")[0],
+        phone: phone || "",
       },
     });
 
-    if (error) return jsonError(error.message, 400);
+    if (error) {
+      // If user already exists surface a friendly message
+      if (error.message?.toLowerCase().includes("already")) {
+        return jsonError("An account with this email already exists.", 409);
+      }
+      return jsonError(error.message, 400);
+    }
 
-    if (data.user) {
+    // Update profile with role and all fields (trigger may have already created it)
+    if (authData.user) {
       await supabase
         .from("profiles")
         .update({
@@ -89,11 +98,12 @@ export async function handleAuth(
           username: username || email.split("@")[0],
           phone: phone || null,
           role: "customer",
+          email_verified: true,
         })
-        .eq("id", data.user.id);
+        .eq("id", authData.user.id);
     }
 
-    return jsonOk({ message: "Registration successful. Please verify your email." }, 201);
+    return jsonOk({ message: "Registration successful. You can now sign in." }, 201);
   }
 
   // POST /auth/refresh
