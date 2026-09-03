@@ -32,9 +32,12 @@ export async function handleAuth(
       const lower = error.message.toLowerCase();
       if (lower.includes("rate limit") || lower.includes("too many")) {
         return jsonError(
-          "Too many sign-in attempts. Please wait a few minutes before trying again.",
+          "Too many sign-in attempts. Supabase temporarily blocked this IP. Please wait a few minutes before trying again.",
           429
         );
+      }
+      if (lower.includes("email not confirmed")) {
+        return jsonError("Please verify your email before signing in.", 403);
       }
       if (lower.includes("invalid") || lower.includes("credentials")) {
         return jsonError("Invalid email or password", 401);
