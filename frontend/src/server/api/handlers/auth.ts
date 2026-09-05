@@ -64,11 +64,38 @@ export async function handleAuth(
   // POST /auth/register
   if (method === "POST" && action === "register") {
     const body = await request.json();
-    const { email, password, firstName, lastName, username, phone } = body;
+    const { email, password, firstName, lastName, username, phone, role, inviteCode } = body;
 
     if (!email || !password || !firstName || !lastName) {
       return jsonError("Required fields missing", 400);
     }
+
+    // Role gating: customer is open, admin/superadmin require invite codes
+    const ADMIN_INVITE = process.env.ADMIN_INVITE_CODE || "ADMIN-2025";
+    const SUPER_INVITE = process.env.SUPERADMIN_INVITE_CODE || "SUPER-2025";
+    const requestedRole = (role || "customer").toString().toLowerCase();
+    let assignedRole: "customer" | "admin" | "superadmin" = "customer";
+    if (requestedRole === "superadmin") {
+      if (!inviteCode || inviteCode !== SUPER_INVITE) {
+        return jsonError("Invalid super-admin invite code", 403);
+      }
+      assignedRole = "superadmin";
+    } else if (requestedRole === "admin") {
+      if (!inviteCode || inviteCode !== ADMIN_INVITE) {
+        return jsonError("Invalid admin invite code", 403);
+      }
+      assignedRole = "admin";
+    } else if (requestedRole && requestedRole !== "customer") {
+      return jsonError("Invalid role", 400);
+    }
+
+    // Uniqueness check
+    const { data: existing } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("email", email.toLowerCase())
+      .maybeSingle();
+    if (existing) return jsonError("An account with this email already exists.", 409);
 
     // Use admin.createUser so email is auto-confirmed — no verification email needed
     const { data: authData, error } = await supabase.auth.admin.createUser({
@@ -80,18 +107,18 @@ export async function handleAuth(
         last_name: lastName,
         username: username || email.split("@")[0],
         phone: phone || "",
+        role: assignedRole,
       },
     });
 
     if (error) {
-      // If user already exists surface a friendly message
       if (error.message?.toLowerCase().includes("already")) {
         return jsonError("An account with this email already exists.", 409);
       }
       return jsonError(error.message, 400);
     }
 
-    // Update profile with role and all fields (trigger may have already created it)
+    // Upsert profile with the assigned role (trigger creates the row first)
     if (authData.user) {
       await supabase
         .from("profiles")
@@ -100,13 +127,26 @@ export async function handleAuth(
           last_name: lastName,
           username: username || email.split("@")[0],
           phone: phone || null,
-          role: "customer",
+          role: assignedRole,
           email_verified: true,
         })
         .eq("id", authData.user.id);
     }
 
-    return jsonOk({ message: "Registration successful. You can now sign in." }, 201);
+    return jsonOk(
+      {
+        message: "Registration successful. You can now sign in.",
+        user: {
+          id: authData?.user?.id,
+          email,
+          firstName,
+          lastName,
+          username: username || email.split("@")[0],
+          role: assignedRole,
+        },
+      },
+      201
+    );
   }
 
   // POST /auth/refresh

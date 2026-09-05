@@ -2,13 +2,20 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { Check, Eye, EyeOff, Loader2, Shield, ShieldCheck, User as UserIcon } from "lucide-react";
 import api from "@/lib/api";
-import { isLoggedIn, getUserRole } from "@/lib/auth";
+import { isLoggedIn, getUserRole, saveToken, saveRefreshToken, saveUser } from "@/lib/auth";
 import { getRedirectPath } from "@/lib/rbac";
 
 const GOOGLE_ENABLED = process.env.NEXT_PUBLIC_GOOGLE_ENABLED === "true";
 
 const validateEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+
+const ROLE_OPTIONS = [
+  { value: "customer", label: "Customer", description: "Shop, checkout and track orders", icon: UserIcon, requiresInvite: false },
+  { value: "admin", label: "Admin", description: "Manage products, orders and customers", icon: Shield, requiresInvite: true },
+  { value: "superadmin", label: "Super Admin", description: "Full system access including user roles", icon: ShieldCheck, requiresInvite: true },
+];
 
 function passwordStrength(pw) {
   if (!pw) return { score: 0, label: "", color: "" };
@@ -41,12 +48,17 @@ export default function RegisterPage() {
     phone: "",
     password: "",
     confirmPassword: "",
+    role: "customer",
+    inviteCode: "",
     termsAccepted: false,
   });
   const [showPw, setShowPw]   = useState(false);
   const [showCpw, setShowCpw] = useState(false);
+  const [showInvite, setShowInvite] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors]   = useState({});
+
+  const selectedRole = ROLE_OPTIONS.find((r) => r.value === form.role) || ROLE_OPTIONS[0];
 
   useEffect(() => {
     if (isLoggedIn() && !redirectedRef.current) {
@@ -74,24 +86,37 @@ export default function RegisterPage() {
     else if (form.password.length < 8) errs.password = "Minimum 8 characters";
     if (form.password !== form.confirmPassword) errs.confirmPassword = "Passwords do not match";
     if (!form.termsAccepted)    errs.termsAccepted = "You must accept the terms";
+    if (selectedRole.requiresInvite && !form.inviteCode.trim()) {
+      errs.inviteCode = `An invite code is required to register as ${selectedRole.label}`;
+    }
 
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
     setLoading(true);
     try {
-      await api.post("/auth/register", {
+      const { data } = await api.post("/auth/register", {
         firstName: form.firstName.trim(),
         lastName:  form.lastName.trim(),
         username:  form.username.trim(),
         email:     form.email,
         phone:     form.phone,
         password:  form.password,
+        role:      form.role,
+        inviteCode: form.inviteCode.trim() || undefined,
       });
 
-      // Redirect to login with success flag
-      router.push(`/auth/login?registered=true&email=${encodeURIComponent(form.email)}`);
+      if (data?.session?.access_token) {
+        saveToken(data.session.access_token);
+        if (data.session.refresh_token) saveRefreshToken(data.session.refresh_token);
+        if (data.user) saveUser({ ...data.user, role: data.user.role || form.role });
+        router.replace(getRedirectPath(data.user?.role || form.role));
+        return;
+      }
+
+      router.replace(`/auth/login?registered=true&email=${encodeURIComponent(form.email)}`);
     } catch (err) {
-      setErrors({ submit: err?.response?.data?.message || "Registration failed. Please try again." });
+      const message = err?.response?.data?.message || "Registration failed. Please try again.";
+      setErrors({ submit: message });
     } finally {
       setLoading(false);
     }
@@ -101,13 +126,13 @@ export default function RegisterPage() {
   const isValid  =
     form.firstName && form.lastName && form.username &&
     validateEmail(form.email) && form.password.length >= 8 &&
-    form.password === form.confirmPassword && form.termsAccepted;
+    form.password === form.confirmPassword && form.termsAccepted &&
+    (!selectedRole.requiresInvite || form.inviteCode.trim());
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-emerald-50/30 flex flex-col items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
 
-        {/* Brand */}
         <div className="text-center mb-8">
           <div className="mx-auto mb-4 flex items-center justify-center rounded-2xl bg-gradient-to-br from-[#0F766E] to-[#0d5e58] text-white shadow-lg" style={{height:52,width:52}}>
             <svg className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
@@ -121,9 +146,7 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* Card */}
         <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-
           {errors.submit && (
             <div className="mb-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
               {errors.submit}
@@ -131,8 +154,33 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">I am registering as</label>
+              <div className="grid grid-cols-3 gap-2">
+                {ROLE_OPTIONS.map((opt) => {
+                  const Icon = opt.icon;
+                  const active = form.role === opt.value;
+                  return (
+                    <button
+                      type="button"
+                      key={opt.value}
+                      onClick={() => {
+                        setForm((f) => ({ ...f, role: opt.value, inviteCode: "" }));
+                        setErrors((p) => ({ ...p, inviteCode: "" }));
+                      }}
+                      className={`flex flex-col items-center gap-1 rounded-xl border-2 px-2 py-2.5 text-center transition ${
+                        active ? "border-[#0F766E] bg-[#0F766E]/5" : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <Icon size={16} className={active ? "text-[#0F766E]" : "text-gray-500"} />
+                      <span className="text-[11px] font-semibold text-gray-800">{opt.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-1.5 text-[11px] text-gray-500">{selectedRole.description}</p>
+            </div>
 
-            {/* Name row */}
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700">
@@ -166,7 +214,6 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Username */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 Username <span className="text-rose-500">*</span>
@@ -183,7 +230,6 @@ export default function RegisterPage() {
               {errors.username && <p className="mt-1 text-xs text-rose-600">{errors.username}</p>}
             </div>
 
-            {/* Email */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 Email address <span className="text-rose-500">*</span>
@@ -202,7 +248,6 @@ export default function RegisterPage() {
               {errors.email && <p className="mt-1 text-xs text-rose-600">{errors.email}</p>}
             </div>
 
-            {/* Phone (optional) */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 Phone <span className="text-gray-400 text-xs font-normal">(optional)</span>
@@ -217,7 +262,6 @@ export default function RegisterPage() {
               />
             </div>
 
-            {/* Password */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 Password <span className="text-rose-500">*</span>
@@ -236,10 +280,7 @@ export default function RegisterPage() {
                 />
                 <button type="button" onClick={() => setShowPw((p) => !p)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                  {showPw
-                    ? <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9-7 1.732-4.057 6.522-7 9-7M6.375 6.375l11.25 11.25"/></svg>
-                    : <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9 7-1.274 4.057-5.064 7-9 7-4.477 0-8.268-2.943-9-7z"/></svg>
-                  }
+                  {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
               {form.password && (
@@ -254,7 +295,6 @@ export default function RegisterPage() {
               {errors.password && <p className="mt-1 text-xs text-rose-600">{errors.password}</p>}
             </div>
 
-            {/* Confirm password */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 Confirm password <span className="text-rose-500">*</span>
@@ -273,16 +313,41 @@ export default function RegisterPage() {
                 />
                 <button type="button" onClick={() => setShowCpw((p) => !p)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                  {showCpw
-                    ? <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9-7 1.732-4.057 6.522-7 9-7M6.375 6.375l11.25 11.25"/></svg>
-                    : <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9 7-1.274 4.057-5.064 7-9 7-4.477 0-8.268-2.943-9-7z"/></svg>
-                  }
+                  {showCpw ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
               {errors.confirmPassword && <p className="mt-1 text-xs text-rose-600">{errors.confirmPassword}</p>}
             </div>
 
-            {/* Terms */}
+            {selectedRole.requiresInvite && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3">
+                <label className="mb-1.5 block text-sm font-medium text-amber-900">
+                  {selectedRole.label} invite code <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showInvite ? "text" : "password"}
+                    name="inviteCode"
+                    value={form.inviteCode}
+                    onChange={handleChange}
+                    placeholder={selectedRole.value === "superadmin" ? "SUPER-XXXX" : "ADMIN-XXXX"}
+                    className={`w-full rounded-lg border bg-white px-3 py-2 pr-10 font-mono text-sm tracking-wider outline-none transition ${
+                      errors.inviteCode ? "border-rose-300" : "border-amber-300 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15"
+                    }`}
+                  />
+                  <button type="button" onClick={() => setShowInvite((p) => !p)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-amber-700 hover:text-amber-900">
+                    {showInvite ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+                {errors.inviteCode ? (
+                  <p className="mt-1 text-xs text-rose-600">{errors.inviteCode}</p>
+                ) : (
+                  <p className="mt-1 text-[11px] text-amber-800">Contact a super-admin to obtain an invite code.</p>
+                )}
+              </div>
+            )}
+
             <div>
               <label className="flex cursor-pointer items-start gap-2.5">
                 <input type="checkbox" name="termsAccepted" checked={form.termsAccepted}
@@ -298,22 +363,15 @@ export default function RegisterPage() {
               {errors.termsAccepted && <p className="mt-1 text-xs text-rose-600">{errors.termsAccepted}</p>}
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading || !isValid}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F766E] py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0d5e58] disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2"
             >
-              {loading && (
-                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25"/>
-                  <path d="M12 2a10 10 0 0110 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-                </svg>
-              )}
-              {loading ? "Creating account…" : "Create account"}
+              {loading && <Loader2 size={16} className="animate-spin" />}
+              {loading ? "Creating account…" : `Create ${selectedRole.label.toLowerCase()} account`}
             </button>
 
-            {/* Google */}
             {GOOGLE_ENABLED && (
               <>
                 <div className="relative my-2">
