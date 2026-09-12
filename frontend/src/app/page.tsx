@@ -20,14 +20,14 @@ type Product = {
   slug: string;
   category?: { _id: string; category_name: string; slug?: string };
   brand?: { _id: string; brand_name: string };
-  variant?: {
+  variants?: {
     _id: string;
     size: string;
     color: string;
     price: number;
     compare_price?: number;
     inventory_quantity: number;
-  };
+  }[];
   image?: { image_url: string; alt_text?: string };
   created_at?: string;
 };
@@ -42,22 +42,31 @@ export default function HomePage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [banners, setBanners] = useState([]);
-  const [menuItems, setMenuItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [banners, setBanners] = useState<{ _id: string; heading?: string; subheading?: string; image?: string; link_url?: string }[]>([]);
+  const [menuItems, setMenuItems] = useState<{ _id: string; title: string; url?: string; sort_order?: number }[]>([]);
   const [redirecting, setRedirecting] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("");
 
   useEffect(() => {
-    if (isLoggedIn()) {
-      const role = getUserRole();
-      if (role === ROLES.ADMIN || role === ROLES.SUPERADMIN) {
-        router.replace(getRedirectPath(role));
-        return;
+    let cancelled = false;
+    const check = async () => {
+      if (isLoggedIn()) {
+        const role = getUserRole();
+        if (role === ROLES.ADMIN || role === ROLES.SUPERADMIN) {
+          router.replace(getRedirectPath(role));
+          return;
+        }
       }
-    }
-    setRedirecting(false);
+      if (!cancelled) {
+        setRedirecting(false);
+      }
+    };
+    check();
+    return () => {
+      cancelled = true;
+    };
   }, [router]);
 
   useEffect(() => {
@@ -73,7 +82,7 @@ export default function HomePage() {
 
         setProducts(productsRes.data.data || []);
         setCategories(categoriesRes.data.data || []);
-        setBanners(bannersRes.data.data || []);
+        setBanners((bannersRes.data.data || []).filter((b) => b.status === "active" || !b.status));
         setMenuItems((menuItemsRes.data.data || []).sort(
           (a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0)
         ));

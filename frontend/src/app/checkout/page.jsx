@@ -42,6 +42,8 @@ export default function CheckoutPage() {
     loadCheckout();
   }, [router]);
 
+  const cartItems = cart?.items || [];
+
   const placeOrder = async () => {
     if (cartItems.length === 0) {
       return;
@@ -50,10 +52,12 @@ export default function CheckoutPage() {
     setError("");
     setSubmitting(true);
     try {
+      const idempotencyKey = `checkout_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
       await api.post("/store/checkout", {
         couponCode,
         paymentMethod,
         addressId: selectedAddress,
+        idempotencyKey,
       });
       router.push("/orders");
     } catch (err) {
@@ -81,8 +85,6 @@ export default function CheckoutPage() {
       </div>
     );
   }
-
-  const cartItems = cart?.items || [];
 
   if (cartItems.length === 0) {
     return (

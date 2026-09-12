@@ -1,19 +1,23 @@
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import { createClient } from "@supabase/supabase-js";
 
-const env = Object.fromEntries(
-  readFileSync(".env.production.local", "utf-8")
-    .split("\n")
-    .filter((l) => l && !l.startsWith("#"))
-    .map((l) => {
-      const i = l.indexOf("=");
-      let val = l.slice(i + 1);
-      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
-        val = val.slice(1, -1);
-      }
-      return [l.slice(0, i), val];
-    })
-);
+function loadEnv(file) {
+  if (!existsSync(file)) return {};
+  const env = {};
+  for (const line of readFileSync(file, "utf-8").split("\n")) {
+    if (!line || line.startsWith("#")) continue;
+    const i = line.indexOf("=");
+    if (i < 0) continue;
+    let val = line.slice(i + 1);
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      val = val.slice(1, -1);
+    }
+    env[line.slice(0, i)] = val;
+  }
+  return env;
+}
+
+const env = { ...loadEnv(".env.local"), ...loadEnv(".env.production.local") };
 
 const supabase = createClient(
   env.NEXT_PUBLIC_SUPABASE_URL,

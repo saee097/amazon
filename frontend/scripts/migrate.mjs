@@ -21,7 +21,7 @@ function loadEnv(file) {
 }
 
 const env = loadEnv(".env.production.local");
-const connectionString = env.POSTGRES_URL_NON_POOLING || env.POSTGRES_URL;
+const connectionString = (env.POSTGRES_URL_NON_POOLING || env.POSTGRES_URL) + "&sslmode=require&channel_binding=disable";
 
 if (!connectionString) {
   console.error("Missing POSTGRES_URL in .env.production.local");
@@ -30,7 +30,7 @@ if (!connectionString) {
 
 const client = new pg.Client({
   connectionString,
-  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : { rejectUnauthorized: false },
+  ssl: { rejectUnauthorized: false },
 });
 
 async function runSqlFile(label, filePath) {
@@ -40,14 +40,29 @@ async function runSqlFile(label, filePath) {
   console.log(`✓ ${label} complete`);
 }
 
+async function runSqlFilesInOrder(dir, pattern) {
+  const { readdirSync, statSync } = await import("fs");
+  const entries = readdirSync(dir).filter((f) => f.endsWith(".sql")).sort();
+  for (const file of entries) {
+    const fullPath = resolve(dir, file);
+    await runSqlFile(file, fullPath);
+  }
+}
+
 await client.connect();
 
 try {
-  await runSqlFile(
-    "migration",
-    resolve(__dirname, "../../supabase/migrations/20260101000000_initial_schema.sql")
-  );
-  await runSqlFile("seed", resolve(__dirname, "../../supabase/seed.sql"));
+  const migrationsDir = resolve(__dirname, "../../supabase/migrations");
+  const { readdirSync, statSync } = await import("fs");
+  const entries = readdirSync(migrationsDir).filter((f) => f.endsWith(".sql")).sort();
+  for (const file of entries) {
+    await runSqlFile(file, resolve(migrationsDir, file));
+  }
+
+  const seedPath = resolve(__dirname, "../../supabase/seed.sql");
+  if (statSync(seedPath).isFile()) {
+    await runSqlFile("seed", seedPath);
+  }
   console.log("\n✓ Database setup complete!");
 } catch (err) {
   console.error("Migration failed:", err.message);

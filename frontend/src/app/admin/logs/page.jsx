@@ -17,7 +17,6 @@ import {
 } from "react-icons/fi";
 
 export default function AdminLogsPage() {
-  const router = useRouter();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

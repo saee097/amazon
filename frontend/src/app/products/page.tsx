@@ -42,6 +42,11 @@ function ProductsContent() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [outOfStockOnly, setOutOfStockOnly] = useState(false);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState({ min: "", max: "" });
 
   useEffect(() => {
     const loadData = async () => {
@@ -72,7 +77,34 @@ function ProductsContent() {
       p.category?.slug?.toLowerCase() === category.toLowerCase() ||
       p.category?.category_name.toLowerCase() === category.toLowerCase() ||
       p.category?.category_name.toLowerCase().includes(category.toLowerCase());
-    return matchesSearch && matchesCategory;
+
+    const hasInStock = p.variants?.some((v) => (v.inventory_quantity ?? 0) > 0) ?? false;
+    const matchesStock =
+      !(inStockOnly || outOfStockOnly) ||
+      (inStockOnly && outOfStockOnly) ||
+      (inStockOnly && hasInStock) ||
+      (outOfStockOnly && !hasInStock);
+
+    const variantSizes = new Set(p.variants?.map((v) => v.size).filter(Boolean) || []);
+    const variantColors = new Set(p.variants?.map((v) => v.color).filter(Boolean) || []);
+    const matchesSize =
+      selectedSizes.length === 0 ||
+      selectedSizes.some((s) => variantSizes.has(s));
+    const matchesColor =
+      selectedColors.length === 0 ||
+      selectedColors.some((c) => variantColors.has(c));
+
+    const allPrices = p.variants?.map((v) => v.price) || [p.price || 0];
+    const minProductPrice = Math.min(...allPrices.filter(Boolean));
+    const maxProductPrice = Math.max(...allPrices.filter(Boolean));
+    const minFilter = priceRange.min ? Number(priceRange.min) : null;
+    const maxFilter = priceRange.max ? Number(priceRange.max) : null;
+    const matchesPrice =
+      !minFilter && !maxFilter ||
+      (minFilter === null || maxProductPrice >= minFilter) &&
+      (maxFilter === null || minProductPrice <= maxFilter);
+
+    return matchesSearch && matchesCategory && matchesStock && matchesSize && matchesColor && matchesPrice;
   });
 
   const formatPrice = (price: number | undefined) => {
@@ -168,11 +200,11 @@ function ProductsContent() {
                 <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-3">Availability</h3>
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                    <input type="checkbox" className="rounded border-gray-300" defaultChecked />
+                    <input type="checkbox" className="rounded border-gray-300" checked={inStockOnly} onChange={(e) => setInStockOnly(e.target.checked)} />
                     <span>In Stock ({products.filter(p => (p.variants?.some(v => (v.inventory_quantity ?? 0) > 0) ?? false)).length})</span>
                   </label>
                   <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                    <input type="checkbox" className="rounded border-gray-300" />
+                    <input type="checkbox" className="rounded border-gray-300" checked={outOfStockOnly} onChange={(e) => setOutOfStockOnly(e.target.checked)} />
                     <span>Out of Stock ({products.filter(p => !p.variants?.some(v => (v.inventory_quantity ?? 0) > 0)).length})</span>
                   </label>
                 </div>
@@ -202,10 +234,15 @@ function ProductsContent() {
               <div className="mb-6">
                 <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-3">Size</h3>
                 <div className="flex flex-wrap gap-2">
-                  {["XS", "S", "M", "L", "XL", "XXL"].map((size) => (
+                  {Array.from(new Set(products.flatMap((p) => p.variants?.map((v) => v.size).filter(Boolean) || []))).map((size) => (
                     <button
                       key={size}
-                      className="px-3 py-1 border border-gray-300 text-xs text-gray-600 hover:border-gray-900 hover:text-gray-900 transition"
+                      onClick={() => setSelectedSizes((prev) => prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size])}
+                      className={`px-3 py-1 border text-xs transition ${
+                        selectedSizes.includes(size)
+                          ? "border-gray-900 bg-gray-900 text-white"
+                          : "border-gray-300 text-gray-600 hover:border-gray-900 hover:text-gray-900"
+                      }`}
                     >
                       {size}
                     </button>
@@ -217,9 +254,9 @@ function ProductsContent() {
               <div className="mb-6">
                 <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-3">Color Family</h3>
                 <div className="space-y-2">
-                  {["Black", "White", "Beige", "Blue", "Green", "Pink", "Red", "Maroon"].map((color) => (
+                  {Array.from(new Set(products.flatMap((p) => p.variants?.map((v) => v.color).filter(Boolean) || []))).map((color) => (
                     <label key={color} className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                      <input type="checkbox" className="rounded border-gray-300" />
+                      <input type="checkbox" className="rounded border-gray-300" checked={selectedColors.includes(color)} onChange={(e) => setSelectedColors((prev) => e.target.checked ? [...prev, color] : prev.filter((c) => c !== color))} />
                       <span>{color}</span>
                     </label>
                   ))}
@@ -230,9 +267,9 @@ function ProductsContent() {
               <div>
                 <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-3">Price</h3>
                 <div className="flex items-center gap-2">
-                  <input type="text" placeholder="Min" className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-900" />
+                  <input type="text" placeholder="Min" value={priceRange.min} onChange={(e) => setPriceRange((r) => ({ ...r, min: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-900" />
                   <span className="text-gray-400">-</span>
-                  <input type="text" placeholder="Max" className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-900" />
+                  <input type="text" placeholder="Max" value={priceRange.max} onChange={(e) => setPriceRange((r) => ({ ...r, max: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-900" />
                 </div>
               </div>
             </div>

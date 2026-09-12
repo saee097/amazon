@@ -69,11 +69,10 @@ api.interceptors.response.use(
         const newToken = data.token || data.accessToken;
         const newRefreshToken = data.refreshToken || data.refresh_token;
 
-        if (newToken) {
-          import("./auth").then(({ saveToken }) => saveToken(newToken));
-        }
-        if (newRefreshToken) {
-          import("./auth").then(({ saveRefreshToken }) => saveRefreshToken(newRefreshToken));
+        if (newToken || newRefreshToken) {
+          const auth = await import("./auth");
+          if (newToken) auth.saveToken(newToken);
+          if (newRefreshToken) auth.saveRefreshToken(newRefreshToken);
         }
 
         originalRequest.headers.Authorization = `Bearer ${newToken}`;

@@ -14,7 +14,6 @@ import {
 } from "react-icons/fi";
 
 export default function AdminSettingsPage() {
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState("general");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

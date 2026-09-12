@@ -45,7 +45,7 @@ export default function AdminProducts() {
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
-      await api.delete(`/products/${id}`);
+      await api.delete(`/admin/products/${id}`);
       setProducts(products.filter((p) => p._id !== id));
     } catch (error) {
       console.error("Failed to delete product:", error);

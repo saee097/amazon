@@ -13,6 +13,7 @@ type ProductImageProps = {
   badge?: React.ReactNode;
   overlayActions?: React.ReactNode;
   onClick?: () => void;
+  loading?: "lazy" | "eager";
 };
 
 export default function ProductImage({
@@ -24,6 +25,7 @@ export default function ProductImage({
   badge,
   overlayActions,
   onClick,
+  loading = "lazy",
 }: ProductImageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -99,13 +101,14 @@ export default function ProductImage({
           src={imageSrc}
           alt={imageAlt}
           fill
+          loading={loading}
           className={`object-cover transition-all duration-700 ease-out group-hover:scale-105 ${
             isLoading ? "opacity-0 scale-95" : "opacity-100 scale-100"
           }`}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           onLoad={() => setIsLoading(false)}
           onError={handleError}
-          unoptimized={imageSrc.startsWith("data:")}
+          unoptimized={imageSrc.startsWith("data:") || imageSrc.startsWith("http")}
         />
       )}
 

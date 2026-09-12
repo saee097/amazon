@@ -75,28 +75,28 @@ export default function OrdersPage() {
               <div key={order._id} className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold text-gray-800">
-                    Order #{order._id?.toString().slice(-6).toUpperCase()}
+                    Order #{order.order_number?.toString().slice(-6).toUpperCase()}
                   </h3>
                   <span
                     className={`text-sm px-3 py-1 rounded-full ${
-                      order.orderStatus === "delivered"
+                      order.order_status === "delivered"
                         ? "bg-green-100 text-green-800"
-                        : order.orderStatus === "cancelled"
+                        : order.order_status === "cancelled"
                         ? "bg-red-100 text-red-800"
                         : "bg-gray-100 text-gray-800"
                     }`}
                   >
-                    {order.orderStatus}
+                    {order.order_status}
                   </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                   <div>
                     <span className="text-gray-500">Total:</span>
-                    <span className="font-medium ml-2">${order.totals?.total || order.total_amount || 0}</span>
+                    <span className="font-medium ml-2">${order.total || 0}</span>
                   </div>
                   <div>
                     <span className="text-gray-500">Payment:</span>
-                    <span className="ml-2">{order.paymentStatus}</span>
+                    <span className="ml-2">{order.payment_status}</span>
                   </div>
                   <div>
                     <span className="text-gray-500">Items:</span>

@@ -21,7 +21,6 @@ import {
 } from "react-icons/fi";
 
 export default function SuperAdminDashboard() {
-  const router = useRouter();
   const [stats, setStats] = useState(null);
   const [adminStats, setAdminStats] = useState(null);
   const [recentAdmins, setRecentAdmins] = useState([]);

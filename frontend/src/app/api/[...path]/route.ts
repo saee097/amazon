@@ -4,19 +4,24 @@ import { jsonError } from "@/server/lib/response";
 
 type RouteContext = { params: Promise<{ path: string[] }> };
 
+const isDev = process.env.NODE_ENV !== "production";
+
 async function handler(request: NextRequest, context: RouteContext) {
   try {
     const { path } = await context.params;
     return await routeRequest(request, path);
   } catch (error) {
     console.error("API Error:", error);
-    const message =
-      error instanceof Error
-        ? error.message
-        : typeof error === "object" && error !== null && "message" in error
-          ? String((error as { message: unknown }).message)
-          : "Internal server error";
-    return jsonError(message, 500);
+    if (isDev) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : typeof error === "object" && error !== null && "message" in error
+            ? String((error as { message: unknown }).message)
+            : "Internal server error";
+      return jsonError(message, 500);
+    }
+    return jsonError("Internal server error", 500);
   }
 }
 

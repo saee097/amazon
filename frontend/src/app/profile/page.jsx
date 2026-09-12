@@ -32,7 +32,7 @@ export default function ProfilePage() {
         }
 
         const { data } = await api.get("/auth/profile");
-        setCustomer(data.customer);
+        setCustomer(data?.data || data?.user || data?.customer || null);
       } catch {
         removeToken();
         router.push("/auth/login");
@@ -69,9 +69,13 @@ export default function ProfilePage() {
     return null;
   }
 
-  const fullName = `${customer?.first_name || customer?.firstName || ""} ${
-    customer?.last_name || customer?.lastName || ""
-  }`.trim() || "Customer";
+  const fullName =
+    customer?.display_name ||
+    `${customer?.first_name || customer?.firstName || ""} ${
+      customer?.last_name || customer?.lastName || ""
+    }`.trim() ||
+    customer?.username ||
+    "Customer";
 
   const menuItems = [
     { label: "Orders", href: "/orders", icon: "📦" },

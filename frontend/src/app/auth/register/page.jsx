@@ -2,20 +2,44 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Eye, EyeOff, Loader2, Shield, ShieldCheck, User as UserIcon } from "lucide-react";
+import { Eye, EyeOff, Loader2, User, Shield, Crown } from "lucide-react";
 import api from "@/lib/api";
 import { isLoggedIn, getUserRole, saveToken, saveRefreshToken, saveUser } from "@/lib/auth";
 import { getRedirectPath } from "@/lib/rbac";
 
+const ROLES = {
+  CUSTOMER: "customer",
+  ADMIN: "admin",
+  SUPERADMIN: "superadmin",
+};
+
+const ROLE_OPTIONS = [
+  {
+    value: ROLES.CUSTOMER,
+    label: "Customer",
+    description: "Shop and manage your orders",
+    requiresInvite: false,
+    icon: User,
+  },
+  {
+    value: ROLES.ADMIN,
+    label: "Admin",
+    description: "Manage products and orders",
+    requiresInvite: true,
+    icon: Shield,
+  },
+  {
+    value: ROLES.SUPERADMIN,
+    label: "Super Admin",
+    description: "Full platform control",
+    requiresInvite: true,
+    icon: Crown,
+  },
+];
+
 const GOOGLE_ENABLED = process.env.NEXT_PUBLIC_GOOGLE_ENABLED === "true";
 
 const validateEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
-
-const ROLE_OPTIONS = [
-  { value: "customer", label: "Customer", description: "Shop, checkout and track orders", icon: UserIcon, requiresInvite: false },
-  { value: "admin", label: "Admin", description: "Manage products, orders and customers", icon: Shield, requiresInvite: true },
-  { value: "superadmin", label: "Super Admin", description: "Full system access including user roles", icon: ShieldCheck, requiresInvite: true },
-];
 
 function passwordStrength(pw) {
   if (!pw) return { score: 0, label: "", color: "" };
@@ -43,7 +67,6 @@ export default function RegisterPage() {
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
-    username: "",
     email: "",
     phone: "",
     password: "",
@@ -57,8 +80,6 @@ export default function RegisterPage() {
   const [showInvite, setShowInvite] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors]   = useState({});
-
-  const selectedRole = ROLE_OPTIONS.find((r) => r.value === form.role) || ROLE_OPTIONS[0];
 
   useEffect(() => {
     if (isLoggedIn() && !redirectedRef.current) {
@@ -79,7 +100,6 @@ export default function RegisterPage() {
 
     if (!form.firstName.trim()) errs.firstName = "First name is required";
     if (!form.lastName.trim())  errs.lastName  = "Last name is required";
-    if (!form.username.trim())  errs.username  = "Username is required";
     if (!form.email)            errs.email     = "Email is required";
     else if (!validateEmail(form.email)) errs.email = "Enter a valid email";
     if (!form.password)         errs.password  = "Password is required";
@@ -97,7 +117,6 @@ export default function RegisterPage() {
       const { data } = await api.post("/auth/register", {
         firstName: form.firstName.trim(),
         lastName:  form.lastName.trim(),
-        username:  form.username.trim(),
         email:     form.email,
         phone:     form.phone,
         password:  form.password,
@@ -122,9 +141,11 @@ export default function RegisterPage() {
     }
   };
 
+  const selectedRole = ROLE_OPTIONS.find((r) => r.value === form.role) || ROLE_OPTIONS[0];
+
   const strength = passwordStrength(form.password);
   const isValid  =
-    form.firstName && form.lastName && form.username &&
+    form.firstName && form.lastName &&
     validateEmail(form.email) && form.password.length >= 8 &&
     form.password === form.confirmPassword && form.termsAccepted &&
     (!selectedRole.requiresInvite || form.inviteCode.trim());
@@ -154,33 +175,6 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700">I am registering as</label>
-              <div className="grid grid-cols-3 gap-2">
-                {ROLE_OPTIONS.map((opt) => {
-                  const Icon = opt.icon;
-                  const active = form.role === opt.value;
-                  return (
-                    <button
-                      type="button"
-                      key={opt.value}
-                      onClick={() => {
-                        setForm((f) => ({ ...f, role: opt.value, inviteCode: "" }));
-                        setErrors((p) => ({ ...p, inviteCode: "" }));
-                      }}
-                      className={`flex flex-col items-center gap-1 rounded-xl border-2 px-2 py-2.5 text-center transition ${
-                        active ? "border-[#0F766E] bg-[#0F766E]/5" : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <Icon size={16} className={active ? "text-[#0F766E]" : "text-gray-500"} />
-                      <span className="text-[11px] font-semibold text-gray-800">{opt.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="mt-1.5 text-[11px] text-gray-500">{selectedRole.description}</p>
-            </div>
-
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700">
@@ -212,22 +206,6 @@ export default function RegisterPage() {
                 />
                 {errors.lastName && <p className="mt-1 text-xs text-rose-600">{errors.lastName}</p>}
               </div>
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                Username <span className="text-rose-500">*</span>
-              </label>
-              <input
-                name="username"
-                value={form.username}
-                onChange={handleChange}
-                placeholder="johndoe"
-                className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition ${
-                  errors.username ? "border-rose-300 focus:border-rose-400" : "border-gray-300 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
-                }`}
-              />
-              {errors.username && <p className="mt-1 text-xs text-rose-600">{errors.username}</p>}
             </div>
 
             <div>

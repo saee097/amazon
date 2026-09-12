@@ -158,7 +158,7 @@ export default function AdminDashboard() {
     );
   }
 
-  const { stats, dailyRevenue, statusCounts, recentOrders, lowStock, topProducts, activity } = overview;
+  const { stats, dailyRevenue, statusCounts, recentOrders, lowStock, topProducts, activity, recentCustomers, recentBanners } = overview;
   const maxRevenue = Math.max(1, ...dailyRevenue.map((point) => point.revenue));
   const totalStatuses = Math.max(1, statusCounts.reduce((sum, item) => sum + item.count, 0));
 
@@ -231,7 +231,7 @@ export default function AdminDashboard() {
     },
     {
       label: "Active products",
-      value: numberFmt.format(stats.activeProducts ?? 0),
+      value: numberFmt.format(stats.totalProducts ?? 0),
       detail: "Listed on storefront",
       href: "/admin/products",
       icon: Package,
@@ -484,6 +484,124 @@ export default function AdminDashboard() {
         </section>
       </div>
 
+      {recentCustomers && recentCustomers.length > 0 && (
+        <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+            <div>
+              <h2 className="text-base font-semibold text-gray-950">New Customers</h2>
+              <p className="mt-1 text-sm text-gray-500">Recently registered customers.</p>
+            </div>
+            <Link href="/admin/customers" className="text-sm font-medium text-[#0F766E] hover:underline">
+              View all
+            </Link>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
+                <tr>
+                  <th className="px-6 py-3 font-semibold">Name</th>
+                  <th className="px-6 py-3 font-semibold">Email</th>
+                  <th className="px-6 py-3 font-semibold">Phone</th>
+                  <th className="px-6 py-3 font-semibold">Joined</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {recentCustomers.map((customer) => (
+                  <tr key={customer._id} className="hover:bg-gray-50/60">
+                  <td className="px-6 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-gray-100 flex items-center justify-center">
+                        {customer.avatarUrl ? (
+                          <img
+                            src={customer.avatarUrl}
+                            alt={`${customer.firstName || ""} ${customer.lastName || ""}`}
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              const target = e.currentTarget;
+                              target.style.display = "none";
+                              const fallback = target.nextElementSibling;
+                              if (fallback) (fallback).style.display = "flex";
+                            }}
+                          />
+                        ) : null}
+                        {!customer.avatarUrl && (
+                          <span className="text-xs font-bold text-gray-500">
+                            {(customer.firstName || customer.email || "?").charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-medium text-gray-950">
+                        {`${customer.firstName || ""} ${customer.lastName || ""}`.trim() || customer.email}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-3 text-gray-700">{customer.email}</td>
+                  <td className="px-6 py-3 text-gray-700">{customer.phone || "-"}</td>
+                  <td className="px-6 py-3 text-gray-500">{formatDate(customer.created_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {recentBanners && recentBanners.length > 0 && (
+        <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+            <div>
+              <h2 className="text-base font-semibold text-gray-950">Recent Banners</h2>
+              <p className="mt-1 text-sm text-gray-500">Latest banners shown on the storefront.</p>
+            </div>
+            <Link href="/admin/banners" className="text-sm font-medium text-[#0F766E] hover:underline">
+              Manage banners
+            </Link>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
+                <tr>
+                  <th className="px-6 py-3 font-semibold">Image</th>
+                  <th className="px-6 py-3 font-semibold">Heading</th>
+                  <th className="px-6 py-3 font-semibold">Subheading</th>
+                  <th className="px-6 py-3 font-semibold">Status</th>
+                  <th className="px-6 py-3 font-semibold">Created</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {recentBanners.map((banner) => (
+                  <tr key={banner._id} className="hover:bg-gray-50/60">
+                    <td className="px-6 py-3">
+                      {banner.image ? (
+                        <img
+                          src={banner.image}
+                          alt={banner.heading || "Banner"}
+                          className="h-10 w-16 object-cover rounded border border-gray-200"
+                        />
+                      ) : (
+                        <span className="text-gray-300">—</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-3 font-medium text-gray-950">{banner.heading || "—"}</td>
+                    <td className="px-6 py-3 text-gray-500">{banner.subheading || "—"}</td>
+                    <td className="px-6 py-3">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                          banner.status === "active" ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {banner.status || "Inactive"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-3 text-gray-500">{formatDate(banner.created_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
       <div className="grid gap-6 lg:grid-cols-5">
         <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm lg:col-span-3">
           <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
@@ -600,20 +718,20 @@ export default function AdminDashboard() {
             </Link>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
-            <Truck size={18} />
-          </span>
-          <div>
-            <p className="text-xs uppercase text-gray-500">In transit</p>
-            <Link
-              href="/admin/shipments"
-              className="text-lg font-bold text-gray-950 hover:text-[#0F766E]"
-            >
-              {numberFmt.format(stats.inTransit ?? 0)}
-            </Link>
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
+              <Truck size={18} />
+            </span>
+            <div>
+              <p className="text-xs uppercase text-gray-500">Orders this week</p>
+              <Link
+                href="/admin/orders"
+                className="text-lg font-bold text-gray-950 hover:text-[#0F766E]"
+              >
+                {numberFmt.format(stats.totalOrders ?? 0)}
+              </Link>
+            </div>
           </div>
-        </div>
       </section>
     </div>
   );

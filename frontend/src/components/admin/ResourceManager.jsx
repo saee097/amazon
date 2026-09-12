@@ -7,7 +7,7 @@ function getDefaults(fields) {
   const defaults = {};
   fields.forEach((f) => {
     if (f.type === "boolean") defaults[f.name] = false;
-    else if (f.type === "number") defaults[f.name] = "";
+    else if (f.type === "number") defaults[f.name] = f.defaultValue ?? 0;
     else if (f.type === "select") defaults[f.name] = f.options?.[0]?.value || "";
     else defaults[f.name] = "";
   });
@@ -62,7 +62,10 @@ export default function ResourceManager({
   const openEdit = (item) => {
     const next = {};
     fields.forEach((f) => {
-      next[f.name] = item[f.name] ?? (f.type === "boolean" ? false : "");
+      const val = item[f.name];
+      if (f.type === "boolean") next[f.name] = val ?? false;
+      else if (f.type === "number") next[f.name] = val ?? (f.defaultValue ?? 0);
+      else next[f.name] = val ?? "";
     });
     setEditing(item);
     setForm(next);
@@ -73,7 +76,7 @@ export default function ResourceManager({
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : type === "number" ? (value === "" ? "" : Number(value)) : value,
+      [name]: type === "checkbox" ? checked : type === "number" ? (value === "" ? 0 : Number(value)) : value,
     }));
   };
 

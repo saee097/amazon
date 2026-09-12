@@ -33,7 +33,7 @@ export async function handleDashboard(method: string, path: string[], request: N
     seriesStart.setUTCHours(0, 0, 0, 0);
     seriesStart.setUTCDate(seriesStart.getUTCDate() - 6);
 
-    const [usersResult, productsResult, ordersResult, recentOrdersResult, variantsResult, returnsResult, refundsResult, logsResult, orderItemsResult] = await Promise.all([
+    const [usersResult, productsResult, ordersResult, recentOrdersResult, variantsResult, returnsResult, refundsResult, logsResult, orderItemsResult, recentCustomersResult, recentBannersResult] = await Promise.all([
       supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "customer"),
       supabase.from("products").select("id", { count: "exact", head: true }).eq("status", "active"),
       supabase.from("orders").select("id, total, order_status, payment_status, created_at").gte("created_at", seriesStart.toISOString()),
@@ -43,9 +43,11 @@ export async function handleDashboard(method: string, path: string[], request: N
       supabase.from("refunds").select("id", { count: "exact", head: true }).eq("status", "pending"),
       supabase.from("audit_logs").select("id, action, resource, resource_id, created_at, profiles(first_name, last_name, email)").order("created_at", { ascending: false }).limit(6),
       supabase.from("order_items").select("product_id, quantity, line_total, products(title, slug)").limit(500),
+      supabase.from("profiles").select("id, first_name, last_name, email, phone, avatar_url, role, status, created_at").eq("role", "customer").order("created_at", { ascending: false }).limit(5),
+      supabase.from("banners").select("id, heading, subheading, image, link_url, status, sort_order, created_at").order("created_at", { ascending: false }).limit(6),
     ]);
 
-    const results = [usersResult, productsResult, ordersResult, recentOrdersResult, variantsResult, returnsResult, refundsResult, logsResult, orderItemsResult] as Array<{ error?: { message?: string } | null }>;
+    const results = [usersResult, productsResult, ordersResult, recentOrdersResult, variantsResult, returnsResult, refundsResult, logsResult, orderItemsResult, recentCustomersResult, recentBannersResult] as Array<{ error?: { message?: string } | null }>;
     const failed = results.find((result) => result.error);
     if (failed?.error) return jsonError(failed.error.message || "Unable to load dashboard data", 500);
 
@@ -113,6 +115,29 @@ export async function handleDashboard(method: string, path: string[], request: N
         created_at: log.created_at,
         actor: log.profiles ? `${log.profiles.first_name || ""} ${log.profiles.last_name || ""}`.trim() || log.profiles.email : "System",
       })),
+      recentCustomers: ((recentCustomersResult.data || []) as Array<{ id: string; first_name: string; last_name: string; email: string; phone: string; avatar_url: string | null; role: string; status: string; created_at: string }>).map((c) => ({
+        _id: c.id,
+        firstName: c.first_name,
+        lastName: c.last_name,
+        first_name: c.first_name,
+        last_name: c.last_name,
+        email: c.email,
+        phone: c.phone,
+        avatarUrl: c.avatar_url,
+        role: c.role,
+        status: c.status,
+        created_at: c.created_at,
+      })),
+      recentBanners: ((recentBannersResult.data || []) as Array<{ id: string; heading: string; subheading: string; image: string; link_url: string; status: string; sort_order: number; created_at: string }>).map((b) => ({
+        _id: b.id,
+        heading: b.heading,
+        subheading: b.subheading,
+        image: b.image,
+        link_url: b.link_url,
+        status: b.status,
+        sort_order: b.sort_order,
+        created_at: b.created_at,
+      })),
     };
 
     if (action === "stats") return jsonOk({ stats: { ...overview.stats, totalSales: overview.stats.grossSales } });
@@ -123,6 +148,12 @@ export async function handleDashboard(method: string, path: string[], request: N
     const { data, error } = await supabase.from("audit_logs").select("*, profiles(first_name, last_name, email)").order("created_at", { ascending: false }).limit(20);
     if (error) return jsonError(error.message, 500);
     return jsonOk(data || []);
+  }
+
+  if (action === "admin-stats") {
+    const { count: totalAdmins } = await supabase.from("profiles").select("id", { count: "exact", head: true }).in("role", ["admin", "superadmin"]);
+    const { count: activeAdmins } = await supabase.from("profiles").select("id", { count: "exact", head: true }).in("role", ["admin", "superadmin"]).eq("status", "active");
+    return jsonOk({ totalAdmins: totalAdmins || 0, activeAdmins: activeAdmins || 0 });
   }
 
   return jsonError("Not found", 404);

@@ -2,17 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { FiHeart, FiSearch, FiStar, FiMinus, FiPlus, FiArrowLeft, FiShare } from "react-icons/fi";
 import ProductImageGallery from "@/components/ui/ProductImageGallery";
-import {
-  
-  FaTwitter,
-  FaFacebookF,
-  FaInstagram,
-  
-} from "react-icons/fa";
+import { getToken } from "@/lib/auth";
 
 type ProductDetail = {
   _id: string;
@@ -54,11 +48,14 @@ export default function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [selectedCircle, setSelectedCircle] = useState<string>("");
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [cartMessage, setCartMessage] = useState<string>("");
+  const router = useRouter();
 
   const productImages = product?.images?.length
     ? product.images
-    : product?.image?.image_url
-    ? [{ _id: "main", image_url: product.image.image_url, alt_text: product.image.alt_text || product.title }]
+    : product?.images?.[0]
+    ? [{ _id: "main", image_url: product.images[0].image_url, alt_text: product.images[0].alt_text || product.title }]
     : [];
 
   useEffect(() => {
@@ -108,51 +105,35 @@ export default function ProductDetailPage() {
   const productUrl =
     typeof window !== "undefined" ? window.location.href : "";
 
-  const shareText = `${product?.title} - ${formatPrice(currentPrice)}`;
-
-  const shareWhatsApp = () => {
-    window.open(
-      `https://wa.me/?text=${encodeURIComponent(shareText + " " + productUrl)}`,
-      "_blank"
-    );
-  };
-
-  const shareTwitter = () => {
-    window.open(
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(productUrl)}`,
-      "_blank"
-    );
-  };
-
-  const shareFacebook = () => {
-    window.open(
-      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl)}`,
-      "_blank"
-    );
-  };
-
-  const shareInstagram = () => {
-    window.open(
-      `https://www.instagram.com/share?url=${encodeURIComponent(productUrl)}&text=${encodeURIComponent(shareText)}`,
-      "_blank"
-    );
-  };
-
- 
-
-  const shareEmail = () => {
-    const subject = `Check out ${product?.title}`;
-    const body = `Hey, take a look at this product:\n\n${shareText}\n\n${productUrl}`;
-    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  };
-
-  const copyLink = async () => {
+  const addToCart = async () => {
+    if (!product || !inStock) return;
+    setAddingToCart(true);
+    setCartMessage("");
     try {
-      await navigator.clipboard.writeText(productUrl);
-      alert("Link copied to clipboard!");
-    } catch (err) {
-      console.error("Failed to copy:", err);
+      const token = getToken();
+      if (!token) {
+        router.push("/auth/login");
+        return;
+      }
+      const variant = selectedVariant || product.variants?.[0];
+      const productId = variant ? product._id : product._id;
+      await api.post("/store/cart", {
+        productId,
+        quantity,
+      });
+      setCartMessage("Added to cart successfully");
+      setTimeout(() => setCartMessage(""), 3000);
+    } catch {
+      setCartMessage("Failed to add to cart. Please try again.");
+    } finally {
+      setAddingToCart(false);
     }
+  };
+
+  const buyNow = async () => {
+    if (!product || !inStock) return;
+    await addToCart();
+    router.push("/checkout");
   };
 
   if (loading) {
@@ -229,65 +210,17 @@ export default function ProductDetailPage() {
                 </h1>
 
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  {(() => {
-                    const buttons = [
-                      {
-                        icon: FiShare,
-                        label: "Share",
-                        color: "#374151",
-                        action: () => {
-                          if (navigator.share) {
-                            navigator.share({
-                              title: product.title,
-                              text: shareText,
-                              url: productUrl,
-                            });
-                          }
-                        },
-                      },
-                    
-                      {
-                        icon: FaTwitter,
-                        label: "Share on Twitter",
-                        color: "#1DA1F2",
-                        action: shareTwitter,
-                      },
-{
-                          icon: FaFacebookF,
-                          label: "Share on Facebook",
-                          color: "#1877F2",
-                          action: shareFacebook,
-                        },
-                        {
-                          icon: FaInstagram,
-                          label: "Share on Instagram",
-                          color: "#E4405F",
-                          action: shareInstagram,
-                        },
-                     
-                    ];
-
-                    return buttons.map((btn) => (
-                      <button
-                        key={btn.label}
-                        onClick={btn.action}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = btn.color;
-                          e.currentTarget.style.color = "#fff";
-                          e.currentTarget.style.borderColor = btn.color;
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = "";
-                          e.currentTarget.style.color = "";
-                          e.currentTarget.style.borderColor = "";
-                        }}
-                        title={btn.label}
-                        className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 transition cursor-pointer"
-                      >
-                        <btn.icon size={14} />
-                      </button>
-                    ));
-                  })()}
+                  <button
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({ title: product.title, text: `${product.title} - ${formatPrice(currentPrice)}`, url: productUrl });
+                      }
+                    }}
+                    title="Share"
+                    className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition"
+                  >
+                    <FiShare size={14} />
+                  </button>
                 </div>
               </div> {/* Description */}
                 {product.description && (
@@ -378,9 +311,9 @@ export default function ProductDetailPage() {
                           ))
                         : sizes;
 
-                      const handleSizeSelect = (size: string) => {
+                       const handleSizeSelect = (size: string) => {
                         setSelectedSize(size);
-                        const match = product.variants.find(
+                        const match = product?.variants?.find(
                           (v) => v.size === size && v.color === selectedColor
                         );
                         if (match) {
@@ -392,7 +325,7 @@ export default function ProductDetailPage() {
 
                       const handleColorSelect = (color: string) => {
                         setSelectedColor(color);
-                        const match = product.variants.find(
+                        const match = product?.variants?.find(
                           (v) => v.size === selectedSize && v.color === color
                         );
                         if (match) {
@@ -522,16 +455,30 @@ export default function ProductDetailPage() {
       </div>
     </div>
 
-    {/* Action Buttons */}
-    <div className="flex gap-3">
-      <button className="flex-1 py-3 bg-[#0F766E] text-white text-sm font-medium rounded-lg hover:bg-[#0F766E]/90 transition">
-        Buy Now
-      </button>
+     {/* Action Buttons */}
+     <div className="flex gap-3">
+       <button
+         onClick={buyNow}
+         disabled={!inStock || addingToCart}
+         className="flex-1 py-3 bg-[#0F766E] text-white text-sm font-medium rounded-lg hover:bg-[#0F766E]/90 transition disabled:opacity-70 disabled:cursor-not-allowed"
+       >
+         Buy Now
+       </button>
 
-      <button className="flex-1 py-3 bg-[#0F766E] text-white text-sm font-medium rounded-lg hover:bg-[#0F766E]/90 transition">
-        Add to Cart
-      </button>
-    </div>
+       <button
+         onClick={addToCart}
+         disabled={!inStock || addingToCart}
+         className="flex-1 py-3 border border-[#0F766E] text-[#0F766E] text-sm font-medium rounded-lg hover:bg-[#0F766E]/5 transition disabled:opacity-70 disabled:cursor-not-allowed"
+       >
+         {addingToCart ? "Adding..." : "Add to Cart"}
+       </button>
+     </div>
+
+     {cartMessage && (
+       <p className={`mt-3 text-sm ${cartMessage.includes("Failed") ? "text-red-600" : "text-green-600"}`} role="status">
+         {cartMessage}
+       </p>
+     )}
 
   </div>
 )}

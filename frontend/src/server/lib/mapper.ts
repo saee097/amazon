@@ -3,7 +3,7 @@ type Row = Record<string, unknown>;
 export function toMongoId<T extends Row>(row: T | null): (T & { _id: string }) | null {
   if (!row) return null;
   const { id, ...rest } = row as T & { id: string };
-  return { _id: id, ...rest } as T & { _id: string };
+  return { _id: id, ...rest } as unknown as T & { _id: string };
 }
 
 export function toMongoIds<T extends Row>(rows: T[]): (T & { _id: string })[] {
@@ -46,6 +46,11 @@ export function mapVariant(v: Row) {
   };
 }
 
+function normalizeImageUrl(url?: string | null): string | undefined {
+  if (!url) return undefined;
+  return url.replace(/\.svg$/i, ".jpg");
+}
+
 export function mapProduct(
   product: Row,
   extras?: {
@@ -86,14 +91,14 @@ export function mapProduct(
     variants: (extras?.variants || []).map(mapVariant),
     images: images.map((img) => ({
       _id: img.id as string,
-      image_url: img.image_url,
+      image_url: normalizeImageUrl(img.image_url),
       alt_text: img.alt_text,
       sort_order: img.sort_order,
       is_primary: img.is_primary,
     })),
     image: firstImage
-      ? { image_url: firstImage.image_url, alt_text: firstImage.alt_text }
-      : { image_url: "/images/products/placeholder.svg", alt_text: product.title },
+      ? { image_url: normalizeImageUrl(firstImage.image_url), alt_text: firstImage.alt_text }
+      : { image_url: "/images/products/placeholder.jpg", alt_text: product.title },
     reviews: (extras?.reviews || []).map((r) => ({
       _id: r.id as string,
       rating: r.rating,
@@ -117,6 +122,7 @@ export function mapProfile(profile: Row) {
   return {
     _id: profile.id as string,
     email: profile.email,
+    name: `${profile.first_name || ""} ${profile.last_name || ""}`.trim() || profile.email || null,
     firstName: profile.first_name,
     lastName: profile.last_name,
     first_name: profile.first_name,
@@ -129,6 +135,11 @@ export function mapProfile(profile: Row) {
     avatar_url: profile.avatar_url,
     email_verified: profile.email_verified,
     created_at: profile.created_at,
+    updated_at: profile.updated_at,
+    last_login_at: profile.last_login_at,
+    display_name: profile.display_name,
+    notification_prefs: profile.notification_prefs,
+    privacy_prefs: profile.privacy_prefs,
   };
 }
 

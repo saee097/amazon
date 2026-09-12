@@ -50,8 +50,7 @@ BEGIN
 
   INSERT INTO product_images (product_id, image_url, alt_text, sort_order)
   VALUES
-    (p1, 'https://www.junaidjamshed.com/cdn/shop/files/inner_banner_rtw1.webp?v=1787032088&width=1899', 'J. Pakistan ready-to-wear collection imagery (demo source)', 0),
-    (p1, '/images/products/tshirt.svg', 'Premium Cotton T-Shirt fallback', 1);
+    (p1, 'https://m.media-amazon.com/images/I/71si774Ei3L._AC_SR768,1024_.jpg', 'NIC+ZOE Perfect Knit Rib Growover Tank from 6pm (demo source)', 0);
 
   INSERT INTO products (title, slug, description, price, compare_price, category_id, brand_id, sku, status)
   VALUES ('Slim Fit Jeans', 'slim-fit-jeans', 'Modern slim fit denim jeans.', 59.99, 79.99, cat_jeans, brand_classic, 'JNS-001', 'active')
@@ -64,7 +63,7 @@ BEGIN
     (p2, '34', 'Dark Blue', 59.99, 79.99, 30, 'JNS-001-34-DB');
 
   INSERT INTO product_images (product_id, image_url, alt_text, sort_order)
-  VALUES (p2, '/images/products/jeans.svg', 'Slim Fit Jeans', 0);
+  VALUES (p2, 'https://m.media-amazon.com/images/I/71MzKB0J7vL._AC_SR768,1024_.jpg', 'Liverpool Los Angeles Abby Mid-Rise Skinny Jeans from 6pm (demo source)', 0);
 
   INSERT INTO products (title, slug, description, price, compare_price, category_id, brand_id, sku, status)
   VALUES ('Floral Summer Dress', 'floral-summer-dress', 'Light floral dress perfect for summer.', 89.99, 119.99, cat_dress, brand_urban, 'DRS-001', 'active')
@@ -76,7 +75,7 @@ BEGIN
     (p3, 'M', 'Floral', 89.99, 119.99, 30, 'DRS-001-M-F');
 
   INSERT INTO product_images (product_id, image_url, alt_text, sort_order)
-  VALUES (p3, '/images/products/dress.svg', 'Floral Summer Dress', 0);
+  VALUES (p3, 'https://m.media-amazon.com/images/I/71akWfW9YcL._AC_SR768,1024_.jpg', 'Free People Oxford Club Mini from 6pm (demo source)', 0);
 
   INSERT INTO products (title, slug, description, price, compare_price, category_id, brand_id, sku, status)
   VALUES ('Leather Jacket', 'leather-jacket', 'Premium faux leather jacket.', 149.99, 199.99, cat_jacket, brand_classic, 'JKT-001', 'active')
@@ -88,7 +87,7 @@ BEGIN
     (p4, 'L', 'Brown', 149.99, 199.99, 15, 'JKT-001-L-BR');
 
   INSERT INTO product_images (product_id, image_url, alt_text, sort_order)
-  VALUES (p4, '/images/products/jacket.svg', 'Leather Jacket', 0);
+  VALUES (p4, 'https://m.media-amazon.com/images/I/81MfOL7bC7L._AC_SR768,1024_.jpg', 'Blank NYC Faux Fur Jacket from 6pm (demo source)', 0);
 
   INSERT INTO products (title, slug, description, price, compare_price, category_id, brand_id, sku, status)
   VALUES ('Running Sneakers', 'running-sneakers', 'Lightweight running sneakers.', 79.99, 99.99, cat_sneaker, brand_urban, 'SNK-001', 'active')
@@ -102,10 +101,10 @@ BEGIN
 
   INSERT INTO product_images (product_id, image_url, alt_text, sort_order)
   VALUES
-    (p5, 'https://m.media-amazon.com/images/I/61BbwWvJ4dL.jpg', 'Reebok Club C 85 pair view from 6pm (demo source)', 0),
-    (p5, 'https://m.media-amazon.com/images/I/61FG-gNEzhL.jpg', 'Reebok Club C 85 top view from 6pm (demo source)', 1),
-    (p5, 'https://m.media-amazon.com/images/I/61ZTC-6w7YL.jpg', 'Reebok Club C 85 bottom view from 6pm (demo source)', 2),
-    (p5, '/images/products/sneaker.svg', 'Running Sneakers fallback', 3);
+    (p5, 'https://m.media-amazon.com/images/I/81Sfw6LuuQL._AC_SR768,1024_.jpg', 'Converse Chuck Taylor All Star 70 Hi from 6pm (demo source)', 0),
+    (p5, 'https://m.media-amazon.com/images/I/71xEQd9JYgL._AC_SR768,1024_.jpg', 'Reebok Princess from 6pm (demo source)', 1),
+    (p5, 'https://m.media-amazon.com/images/I/61RkAxZS5SL._AC_SR768,1024_.jpg', 'Sofft Faro from 6pm (demo source)', 2),
+    (p5, 'https://m.media-amazon.com/images/I/61ZUtOr7GGL._AC_UY1000_.jpg', 'Fila sneaker image from Amazon CDN', 3);
 
   INSERT INTO products (title, slug, description, price, compare_price, category_id, brand_id, sku, status)
   VALUES ('Classic Hoodie', 'classic-hoodie', 'Comfortable pullover hoodie.', 49.99, 64.99, cat_tshirt, brand_urban, 'HDI-001', 'active')
@@ -117,14 +116,17 @@ BEGIN
     (p6, 'L', 'Navy', 49.99, 64.99, 45, 'HDI-001-L-N');
 
   INSERT INTO product_images (product_id, image_url, alt_text, sort_order)
-  VALUES (p6, '/images/products/hoodie.svg', 'Classic Hoodie', 0);
+  VALUES (p6, 'https://m.media-amazon.com/images/I/81Xaz1whL-L._AC_SR768,1024_.jpg', 'Free People Amber Breeze Off-the-Shoulder Sweater from 6pm (demo source)', 0);
 END $$;
 
 -- Banners
 INSERT INTO banners (heading, subheading, image, link_url, sort_order) VALUES
-  ('Ready To Wear', 'J. Pakistan collection source', 'https://www.junaidjamshed.com/cdn/shop/files/inner_banner_rtw1.webp?v=1787032088&width=1899', '/products?category=dresses', 1),
-  ('Premium Denim', 'Shop Jeans', '/images/products/jeans.svg', '/products?category=jeans', 2),
-  ('Classic Sneakers', '6pm collection source', 'https://m.media-amazon.com/images/I/61BbwWvJ4dL.jpg', '/products?category=sneakers', 3);
+  ('Ready To Wear', '6pm collection source', 'https://m.media-amazon.com/images/I/71akWfW9YcL._AC_SR768,1024_.jpg', '/products?category=dresses', 1),
+  ('Premium Denim', 'Shop Jeans', 'https://m.media-amazon.com/images/I/61NTk0U19mL._AC_SR736,920_.jpg', '/products?category=jeans', 2),
+  ('Classic Sneakers', '6pm collection source', 'https://m.media-amazon.com/images/I/81Sfw6LuuQL._AC_SR768,1024_.jpg', '/products?category=sneakers', 3),
+  ('Summer Collection', 'New Arrivals', 'https://m.media-amazon.com/images/I/71fR6mA+eL._AC_SR736,920_.jpg', '/products', 4),
+  ('Active Lifestyle', 'Sportswear', 'https://m.media-amazon.com/images/I/71xEQd9JYgL._AC_SR768,1024_.jpg', '/products?category=sneakers', 5),
+  ('Sportswear', 'Active Lifestyle', 'https://m.media-amazon.com/images/I/61RkAxZS5SL._AC_SR768,1024_.jpg', '/products', 6);
 
 -- Menu items
 INSERT INTO menu_items (title, url, sort_order) VALUES

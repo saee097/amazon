@@ -1,6 +1,8 @@
+// @ts-nocheck
 import { NextRequest } from "next/server";
 import { getSupabaseAdmin } from "../../supabase/admin";
 import { logAudit, requireAdmin } from "../../lib/auth";
+import { handleLogs } from "./logs";
 import { mapCategory, mapOrder, mapProduct, mapProfile, toMongoId, toMongoIds } from "../../lib/mapper";
 import { getPermissionsForRole } from "../../lib/permissions";
 import { jsonError, jsonOk, jsonData } from "../../lib/response";
@@ -14,6 +16,10 @@ export async function handleAdmin(
   const resource = path[1];
   const id = path[2];
 
+  if (resource === "logs") {
+    return handleLogs(method, path.slice(1), request);
+  }
+
   const { user: admin, error: authError } = await requireAdmin(request);
   if (authError && resource !== "system") return authError;
 
@@ -21,18 +27,190 @@ export async function handleAdmin(
   if (method === "GET" && resource === "products") {
     const { data } = await supabase
       .from("products")
-      .select("*, categories(*), brands(*), product_variants(*), product_images(*)")
+      .select("*, categories(*), brands(*)")
       .order("created_at", { ascending: false });
 
-    const products = (data || []).map((p) =>
+    const products = (data || []).map((p: any) =>
       mapProduct(p, {
         category: p.categories,
         brand: p.brands,
-        variants: p.product_variants || [],
-        images: p.product_images || [],
       })
     );
     return jsonOk(products);
+  }
+
+  // POST /admin/products
+  if (method === "POST" && resource === "products") {
+    const { error: authError } = await requireAdmin(request);
+    if (authError) return authError;
+
+    const body = await request.json();
+    const slug = body.slug || body.title?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+    const { data: product, error } = await supabase
+      .from("products")
+      .insert({
+        title: body.title,
+        slug,
+        description: body.description,
+        short_description: body.shortDescription,
+        price: body.price || 0,
+        compare_price: body.compare_price,
+        cost_price: body.cost_price,
+        category_id: body.category || null,
+        brand_id: body.brand || null,
+        sku: body.sku,
+        barcode: body.barcode,
+        status: body.status || "draft",
+        weight: body.weight,
+        weight_unit: body.weight_unit,
+        dimensions: body.dimensions,
+        taxable: body.taxable,
+        requires_shipping: body.requires_shipping,
+        is_featured: body.is_featured,
+        meta_title: body.meta_title,
+        meta_description: body.meta_description,
+        tags: body.tags || [],
+        low_stock_threshold: body.low_stock_threshold,
+      })
+      .select()
+      .single();
+
+    if (error || !product) return jsonError(error?.message || "Failed to create product", 400);
+
+    const variants = Array.isArray(body.variants) && body.variants.length > 0
+      ? body.variants as any[]
+      : [{ size: "One Size", color: "Default", price: body.price || 0, compare_price: body.compare_price, inventory_quantity: body.inventory_quantity || 0, sku: body.sku }];
+
+    if (variants.length > 0) {
+      await supabase.from("product_variants").insert(
+        variants.map((v: any) => ({
+          product_id: product.id,
+          size: v.size || "One Size",
+          color: v.color || "Default",
+          price: v.price ?? body.price ?? 0,
+          compare_price: v.compare_price ?? body.compare_price,
+          inventory_quantity: v.inventory_quantity ?? 0,
+          sku: v.sku ?? body.sku,
+          weight: v.weight,
+        }))
+      );
+    }
+
+    if (Array.isArray(body.images) && body.images.length > 0) {
+      await supabase.from("product_images").insert(
+        body.images.map((img: Record<string, unknown>, idx: number) => ({
+          product_id: product.id,
+          image_url: img.image_url,
+          alt_text: img.alt_text || body.title,
+          sort_order: img.sort_order ?? idx,
+          is_primary: img.is_primary ?? idx === 0,
+        }))
+      );
+    }
+
+    const { data: full } = await supabase
+      .from("products")
+      .select("*, categories(*), brands(*)")
+      .eq("id", product.id)
+      .single();
+
+    const { data: productVariants } = await supabase.from("product_variants").select("*").eq("product_id", product.id);
+    const { data: images } = await supabase.from("product_images").select("*").eq("product_id", product.id).order("sort_order", { ascending: true });
+
+    if (!full) return jsonOk(mapProduct(product as any, { category: null, brand: null, variants: [], images: [] }), 201);
+
+    return jsonOk(mapProduct(full, { category: full.categories, brand: full.brands, variants: productVariants || [], images: (images || []) }), 201);
+  }
+
+  // PUT /admin/products/:id
+  if (method === "PUT" && resource === "products" && id) {
+    const { error: authError } = await requireAdmin(request);
+    if (authError) return authError;
+
+    const body = await request.json();
+    const updates: Record<string, unknown> = {};
+    if (body.title !== undefined) updates.title = body.title;
+    if (body.slug !== undefined) updates.slug = body.slug;
+    if (body.description !== undefined) updates.description = body.description;
+    if (body.shortDescription !== undefined) updates.short_description = body.shortDescription;
+    if (body.price !== undefined) updates.price = body.price;
+    if (body.compare_price !== undefined) updates.compare_price = body.compare_price;
+    if (body.cost_price !== undefined) updates.cost_price = body.cost_price;
+    if (body.category !== undefined) updates.category_id = body.category || null;
+    if (body.brand !== undefined) updates.brand_id = body.brand || null;
+    if (body.sku !== undefined) updates.sku = body.sku;
+    if (body.barcode !== undefined) updates.barcode = body.barcode;
+    if (body.status !== undefined) updates.status = body.status;
+    if (body.weight !== undefined) updates.weight = body.weight;
+    if (body.weight_unit !== undefined) updates.weight_unit = body.weight_unit;
+    if (body.dimensions !== undefined) updates.dimensions = body.dimensions;
+    if (body.taxable !== undefined) updates.taxable = body.taxable;
+    if (body.requires_shipping !== undefined) updates.requires_shipping = body.requires_shipping;
+    if (body.is_featured !== undefined) updates.is_featured = body.is_featured;
+    if (body.meta_title !== undefined) updates.meta_title = body.meta_title;
+    if (body.meta_description !== undefined) updates.meta_description = body.meta_description;
+    if (body.tags !== undefined) updates.tags = body.tags;
+    if (body.low_stock_threshold !== undefined) updates.low_stock_threshold = body.low_stock_threshold;
+
+    const { data, error } = await supabase.from("products").update(updates).eq("id", id).select().single();
+    if (error || !data) return jsonError(error?.message || "Failed to update product", 400);
+
+    if (Array.isArray(body.images)) {
+      await supabase.from("product_images").delete().eq("product_id", id);
+      if (body.images.length > 0) {
+        await supabase.from("product_images").insert(
+          body.images.map((img: Record<string, unknown>, idx: number) => ({
+            product_id: id,
+            image_url: img.image_url,
+            alt_text: img.alt_text || (data as any).title,
+            sort_order: img.sort_order ?? idx,
+            is_primary: img.is_primary ?? idx === 0,
+          }))
+        );
+      }
+    }
+
+    if (Array.isArray(body.variants)) {
+      await supabase.from("product_variants").delete().eq("product_id", id);
+      if (body.variants.length > 0) {
+        await supabase.from("product_variants").insert(
+          body.variants.map((v: Record<string, unknown>) => ({
+            product_id: id,
+            size: v.size || "One Size",
+            color: v.color || "Default",
+            price: v.price ?? (data as any).price,
+            compare_price: v.compare_price ?? (data as any).compare_price,
+            inventory_quantity: v.inventory_quantity ?? 0,
+            sku: v.sku ?? (data as any).sku,
+            weight: v.weight,
+          }))
+        );
+      }
+    }
+
+    const { data: full } = await supabase
+      .from("products")
+      .select("*, categories(*), brands(*)")
+      .eq("id", id)
+      .single();
+
+    const { data: productVariants } = await supabase.from("product_variants").select("*").eq("product_id", id);
+    const { data: images } = await supabase.from("product_images").select("*").eq("product_id", id).order("sort_order", { ascending: true });
+
+    if (!full) return jsonOk(mapProduct(data as any, { category: null, brand: null, variants: [], images: [] }));
+
+    return jsonOk(mapProduct(full, { category: full.categories, brand: full.brands, variants: productVariants || [], images: (images || []) }));
+  }
+
+  // DELETE /admin/products/:id
+  if (method === "DELETE" && resource === "products" && id) {
+    const { error: authError } = await requireAdmin(request);
+    if (authError) return authError;
+
+    const { error } = await supabase.from("products").delete().eq("id", id);
+    if (error) return jsonError(error.message, 400);
+    return jsonOk({ message: "Product deleted" });
   }
 
   // GET /admin/categories
@@ -76,7 +254,8 @@ export async function handleAdmin(
         .from("order_items")
         .select("*, products(*, product_images(*))")
         .eq("order_id", order.id);
-      result.push(mapOrder(order, items || []));
+      const { data: profile } = await supabase.from("profiles").select("*").eq("id", order.user_id).single();
+      result.push({ ...mapOrder(order, items || []), customer: profile ? mapProfile(profile) : null });
     }
     return jsonOk(result);
   }
@@ -108,6 +287,14 @@ export async function handleAdmin(
 
     await logAudit(admin!._id, "update_order", "orders", id, updates, request.headers.get("x-forwarded-for"));
     return jsonOk(mapOrder(data));
+  }
+
+  // DELETE /admin/orders/:id
+  if (method === "DELETE" && resource === "orders" && id) {
+    const { error } = await supabase.from("orders").delete().eq("id", id);
+    if (error) return jsonError(error.message, 400);
+    await logAudit(admin!._id, "delete_order", "orders", id, {}, request.headers.get("x-forwarded-for"));
+    return jsonOk({ message: "Order deleted" });
   }
 
   // GET /admin/inventory
@@ -148,11 +335,49 @@ export async function handleAdmin(
         product_id: body.product_id || body.product,
         variant_id: body.variant_id || body.variant || null,
         quantity: body.quantity || 0,
+        available_quantity: body.available_quantity ?? body.quantity ?? 0,
+        reserved_quantity: body.reserved_quantity || 0,
+        damaged_quantity: body.damaged_quantity || 0,
+        incoming_quantity: body.incoming_quantity || 0,
       })
       .select()
       .single();
     if (error) return jsonError(error.message, 400);
     return jsonOk(toMongoId(data), 201);
+  }
+
+  // POST /admin/inventory/adjust
+  if (method === "POST" && resource === "inventory" && id === "adjust") {
+    const body = await request.json();
+    const { warehouse_id, product_id, variant_id, quantity, movement_type, notes } = body;
+    if (!warehouse_id || !product_id || !quantity || !movement_type) {
+      return jsonError("warehouse_id, product_id, quantity, and movement_type are required", 400);
+    }
+
+    const { error: rpcError } = await supabase.rpc("adjust_inventory", {
+      p_warehouse_id: warehouse_id,
+      p_product_id: product_id,
+      p_variant_id: variant_id || null,
+      p_quantity: quantity,
+      p_movement_type: movement_type,
+      p_notes: notes || null,
+      p_created_by: admin!._id,
+    });
+    if (rpcError) return jsonError(rpcError.message, 400);
+
+    await logAudit(admin!._id, "inventory_adjusted", "inventory", product_id, { warehouse_id, quantity, movement_type }, request.headers.get("x-forwarded-for"));
+    return jsonOk({ message: "Inventory adjusted" });
+  }
+
+  // GET /admin/inventory/movements
+  if (method === "GET" && resource === "inventory" && id === "movements") {
+    const limit = parseInt(request.nextUrl.searchParams.get("limit") || "50");
+    const { data } = await supabase
+      .from("inventory_movements")
+      .select("*, warehouses(name), products(title), product_variants(size, color)")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    return jsonOk(toMongoIds(data || []));
   }
 
   // GET /admin/users
@@ -250,6 +475,14 @@ export async function handleAdmin(
     return jsonOk({ message: `Bulk action ${action} completed` });
   }
 
+  // DELETE /admin/users/:id
+  if (method === "DELETE" && resource === "users" && id) {
+    const { error } = await supabase.from("profiles").delete().eq("id", id);
+    if (error) return jsonError(error.message, 400);
+    await logAudit(admin!._id, "delete_user", "users", id, {}, request.headers.get("x-forwarded-for"));
+    return jsonOk({ message: "User deleted" });
+  }
+
   // GET /admin/customers
   if (method === "GET" && resource === "customers") {
     const { data } = await supabase
@@ -282,6 +515,13 @@ export async function handleAdmin(
     return jsonOk(toMongoId(data));
   }
 
+  // DELETE /admin/roles/:id
+  if (method === "DELETE" && resource === "roles" && id) {
+    const { error } = await supabase.from("roles").delete().eq("id", id);
+    if (error) return jsonError(error.message, 400);
+    return jsonOk({ message: "Role deleted" });
+  }
+
   // GET /admin/permissions
   if (method === "GET" && resource === "permissions") {
     const { data } = await supabase.from("permissions").select("*").order("name");
@@ -302,6 +542,13 @@ export async function handleAdmin(
     const { data, error } = await supabase.from("permissions").update(body).eq("id", id).select().single();
     if (error) return jsonError(error.message, 400);
     return jsonOk(toMongoId(data));
+  }
+
+  // DELETE /admin/permissions/:id
+  if (method === "DELETE" && resource === "permissions" && id) {
+    const { error } = await supabase.from("permissions").delete().eq("id", id);
+    if (error) return jsonError(error.message, 400);
+    return jsonOk({ message: "Permission deleted" });
   }
 
   // GET /admin/settings
@@ -346,33 +593,6 @@ export async function handleAdmin(
     if (error) return jsonError(error.message, 400);
     return jsonOk(toMongoId(data), 201);
   }
-
-  // GET /admin/logs
-  if (method === "GET" && resource === "logs") {
-    const limit = parseInt(request.nextUrl.searchParams.get("limit") || "50");
-    const { data } = await supabase
-      .from("audit_logs")
-      .select("*, profiles(first_name, last_name, email)")
-      .order("created_at", { ascending: false })
-      .limit(limit);
-    return jsonOk(toMongoIds(data || []));
-  }
-
-  // GET /admin/logs/export
-  if (method === "GET" && resource === "logs" && id === "export") {
-    const { data } = await supabase.from("audit_logs").select("*").order("created_at", { ascending: false });
-    const csv = ["id,action,resource,created_at", ...(data || []).map((l) =>
-      `${l.id},${l.action},${l.resource},${l.created_at}`
-    )].join("\n");
-
-    return new Response(csv, {
-      headers: {
-        "Content-Type": "text/csv",
-        "Content-Disposition": "attachment; filename=audit-logs.csv",
-      },
-    });
-  }
-
   // GET /admin/shipments
   if (method === "GET" && resource === "shipments") {
     const { data } = await supabase

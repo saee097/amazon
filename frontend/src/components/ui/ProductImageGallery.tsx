@@ -139,7 +139,7 @@ export default function ProductImageGallery({
                     priority
                     onLoad={handleImageLoad}
                     onError={handleImageError}
-                    unoptimized={safeImages[selectedIndex].image_url.startsWith("data:")}
+                    unoptimized={safeImages[selectedIndex].image_url.startsWith("data:") || safeImages[selectedIndex].image_url.startsWith("http")}
                   />
                 )}
               </div>
@@ -226,7 +226,7 @@ export default function ProductImageGallery({
                 className="object-cover"
                 sizes="64px"
                 draggable={false}
-                unoptimized={img.image_url.startsWith("data:")}
+                unoptimized={img.image_url.startsWith("data:") || img.image_url.startsWith("http")}
               />
               {selectedIndex === idx && (
                 <div className="absolute inset-0 border-2 border-orange-500 rounded-lg pointer-events-none" />
