@@ -134,7 +134,7 @@ export default function AdminLogsPage() {
             </button>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <div className="relative">
                 <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -209,7 +209,7 @@ export default function AdminLogsPage() {
             </div>
           )}
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             {loading ? (
               <div className="p-12 text-center">
                 <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
@@ -237,7 +237,7 @@ export default function AdminLogsPage() {
                     {logs.map((log) => (
                       <tr key={log._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                         <td className="px-6 py-4">
-                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getActionBadgeColor(log.action)}`}>
+                          <span className={`px-2.5 border border-gray-200 py-0.5 rounded-full text-xs font-medium ${getActionBadgeColor(log.action)}`}>
                             {log.action}
                           </span>
                         </td>

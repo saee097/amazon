@@ -177,7 +177,7 @@ export default function AdminOrderDetail() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="lg:col-span-2 bg-white rounded-xl  border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Order Information</h2>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
@@ -199,7 +199,7 @@ export default function AdminOrderDetail() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-xl  border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Customer</h2>
           <div className="space-y-3 text-sm">
             <div>
@@ -221,7 +221,7 @@ export default function AdminOrderDetail() {
       </div>
 
       {address && (address.street || address.city || address.country) && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="bg-white rounded-xl  border border-gray-200 p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Shipping Address</h2>
           <div className="text-sm text-gray-700 space-y-1">
             {address.street && <p>{address.street}</p>}
@@ -233,7 +233,7 @@ export default function AdminOrderDetail() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+      <div className="bg-white rounded-xl  border border-gray-200 mb-6">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-800">Order Items</h2>
         </div>
@@ -275,7 +275,7 @@ export default function AdminOrderDetail() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-xl  border border-gray-200 p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">Payment Summary</h2>
         <div className="space-y-3 text-sm max-w-md">
           <div className="flex justify-between">
@@ -304,7 +304,7 @@ export default function AdminOrderDetail() {
       </div>
 
       {order.note && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="bg-white rounded-xl  border border-gray-200 p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Customer Note</h2>
           <p className="text-sm text-gray-700">{order.note}</p>
         </div>

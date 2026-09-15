@@ -77,7 +77,7 @@ export default function AdminCustomersCreate() {
           </span>
           <div>
             <p className="text-sm font-medium text-[#0F766E]">Customers</p>
-            <h1 className="text-2xl font-semibold text-gray-950">Create customer</h1>
+            <h1 className="text-2xl font-semibold text-gray-700">Create customer</h1>
             <p className="mt-1 text-sm text-gray-500">
               Add a new customer to your store.
             </p>
@@ -87,7 +87,7 @@ export default function AdminCustomersCreate() {
           <button
             type="button"
             onClick={() => router.push("/admin/customers")}
-            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-700  hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
           >
             <ArrowLeft size={15} /> Back
           </button>
@@ -95,7 +95,7 @@ export default function AdminCustomersCreate() {
             type="submit"
             form="customer-create-form"
             disabled={submitting}
-            className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#0F766E]/90 disabled:opacity-60"
+            className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white  hover:bg-[#0F766E]/90 disabled:opacity-60"
           >
             {submitting ? (
               <Loader2 size={15} className="animate-spin" />
@@ -119,7 +119,7 @@ export default function AdminCustomersCreate() {
       )}
 
       <form id="customer-create-form" onSubmit={handleSubmit} className="space-y-6">
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="rounded-xl border border-gray-200 bg-white p-6  dark:border-gray-700 dark:bg-gray-800">
           <h2 className="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100">
             Customer details
           </h2>
@@ -182,7 +182,7 @@ export default function AdminCustomersCreate() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="rounded-xl border border-gray-200 bg-white p-6  dark:border-gray-700 dark:bg-gray-800">
           <h2 className="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100">
             Account
           </h2>

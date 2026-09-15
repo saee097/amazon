@@ -48,13 +48,13 @@ export default function RefundsPage() {
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Refunds</h1>
 
         {refunds.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-8 text-center">
+          <div className="bg-white rounded-xl  border border-gray-200 p-8 text-center">
             <p className="text-gray-500">You have no refunds.</p>
           </div>
         ) : (
           <div className="space-y-4">
             {refunds.map((refund) => (
-              <div key={refund._id} className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+              <div key={refund._id} className="bg-white rounded-xl  border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold text-gray-800">
                     Refund #{refund._id?.toString().slice(-6).toUpperCase()}

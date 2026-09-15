@@ -172,7 +172,7 @@ export default function AdminUsers() {
             </div>
           )}
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-xl  border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="relative flex-1">
@@ -219,19 +219,22 @@ export default function AdminUsers() {
                   <span className="text-sm text-gray-600 dark:text-gray-300">{selectedUsers.length} selected</span>
                   <button
                     onClick={() => handleBulkAction("suspend")}
-                    className="px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded-lg text-sm hover:bg-yellow-200 transition"
+                     title="Suspend"
+                    className="px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded-lg text-sm border border-gray-200 hover:bg-yellow-200 transition"
                   >
                     Suspend
                   </button>
                   <button
                     onClick={() => handleBulkAction("activate")}
-                    className="px-3 py-1.5 bg-green-100 text-green-800 rounded-lg text-sm hover:bg-green-200 transition"
+                     title="Activate"
+                    className="px-3 py-1.5 border border-gray-200  bg-green-100 text-green-800 rounded-lg text-sm hover:bg-green-200 transition"
                   >
                     Activate
                   </button>
                   <button
                     onClick={() => handleBulkAction("delete")}
-                    className="px-3 py-1.5 bg-red-100 text-red-800 rounded-lg text-sm hover:bg-red-200 transition"
+                    title="Delete"
+                    className="px-3 py-1.5 border border-gray-200  bg-red-100 text-red-800 rounded-lg text-sm hover:bg-red-200 transition"
                   >
                     Delete
                   </button>
@@ -285,11 +288,11 @@ export default function AdminUsers() {
                           {user.first_name} {user.last_name}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{user.email}</td>
-                        <td className="px-6 py-4">
-                          <RoleBadge role={user.role} />
+                        <td className="px-6 py-4 ">
+                          <RoleBadge role={user.role} className="border border-gray-200" />
                         </td>
                         <td className="px-6 py-4">
-                          <StatusBadge status={user.status || "active"} />
+                          <StatusBadge status={user.status || "active"} className="border border-gray-200" />
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
                           {user.created_at ? new Date(user.created_at).toLocaleDateString() : "-"}

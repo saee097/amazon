@@ -149,21 +149,21 @@ export default function AdminInventory() {
       {/* Header */}
       <div className="flex flex-col gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-950 dark:text-gray-100">Inventory</h1>
+          <h1 className="text-2xl font-bold text-gray-700 dark:text-gray-100">Inventory</h1>
           <p className="mt-1 text-sm text-gray-500">{filtered.length} variants</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => load(true)}
             disabled={refreshing}
-            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700  hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
           >
             <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
             Refresh
           </button>
           <button
             onClick={exportCSV}
-            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700  hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
           >
             <Download size={14} />
             Export
@@ -179,7 +179,7 @@ export default function AdminInventory() {
           { label: "Low Stock", count: counts.low_stock, cls: "text-amber-700", icon: AlertTriangle },
           { label: "Out of Stock", count: counts.out_of_stock, cls: "text-rose-700", icon: XCircle },
         ].map(({ label, count, cls, icon: Icon }) => (
-          <div key={label} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div key={label} className="rounded-xl border border-gray-200 bg-white p-4  dark:border-gray-700 dark:bg-gray-800">
             <div className="flex items-center justify-between">
               <p className={`text-2xl font-bold ${cls} dark:text-gray-100`}>{count}</p>
               <Icon size={20} className={`${cls} opacity-70`} />
@@ -212,7 +212,7 @@ export default function AdminInventory() {
       )}
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:flex-row">
+      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4  dark:border-gray-700 dark:bg-gray-800 sm:flex-row">
         <div className="relative flex-1">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
@@ -236,7 +236,7 @@ export default function AdminInventory() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white  dark:border-gray-700 dark:bg-gray-800">
         {paginated.length === 0 ? (
           <div className="py-20 text-center">
             <Package className="mx-auto text-gray-300" size={36} />

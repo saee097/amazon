@@ -37,10 +37,10 @@ const STATUS_STYLES = {
 };
 
 const PAYMENT_STYLES = {
-  pending:  "bg-amber-50 text-amber-700",
-  paid:     "bg-emerald-50 text-emerald-700",
-  failed:   "bg-rose-50 text-rose-700",
-  refunded: "bg-gray-100 text-gray-600",
+  pending:  "bg-amber-50 text-amber-700 border border-amber-200",
+  paid:     "bg-emerald-50 text-emerald-700 border border-emerald-200",
+  failed:   "bg-rose-50 text-rose-700 border border-rose-200",
+  refunded: "bg-gray-100 text-gray-600 border border-gray-200",
 };
 
 function StatusBadge({ status, styles }) {
@@ -195,21 +195,21 @@ export default function AdminOrders() {
       {/* Header */}
       <div className="flex flex-col gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-950 dark:text-gray-100">Orders</h1>
+          <h1 className="text-2xl font-bold text-gray-700 dark:text-gray-100">Orders</h1>
           <p className="mt-1 text-sm text-gray-500">{filtered.length} orders found</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => loadOrders(true)}
             disabled={refreshing}
-            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700  hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
           >
             <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
             Refresh
           </button>
           <button
             onClick={exportCSV}
-            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700  hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
           >
             <Download size={14} />
             Export
@@ -223,13 +223,13 @@ export default function AdminOrders() {
           <button
             key={s}
             onClick={() => setStatusFilter(statusFilter === s ? "" : s)}
-            className={`rounded-xl border p-3 text-center transition hover:shadow-md ${
+            className={`rounded-xl border p-3 text-center transition hover: ${
               statusFilter === s
                 ? "border-[#0F766E] bg-[#0F766E]/5 ring-1 ring-[#0F766E]"
                 : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
             }`}
           >
-            <p className="text-xl font-bold text-gray-950 dark:text-gray-100">{summaryCounts[s] || 0}</p>
+            <p className="text-xl font-bold text-gray-700 dark:text-gray-100">{summaryCounts[s] || 0}</p>
             <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-500 capitalize">{s}</p>
           </button>
         ))}
@@ -248,7 +248,7 @@ export default function AdminOrders() {
       )}
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:flex-row">
+      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4  dark:border-gray-700 dark:bg-gray-800 sm:flex-row">
         <div className="relative flex-1">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
@@ -282,7 +282,7 @@ export default function AdminOrders() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white  dark:border-gray-700 dark:bg-gray-800">
         {paginated.length === 0 ? (
           <div className="py-20 text-center">
             <Truck className="mx-auto text-gray-300" size={36} />
@@ -320,10 +320,10 @@ export default function AdminOrders() {
                       {currency(order.total)}
                     </td>
                     <td className="px-6 py-4">
-                      <StatusBadge status={order.order_status} styles={STATUS_STYLES} />
+                      <StatusBadge status={order.order_status} styles={STATUS_STYLES} className="border border-gray-200"/>
                     </td>
                     <td className="px-6 py-4">
-                      <StatusBadge status={order.payment_status} styles={PAYMENT_STYLES} />
+                      <StatusBadge status={order.payment_status} styles={PAYMENT_STYLES} className="border border-gray-200"/>
                     </td>
                     <td className="px-6 py-4 text-xs text-gray-500">{formatDate(order.created_at)}</td>
                     <td className="px-6 py-4">

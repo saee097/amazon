@@ -167,7 +167,7 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 shadow-sm">
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 ">
           {errors.submit && (
             <div className="mb-5 rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/20 px-4 py-3 text-sm text-rose-700 dark:text-rose-300">
               {errors.submit}
@@ -344,7 +344,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading || !isValid}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F766E] py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0d5e58] disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F766E] py-3.5 text-sm font-semibold text-white  transition hover:bg-[#0d5e58] disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2"
             >
               {loading && <Loader2 size={16} className="animate-spin" />}
               {loading ? "Creating account…" : `Create ${selectedRole.label.toLowerCase()} account`}

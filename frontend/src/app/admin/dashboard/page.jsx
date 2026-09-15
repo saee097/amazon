@@ -83,7 +83,7 @@ function StatCard({ label, value, detail, href, icon: Icon, tone, delta }) {
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">{label}</p>
             {typeof delta === "number" && <DeltaPill value={delta} />}
           </div>
-          <p className="mt-2 text-2xl font-bold tracking-tight text-gray-950">{value}</p>
+          <p className="mt-2 text-2xl font-bold tracking-tight text-gray-700">{value}</p>
           <p className="mt-1 text-xs text-gray-500">{detail}</p>
         </div>
         <span className={`flex h-11 w-11 shrink-0 border border-gray-200 items-center justify-center rounded-xl ${tone} `}>
@@ -254,7 +254,7 @@ export default function AdminDashboard() {
           <p className="flex items-center gap-2 text-sm font-medium text-[#0F766E]">
             <Activity size={14} /> Operations overview
           </p>
-          <h1 className="mt-1 text-2xl font-bold text-gray-950 sm:text-3xl">
+          <h1 className="mt-1 text-2xl font-bold text-gray-700 sm:text-3xl">
             Good day, {user?.first_name || "Admin"}
           </h1>
           <p className="mt-1 flex items-center gap-2 text-sm text-gray-500">
@@ -299,7 +299,7 @@ export default function AdminDashboard() {
         <section className="overflow-hidden rounded-xl border border-gray-200 bg-white  lg:col-span-3">
           <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4">
             <div>
-              <h2 className="text-base font-semibold text-gray-950">Revenue trend</h2>
+              <h2 className="text-base font-semibold text-gray-700">Revenue trend</h2>
               <p className="mt-1 text-sm text-gray-500">Daily sales excluding cancelled orders.</p>
             </div>
             <Link
@@ -338,7 +338,7 @@ export default function AdminDashboard() {
         <section className="rounded-xl border border-gray-200 bg-white  lg:col-span-2">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div>
-              <h2 className="text-base font-semibold text-gray-950">Order pipeline</h2>
+              <h2 className="text-base font-semibold text-gray-700">Order pipeline</h2>
               <p className="mt-1 text-sm text-gray-500">Orders created this week.</p>
             </div>
             <ClipboardList size={18} className="text-gray-400" />
@@ -348,7 +348,7 @@ export default function AdminDashboard() {
               <div key={item.status}>
                 <div className="mb-1.5 flex justify-between text-sm">
                   <span className="capitalize text-gray-700">{item.status}</span>
-                  <span className="font-semibold text-gray-950">{numberFmt.format(item.count)}</span>
+                  <span className="font-semibold text-gray-700">{numberFmt.format(item.count)}</span>
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-gray-100">
                   <div
@@ -361,7 +361,7 @@ export default function AdminDashboard() {
             <div className="mt-4 grid grid-cols-3 gap-3 border-t border-gray-200 pt-4">
               {statusCounts.slice(0, 3).map((item) => (
                 <div key={item.status} className="text-center">
-                  <p className="text-lg font-bold text-gray-950">{item.count}</p>
+                  <p className="text-lg font-bold text-gray-700">{item.count}</p>
                   <p className="text-[10px] uppercase tracking-wider text-gray-500">{item.status}</p>
                 </div>
               ))}
@@ -374,7 +374,7 @@ export default function AdminDashboard() {
         <section className="overflow-hidden rounded-xl border border-gray-200 bg-white ">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div>
-              <h2 className="text-base font-semibold text-gray-950">Recent orders</h2>
+              <h2 className="text-base font-semibold text-gray-700">Recent orders</h2>
               <p className="mt-1 text-sm text-gray-500">Newest orders across the store.</p>
             </div>
             <Link href="/admin/orders" className="text-sm font-medium text-[#0F766E] hover:underline">
@@ -403,7 +403,7 @@ export default function AdminDashboard() {
                       <td className="px-6 py-3">
                         <Link
                           href={`/admin/orders/${order._id}`}
-                          className="font-semibold text-gray-950 hover:text-[#0F766E]"
+                          className="font-semibold text-gray-700 hover:text-[#0F766E]"
                         >
                           {order.order_number}
                         </Link>
@@ -412,7 +412,7 @@ export default function AdminDashboard() {
                       <td className="px-6 py-3 text-gray-700">
                         {order.customer?.name || order.customer?.email || "Guest"}
                       </td>
-                      <td className="px-6 py-3 font-semibold text-gray-950">{currency.format(order.total)}</td>
+                      <td className="px-6 py-3 font-semibold text-gray-700">{currency.format(order.total)}</td>
                       <td className="px-6 py-3">
                         <span
                           className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${
@@ -434,7 +434,7 @@ export default function AdminDashboard() {
         <section className="overflow-hidden rounded-xl border border-gray-200 bg-white ">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div>
-              <h2 className="text-base font-semibold text-gray-950">Inventory attention</h2>
+              <h2 className="text-base font-semibold text-gray-700">Inventory attention</h2>
               <p className="mt-1 text-sm text-gray-500">Variants with fewer than 10 units.</p>
             </div>
             <Link href="/admin/inventory" className="text-sm font-medium text-[#0F766E] hover:underline">
@@ -462,7 +462,7 @@ export default function AdminDashboard() {
                       <Boxes size={16} />
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-gray-950">
+                      <p className="truncate text-sm font-semibold text-gray-700">
                         {variant.product?.title || "Deleted product"}
                       </p>
                       <p className="mt-0.5 truncate text-xs text-gray-500">
@@ -488,7 +488,7 @@ export default function AdminDashboard() {
         <section className="rounded-xl border border-gray-200 bg-white ">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div>
-              <h2 className="text-base font-semibold text-gray-950">New Customers</h2>
+              <h2 className="text-base font-semibold text-gray-700">New Customers</h2>
               <p className="mt-1 text-sm text-gray-500">Recently registered customers.</p>
             </div>
             <Link href="/admin/customers" className="text-sm font-medium text-[#0F766E] hover:underline">
@@ -530,7 +530,7 @@ export default function AdminDashboard() {
                           </span>
                         )}
                       </div>
-                      <span className="font-medium text-gray-950">
+                      <span className="font-medium text-gray-700">
                         {`${customer.firstName || ""} ${customer.lastName || ""}`.trim() || customer.email}
                       </span>
                     </div>
@@ -550,7 +550,7 @@ export default function AdminDashboard() {
         <section className="rounded-xl border border-gray-200 bg-white ">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div>
-              <h2 className="text-base font-semibold text-gray-950">Recent Banners</h2>
+              <h2 className="text-base font-semibold text-gray-700">Recent Banners</h2>
               <p className="mt-1 text-sm text-gray-500">Latest banners shown on the storefront.</p>
             </div>
             <Link href="/admin/banners" className="text-sm font-medium text-[#0F766E] hover:underline">
@@ -582,7 +582,7 @@ export default function AdminDashboard() {
                         <span className="text-gray-300">—</span>
                       )}
                     </td>
-                    <td className="px-6 py-3 font-medium text-gray-950">{banner.heading || "—"}</td>
+                    <td className="px-6 py-3 font-medium text-gray-700">{banner.heading || "—"}</td>
                     <td className="px-6 py-3 text-gray-500">{banner.subheading || "—"}</td>
                     <td className="px-6 py-3">
                       <span
@@ -606,7 +606,7 @@ export default function AdminDashboard() {
         <section className="overflow-hidden rounded-xl border border-gray-200 bg-white  lg:col-span-3">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div>
-              <h2 className="text-base font-semibold text-gray-950">Top products</h2>
+              <h2 className="text-base font-semibold text-gray-700">Top products</h2>
               <p className="mt-1 text-sm text-gray-500">Ranked by all-time order-item revenue.</p>
             </div>
             <Package size={18} className="text-gray-400" />
@@ -634,13 +634,13 @@ export default function AdminDashboard() {
                       {index === 0 ? <Star size={13} /> : index + 1}
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-gray-950">{product.title}</p>
+                      <p className="truncate text-sm font-semibold text-gray-700">{product.title}</p>
                       <p className="text-xs text-gray-500">{numberFmt.format(product.units)} units sold</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <MiniSpark value={(product.revenue / 1000) % 30} />
-                    <span className="text-sm font-bold text-gray-950">{currency.format(product.revenue)}</span>
+                    <span className="text-sm font-bold text-gray-700">{currency.format(product.revenue)}</span>
                   </div>
                 </li>
               ))}
@@ -651,7 +651,7 @@ export default function AdminDashboard() {
         <section className="overflow-hidden rounded-xl border border-gray-200 bg-white  lg:col-span-2">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div>
-              <h2 className="text-base font-semibold text-gray-950">Activity</h2>
+              <h2 className="text-base font-semibold text-gray-700">Activity</h2>
               <p className="mt-1 text-sm text-gray-500">Recent audited actions.</p>
             </div>
             <Link href="/admin/logs" className="text-sm font-medium text-[#0F766E] hover:underline">
@@ -687,7 +687,7 @@ export default function AdminDashboard() {
           </span>
           <div>
             <p className="text-xs uppercase text-gray-500">Avg. order value</p>
-            <p className="text-lg font-bold text-gray-950">{currency.format(stats.averageOrderValue)}</p>
+            <p className="text-lg font-bold text-gray-700">{currency.format(stats.averageOrderValue)}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -698,7 +698,7 @@ export default function AdminDashboard() {
             <p className="text-xs uppercase text-gray-500">Pending returns</p>
             <Link
               href="/admin/returns"
-              className="text-lg font-bold text-gray-950 hover:text-[#0F766E]"
+              className="text-lg font-bold text-gray-700 hover:text-[#0F766E]"
             >
               {numberFmt.format(stats.pendingReturns)}
             </Link>
@@ -712,7 +712,7 @@ export default function AdminDashboard() {
             <p className="text-xs uppercase text-gray-500">Pending refunds</p>
             <Link
               href="/admin/refunds"
-              className="text-lg font-bold text-gray-950 hover:text-[#0F766E]"
+              className="text-lg font-bold text-gray-700 hover:text-[#0F766E]"
             >
               {numberFmt.format(stats.pendingRefunds)}
             </Link>
@@ -726,7 +726,7 @@ export default function AdminDashboard() {
               <p className="text-xs uppercase text-gray-500">Orders this week</p>
               <Link
                 href="/admin/orders"
-                className="text-lg font-bold text-gray-950 hover:text-[#0F766E]"
+                className="text-lg font-bold text-gray-700 hover:text-[#0F766E]"
               >
                 {numberFmt.format(stats.totalOrders ?? 0)}
               </Link>

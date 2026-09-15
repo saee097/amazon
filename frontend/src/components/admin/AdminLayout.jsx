@@ -200,7 +200,7 @@ function SidebarContent({ collapsed, pathname, isSuperAdmin, currentUser, filter
         }`}
       >
         <Link href="/admin/dashboard" className={`flex items-center gap-2.5 min-w-0 ${collapsed ? "justify-center" : ""}`}>
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F766E] to-[#0d5e58] text-white shadow-md">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F766E] to-[#0d5e58] text-white ">
             <Activity size={18} />
           </span>
           {!collapsed && (
@@ -500,7 +500,7 @@ export default function AdminLayout({ children }) {
         {/* Collapse toggle */}
         <button
           onClick={toggleCollapsed}
-          className="absolute -right-3 top-20 z-10 hidden h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm transition hover:border-[#0F766E] hover:text-[#0F766E] dark:border-gray-700 dark:bg-gray-900 lg:flex"
+          className="absolute -right-3 top-20 z-10 hidden h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500  transition hover:border-[#0F766E] hover:text-[#0F766E] dark:border-gray-700 dark:bg-gray-900 lg:flex"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? <ChevronsRight size={13} /> : <ChevronsLeft size={13} />}

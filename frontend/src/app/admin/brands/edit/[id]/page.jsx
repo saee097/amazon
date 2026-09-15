@@ -128,7 +128,7 @@ export default function AdminBrandsEdit() {
           </span>
           <div>
             <p className="text-sm font-medium text-[#0F766E]">Catalog</p>
-            <h1 className="text-2xl font-semibold text-gray-950">
+            <h1 className="text-2xl font-semibold text-gray-700">
               Edit brand
             </h1>
             <p className="mt-1 text-sm text-gray-500">
@@ -140,7 +140,7 @@ export default function AdminBrandsEdit() {
           <button
             type="button"
             onClick={() => router.push("/admin/brands")}
-            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-700  hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
           >
             <ArrowLeft size={15} /> Back
           </button>
@@ -148,7 +148,7 @@ export default function AdminBrandsEdit() {
             type="submit"
             form="brand-edit-form"
             disabled={submitting}
-            className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#0F766E]/90 disabled:opacity-60"
+            className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white  hover:bg-[#0F766E]/90 disabled:opacity-60"
           >
             {submitting ? (
               <Loader2 size={15} className="animate-spin" />
@@ -176,7 +176,7 @@ export default function AdminBrandsEdit() {
         onSubmit={handleSubmit}
         className="space-y-6"
       >
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="rounded-xl border border-gray-200 bg-white p-6  dark:border-gray-700 dark:bg-gray-800">
           <h2 className="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100">
             Brand details
           </h2>
@@ -238,7 +238,7 @@ export default function AdminBrandsEdit() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="rounded-xl border border-gray-200 bg-white p-6  dark:border-gray-700 dark:bg-gray-800">
           <h2 className="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100">
             Status
           </h2>

@@ -62,7 +62,7 @@ function KpiCard({ label, value, detail, href, icon: Icon, tone, delta }) {
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">{label}</p>
             {typeof delta === "number" && <DeltaBadge value={delta} />}
           </div>
-          <p className="mt-2 text-2xl font-bold text-gray-950 dark:text-gray-100">{value}</p>
+          <p className="mt-2 text-2xl font-bold text-gray-700 dark:text-gray-100">{value}</p>
           <p className="mt-1 text-xs text-gray-400">{detail}</p>
         </div>
         <span className={`flex h-11 w-11 shrink-0 items-center border-gray-200 border justify-center rounded-xl ${tone} `}>
@@ -223,7 +223,7 @@ export default function AdminAnalytics() {
           <p className="flex items-center gap-2 text-sm font-medium text-[#0F766E]">
             <BarChart3 size={14} /> Store Analytics
           </p>
-          <h1 className="mt-1 text-2xl font-bold text-gray-950 dark:text-gray-100 sm:text-3xl">
+          <h1 className="mt-1 text-2xl font-bold text-gray-700 dark:text-gray-100 sm:text-3xl">
             Analytics Overview
           </h1>
           <p className="mt-1 flex items-center gap-2 text-sm text-gray-500">
@@ -239,14 +239,14 @@ export default function AdminAnalytics() {
           <button
             onClick={() => load(true)}
             disabled={refreshing}
-            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700  hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
           >
             <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
             Refresh
           </button>
           <Link
             href="/admin/dashboard"
-            className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-3 text-sm font-semibold text-white shadow-sm hover:bg-[#0F766E]/90"
+            className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-3 text-sm font-semibold text-white  hover:bg-[#0F766E]/90"
           >
             <Eye size={14} /> Dashboard
           </Link>
@@ -263,10 +263,10 @@ export default function AdminAnalytics() {
       {/* Revenue Chart + Order Pipeline */}
       <div className="grid gap-6 lg:grid-cols-5">
         {/* Revenue Bar Chart */}
-        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:col-span-3">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white  dark:border-gray-700 dark:bg-gray-800 lg:col-span-3">
           <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
-              <h2 className="text-base font-semibold text-gray-950 dark:text-gray-100">Revenue Trend</h2>
+              <h2 className="text-base font-semibold text-gray-700 dark:text-gray-100">Revenue Trend</h2>
               <p className="mt-1 text-sm text-gray-500">Daily sales · last 7 days</p>
             </div>
             <Link
@@ -314,10 +314,10 @@ export default function AdminAnalytics() {
         </section>
 
         {/* Order Pipeline */}
-        <section className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:col-span-2">
+        <section className="rounded-xl border border-gray-200 bg-white  dark:border-gray-700 dark:bg-gray-800 lg:col-span-2">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
-              <h2 className="text-base font-semibold text-gray-950 dark:text-gray-100">Order Pipeline</h2>
+              <h2 className="text-base font-semibold text-gray-700 dark:text-gray-100">Order Pipeline</h2>
               <p className="mt-1 text-sm text-gray-500">Orders by status · 7d</p>
             </div>
             <Activity size={18} className="text-gray-400" />
@@ -351,10 +351,10 @@ export default function AdminAnalytics() {
       {/* Top Products + Daily Orders table */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Top Products */}
-        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white  dark:border-gray-700 dark:bg-gray-800">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
-              <h2 className="text-base font-semibold text-gray-950 dark:text-gray-100">Top Products</h2>
+              <h2 className="text-base font-semibold text-gray-700 dark:text-gray-100">Top Products</h2>
               <p className="mt-1 text-sm text-gray-500">By revenue this week</p>
             </div>
             <Link href="/admin/products" className="text-sm font-medium text-[#0F766E] hover:underline">
@@ -400,10 +400,10 @@ export default function AdminAnalytics() {
         </section>
 
         {/* Daily Revenue Table */}
-        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white  dark:border-gray-700 dark:bg-gray-800">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
-              <h2 className="text-base font-semibold text-gray-950 dark:text-gray-100">Daily Breakdown</h2>
+              <h2 className="text-base font-semibold text-gray-700 dark:text-gray-100">Daily Breakdown</h2>
               <p className="mt-1 text-sm text-gray-500">Revenue & orders per day</p>
             </div>
             <BarChart3 size={18} className="text-gray-400" />
@@ -459,9 +459,9 @@ export default function AdminAnalytics() {
       </div>
 
       {/* Fulfillment metrics */}
-      <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <h2 className="mb-4 text-base font-semibold text-gray-950 dark:text-gray-100">Fulfillment Metrics</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="rounded-xl border border-gray-200 bg-white p-6  dark:border-gray-700 dark:bg-gray-800">
+        <h2 className="mb-4 text-base font-semibold text-gray-700 dark:text-gray-100">Fulfillment Metrics</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 ">
           {[
             { label: "Paid Revenue", value: currency(stats?.paidRevenue), sub: "Confirmed payments", tone: "text-emerald-600" },
             { label: "Avg. Order Value", value: currency(avgOrderValue), sub: "This week", tone: "text-sky-600" },

@@ -142,7 +142,7 @@ export default function AdminProducts() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-4">
+      <div className="bg-white rounded-xl  border border-gray-200 mb-6 p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1">
             <input
@@ -179,7 +179,7 @@ export default function AdminProducts() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl  border border-gray-200 overflow-hidden">
         {filteredProducts.length === 0 ? (
           <div className="p-12 text-center">
             <div className="text-6xl mb-4">📦</div>

@@ -314,10 +314,10 @@ className={`px-3 py-1 border text-xs transition ${
                           }
                           overlayActions={
                             <>
-                              <button className="w-8 h-8 bg-white dark:bg-gray-800 flex items-center justify-center shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-full">
+                              <button className="w-8 h-8 bg-white dark:bg-gray-800 flex items-center justify-center  hover:bg-gray-50 dark:hover:bg-gray-700 rounded-full">
                                 <FiHeart size={14} className="text-gray-700 dark:text-gray-300" />
                               </button>
-                              <button className="w-8 h-8 bg-white dark:bg-gray-800 flex items-center justify-center shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-full">
+                              <button className="w-8 h-8 bg-white dark:bg-gray-800 flex items-center justify-center  hover:bg-gray-50 dark:hover:bg-gray-700 rounded-full">
                                 <FiSearch size={14} className="text-gray-700 dark:text-gray-300" />
                               </button>
                             </>

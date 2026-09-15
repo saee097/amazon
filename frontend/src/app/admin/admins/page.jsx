@@ -70,7 +70,7 @@ function DeleteConfirmDialog({ open, onClose, onConfirm, name, loading }) {
           <button onClick={onClose} disabled={loading} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300">
             Cancel
           </button>
-          <button onClick={onConfirm} disabled={loading} className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-700 disabled:opacity-50">
+          <button onClick={onConfirm} disabled={loading} className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-50">
             {loading ? <Loader2 size={14} className="animate-spin" /> : "Delete"}
           </button>
         </div>
@@ -267,19 +267,19 @@ export default function ManageAdmins() {
         <div className="mx-auto max-w-7xl space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-950 dark:text-gray-100">Manage Admins</h1>
+              <h1 className="text-2xl font-bold text-gray-700 dark:text-gray-100">Manage Admins</h1>
               <p className="mt-1 text-sm text-gray-500">Create and manage admin accounts with granular permissions</p>
             </div>
             <button
               onClick={openCreate}
-              className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#0F766E]/90 transition"
+              className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white  hover:bg-[#0F766E]/90 transition"
             >
               <Plus size={16} />
               Add Admin
             </button>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
+          <div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
@@ -305,7 +305,7 @@ export default function ManageAdmins() {
                 <button
                   onClick={() => load(true)}
                   disabled={refreshing}
-                  className="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+                  className="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
                 >
                   <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
                   Refresh
@@ -398,7 +398,7 @@ export default function ManageAdmins() {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <StatusBadge status={admin.status || "active"} />
+                            <StatusBadge status={admin.status || "active"}  className="border border-gray-200"/>
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-500">{formatDate(admin.created_at)}</td>
                           <td className="px-6 py-4">

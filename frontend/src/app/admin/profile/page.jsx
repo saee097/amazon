@@ -300,7 +300,7 @@ export default function AdminProfilePage() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-xl  border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="flex border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
           {[
             { id: "profile", label: "Profile", icon: FiUser },
@@ -403,7 +403,7 @@ export default function AdminProfilePage() {
 
               <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex flex-col gap-1">
-                  <StatusBadge status={admin?.status} />
+                  <StatusBadge status={admin?.status} className="border border-gray-200" />
                   <p className="text-xs text-gray-500">Role: <RoleBadge role={admin?.role} inline /></p>
                   {admin?.created_at && (
                     <p className="text-xs text-gray-500">Member since {formatDate(admin.created_at)}</p>

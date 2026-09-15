@@ -135,9 +135,9 @@ export default function AdminBanners() {
       header: "Status",
       render: (item) =>
         item.status === "active" ? (
-          <StatusBadge status="ACTIVE" />
+          <StatusBadge status="ACTIVE" className="border border-gray-200" />
         ) : (
-          <StatusBadge status="INACTIVE" />
+          <StatusBadge status="INACTIVE" className="border border-gray-200"/>
         ),
       priority: "high",
     },
@@ -380,7 +380,7 @@ export default function AdminBanners() {
                 )}
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <StatusBadge status={preview.status === "active" ? "ACTIVE" : "INACTIVE"} />
+                <StatusBadge status={preview.status === "active" ? "ACTIVE" : "INACTIVE"}  className="border border-gray-200"/>
               </div>
             </div>
             {preview.link_url && (

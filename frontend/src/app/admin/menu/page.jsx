@@ -55,7 +55,7 @@ function DeleteConfirmDialog({ open, onClose, onConfirm, itemName }) {
           </button>
           <button
             onClick={onConfirm}
-            className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-700"
+            className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white  hover:bg-rose-700"
           >
             Delete
           </button>
@@ -303,21 +303,21 @@ export default function AdminMenu() {
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex flex-col gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-950 dark:text-gray-100">Menu Items</h1>
+            <h1 className="text-2xl font-bold text-gray-700 dark:text-gray-100">Menu Items</h1>
             <p className="mt-1 text-sm text-gray-500">{filtered.length} items</p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => load(true)}
               disabled={refreshing}
-              className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+              className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700  hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
             >
               <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
               Refresh
             </button>
             <button
               onClick={openCreate}
-              className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#0F766E]/90"
+              className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white  hover:bg-[#0F766E]/90"
             >
               <Plus size={16} />
               Add Menu Item
@@ -336,7 +336,7 @@ export default function AdminMenu() {
           </div>
         )}
 
-        <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:flex-row">
+        <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4  dark:border-gray-700 dark:bg-gray-800 sm:flex-row">
           <div className="relative flex-1">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -358,7 +358,7 @@ export default function AdminMenu() {
           </select>
         </div>
 
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white  dark:border-gray-700 dark:bg-gray-800">
           {paginated.length === 0 ? (
             <div className="py-20 text-center">
               <GripVertical className="mx-auto text-gray-300" size={36} />
@@ -436,7 +436,7 @@ export default function AdminMenu() {
                         />
                       </td>
                       <td className="px-6 py-4">
-                        <StatusBadge status={item.status} />
+                        <StatusBadge status={item.status} className="border border-gray-200"/>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
                         {item.created_at ? new Date(item.created_at).toLocaleDateString() : "—"}
