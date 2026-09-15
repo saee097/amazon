@@ -1,37 +1,97 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import api from "@/lib/api";
+import {
+  Tag,
+  CheckCircle2,
+  AlertTriangle,
+} from "lucide-react";
+import ResourceManager from "@/components/admin/ResourceManager";
+import StatusBadge from "@/components/StatusBadge";
 
 export default function AdminCoupons() {
-  const [coupons, setCoupons] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const couponColumns = [
+    {
+      key: "code",
+      header: "Code",
+      render: (item) => (
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          {item.code || "-"}
+        </span>
+      ),
+      priority: "high",
+    },
+    {
+      key: "discount_type",
+      header: "Type",
+      render: (item) => <span>{item.discount_type || "-"}</span>,
+      priority: "high",
+    },
+    {
+      key: "discount_value",
+      header: "Value",
+      render: (item) => {
+        const val = item.discount_value ?? 0;
+        return item.discount_type === "percentage" ? `${val}%` : `$${val}`;
+      },
+      priority: "high",
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (item) => {
+        const status = item.status || (item.isActive ? "active" : "inactive");
+        return <StatusBadge status={status} className="border border-gray-200" />;
+      },
+      priority: "high",
+    },
+    {
+      key: "created_at",
+      header: "Created",
+      render: (item) =>
+        item.created_at ? (
+          <time className="text-sm text-gray-600 whitespace-nowrap">
+            {new Date(item.created_at).toLocaleDateString(undefined, {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
+          </time>
+        ) : (
+          <span className="text-gray-400">-</span>
+        ),
+      priority: "low",
+    },
+  ];
 
-  useEffect(() => {
-    const loadCoupons = async () => {
-      try {
-        const { data } = await api.get("/coupons");
-        setCoupons(data.data || []);
-      } catch (error) {
-        console.error("Failed to load coupons:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadCoupons();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  const couponFields = [
+    { name: "code", label: "Coupon Code", type: "text", required: true, placeholder: "e.g. SAVE20" },
+    {
+      name: "discount_type",
+      label: "Discount Type",
+      type: "select",
+      required: true,
+      options: [
+        { value: "percentage", label: "Percentage" },
+        { value: "fixed", label: "Fixed Amount" },
+      ],
+    },
+    { name: "discount_value", label: "Discount Value", type: "number", required: true, placeholder: "e.g. 20", min: 0 },
+    { name: "min_order", label: "Min Order Amount", type: "number", placeholder: "e.g. 50", min: 0 },
+    { name: "max_uses", label: "Max Uses", type: "number", placeholder: "e.g. 100", min: 1 },
+    { name: "per_user_usage_limit", label: "Per User Usage Limit", type: "number", placeholder: "e.g. 3", min: 1 },
+    { name: "start_date", label: "Start Date", type: "datetime-local" },
+    { name: "expires_at", label: "Expires At", type: "datetime-local" },
+    {
+      name: "status",
+      label: "Status",
+      type: "select",
+      required: true,
+      options: [
+        { value: "active", label: "Active" },
+        { value: "inactive", label: "Inactive" },
+      ],
+    },
+  ];
 
   return (
     <div className="max-w-6xl">
@@ -63,18 +123,17 @@ export default function AdminCoupons() {
             <tbody className="divide-y">
               {coupons.map((coupon) => (
                 <tr key={coupon._id}>
-                  <td className="px-6 py-4 font-medium">{coupon.code}</td>
-                  <td className="px-6 py-4">{coupon.discount_type}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 border-b border-gray-200 font-medium">{coupon.code}</td>
+                  <td className="px-6 py-4 border-b border-gray-200">{coupon.discount_type}</td>
+                  <td className="px-6 py-4 border-b border-gray-200">
                     {coupon.discount_type === "percentage"
                       ? `${coupon.discount_value}%`
                       : `$${coupon.discount_value}`}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 border-b border-gray-200">
                     <span
-                      className={`px-2 py-1 text-xs rounded-full ${
-                        coupon.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
-                      }`}
+                      className={`px-2 py-1 text-xs rounded-full ${coupon.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                        }`}
                     >
                       {coupon.isActive ? "Active" : "Inactive"}
                     </span>
