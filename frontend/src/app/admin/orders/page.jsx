@@ -7,6 +7,8 @@ import {
   Search,
   RefreshCw,
   Eye,
+  Pencil,
+  Trash2,
   ChevronLeft,
   ChevronRight,
   Truck,
@@ -246,7 +248,7 @@ export default function AdminOrders() {
       )}
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:flex-row">
+      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:flex-row">
         <div className="relative flex-1">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
@@ -280,7 +282,7 @@ export default function AdminOrders() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
         {paginated.length === 0 ? (
           <div className="py-20 text-center">
             <Truck className="mx-auto text-gray-300" size={36} />
@@ -325,24 +327,27 @@ export default function AdminOrders() {
                     </td>
                     <td className="px-6 py-4 text-xs text-gray-500">{formatDate(order.created_at)}</td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-3">
+                      <div className="flex items-center justify-end gap-1">
                         <Link
                           href={`/admin/orders/${order._id}`}
-                          className="text-xs font-medium text-[#0F766E] hover:underline"
+                          title="View order"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#0F766E] transition hover:bg-[#0F766E]/10"
                         >
-                          View
+                          <Eye size={16} />
                         </Link>
                         <button
                           onClick={() => openEdit(order)}
-                          className="text-xs font-medium text-sky-600 hover:underline"
+                          title="Edit order"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-sky-600 transition hover:bg-sky-50"
                         >
-                          Edit
+                          <Pencil size={16} />
                         </button>
                         <button
                           onClick={() => handleDelete(order._id)}
-                          className="text-xs font-medium text-rose-600 hover:underline"
+                          title="Delete order"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-rose-600 transition hover:bg-rose-50"
                         >
-                          Delete
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </td>
@@ -355,7 +360,7 @@ export default function AdminOrders() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4 dark:border-gray-700">
+          <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4 dark:border-gray-700">
             <p className="text-sm text-gray-500">
               Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of{" "}
               {filtered.length}
@@ -386,8 +391,8 @@ export default function AdminOrders() {
       {/* Edit Modal */}
       {editingOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-800">
-            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+          <div className="w-full max-w-md overflow-hidden rounded-xl bg-white shadow-2xl dark:bg-gray-800">
+            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
               <div>
                 <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Edit Order</h2>
                 <p className="text-xs text-gray-400">
@@ -431,7 +436,7 @@ export default function AdminOrders() {
                 </select>
               </div>
             </div>
-            <div className="flex justify-end gap-3 border-t border-gray-100 px-6 py-4 dark:border-gray-700">
+            <div className="flex justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
               <button
                 onClick={() => setEditingOrder(null)}
                 className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300"

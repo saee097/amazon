@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { NextRequest } from "next/server";
-import { getSupabaseAdmin } from "../../supabase/admin";
-import { requireAuth } from "../../lib/auth";
+import { getSupabaseAdmin } from "@/server/supabase/admin";
+import { requireAuth, logAudit } from "../../lib/auth";
 import {
   generateOrderNumber,
   mapCategory,

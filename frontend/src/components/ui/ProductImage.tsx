@@ -66,22 +66,20 @@ export default function ProductImage({
 
   return (
     <div
-      className={`group relative ${aspectRatio} bg-gray-50 overflow-hidden ${className}`}
+      className={`group relative ${aspectRatio} bg-gray-50 dark:bg-gray-800 overflow-hidden ${className}`}
       onClick={onClick}
     >
-      {/* Shimmer skeleton */}
       {isLoading && !hasError && (
         <div className="absolute inset-0 shimmer-bg z-[1]">
           <div className="absolute inset-0 shimmer-shine"></div>
         </div>
       )}
 
-      {/* Error fallback */}
       {hasError ? (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-[1]">
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-700 z-[1]">
           <div className="text-center p-4">
             <svg
-              className="w-10 h-10 text-gray-300 mx-auto mb-2"
+              className="w-10 h-10 text-gray-300 dark:text-gray-500 mx-auto mb-2"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -93,7 +91,7 @@ export default function ProductImage({
                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
               />
             </svg>
-            <p className="text-xs text-gray-400">Image unavailable</p>
+            <p className="text-xs text-gray-400 dark:text-gray-400">Image unavailable</p>
           </div>
         </div>
       ) : (
@@ -112,21 +110,18 @@ export default function ProductImage({
         />
       )}
 
-      {/* Badges */}
       {badge && (
         <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
           {badge}
         </div>
       )}
 
-      {/* Hover overlay actions */}
       {overlayActions && (
         <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
           {overlayActions}
         </div>
       )}
 
-      {/* Gradient overlay for better badge/action readability */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent pointer-events-none z-0" />
     </div>
   );

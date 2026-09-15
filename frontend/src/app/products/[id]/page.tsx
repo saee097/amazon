@@ -138,10 +138,10 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-          <p className="mt-4 text-sm text-gray-500">Loading product...</p>
+          <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading product...</div>
         </div>
       </div>
     );
@@ -149,10 +149,10 @@ export default function ProductDetailPage() {
 
   if (error || !product) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-900 text-lg font-medium mb-2">Product not found</p>
-          <p className="text-gray-500 text-sm mb-6">The product you are looking for does not exist or has been removed.</p>
+          <p className="text-gray-900 dark:text-gray-100 text-lg font-medium mb-2">Product not found</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">The product you are looking for does not exist or has been removed.</p>
           <Link
             href="/products"
             className="inline-flex items-center gap-2 px-6 py-2 bg-[#0F766E] text-white text-sm font-medium hover:bg-[#0F766E]/90 transition rounded-lg"
@@ -166,10 +166,10 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-xs text-gray-500 mb-6">
+        <nav className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-6">
           <Link href="/" className="hover:text-[#0F766E] transition">Home</Link>
           <span>/</span>
           <Link href="/products" className="hover:text-[#0F766E] transition">Products</Link>
@@ -185,14 +185,14 @@ export default function ProductDetailPage() {
             </>
           )}
           <span>/</span>
-          <span className="text-gray-900 truncate max-w-[200px]">{product.title}</span>
+          <span className="text-gray-900 dark:text-gray-100 truncate max-w-[200px]">{product.title}</span>
         </nav>
 
         {/* Product */}
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
 {/* Images */}
-             <div className="p-6 lg:p-8 bg-gray-50">
+             <div className="p-6 lg:p-8 bg-gray-50 dark:bg-gray-800">
                <ProductImageGallery
                  images={productImages}
                  title={product.title}
@@ -205,7 +205,7 @@ export default function ProductDetailPage() {
             <div className="p-6 lg:p-8 flex flex-col">
               <div className="flex-1">
                 <div className="flex items-center justify-between gap-4">
-                <h1 className="text-xl md:text-1xl font-medium text-gray-900 tracking-wide">
+                <h1 className="text-xl md:text-1xl font-medium text-gray-900 dark:text-gray-100 tracking-wide">
                   {product.title}
                 </h1>
 
@@ -217,7 +217,7 @@ export default function ProductDetailPage() {
                       }
                     }}
                     title="Share"
-                    className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition"
+                    className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
                   >
                     <FiShare size={14} />
                   </button>
@@ -225,8 +225,8 @@ export default function ProductDetailPage() {
               </div> {/* Description */}
                 {product.description && (
                   <div className="mt-6">
-                    <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-2"></h3>
-                    <p className="text-sm text-gray-600 leading-relaxed">
+                    <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-2"></h3>
+<p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                       {product.description}
                     </p>
                   </div>
@@ -234,12 +234,12 @@ export default function ProductDetailPage() {
 
                 <div className="flex items-center gap-3 mt-3">
                   {product.brand?.brand_name && (
-                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       {product.brand.brand_name}
                     </span>
                   )}
                   {product.brand?.brand_name && product.category?.category_name && (
-                    <span className="text-gray-300">|</span>
+                    <span className="text-gray-300 dark:text-gray-600">|</span>
                   )}
                   {product.category?.category_name && (
                     <Link
@@ -269,7 +269,7 @@ export default function ProductDetailPage() {
 
                 {/* Price */}
                 <div className="flex items-baseline gap-3 mt-6">
-                  <span className="text-3xl font-semibold text-gray-900">
+                  <span className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
                     {formatPrice(currentPrice)}
                   </span>
                   {hasDiscount && (
@@ -339,7 +339,7 @@ export default function ProductDetailPage() {
                         <>
                            {colors.length > 0 && (
                             <div>
-                              <span className="text-sm font-semibold text-gray-900  tracking-wider block mb-2">Choose Color</span>
+                              <span className="text-sm font-semibold text-gray-900 dark:text-gray-100  tracking-wider block mb-2">Choose Color</span>
                               <div className="flex flex-wrap gap-2">
                                 {colors.map((color) => {
                                   const isAvailable = availableColorsForSize.length === 0 || availableColorsForSize.includes(color);
@@ -353,8 +353,8 @@ export default function ProductDetailPage() {
                                         isSelected
                                           ? "border-[#0F766E] bg-[#0F766E] text-white"
                                           : isAvailable
-                                          ? "border-gray-300 text-gray-700 hover:border-[#0F766E] hover:text-[#0F766E]"
-                                          : "border-gray-200 text-gray-300 cursor-not-allowed"
+                                      ? "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-[#0F766E] hover:text-[#0F766E]"
+                                           : "border-gray-200 dark:border-gray-600 text-gray-300 dark:text-gray-500 cursor-not-allowed"
                                       }`}
                                     >
                                       {color}
@@ -366,7 +366,7 @@ export default function ProductDetailPage() {
                           )}
 {sizes.length > 0 && (
                             <div>
-                              <span className="text-sm font-semibold text-gray-900  tracking-wider block mb-2">Sellect Size</span>
+                              <span className="text-sm font-semibold text-gray-900 dark:text-gray-100  tracking-wider block mb-2">Sellect Size</span>
                               <div className="flex flex-wrap gap-2">
                                 {sizes.map((size) => {
                                   const isAvailable = availableSizesForColor.length === 0 || availableSizesForColor.includes(size);
@@ -380,8 +380,8 @@ export default function ProductDetailPage() {
                                         isSelected
                                           ? "border-[#0F766E] bg-[#0F766E] text-white"
                                           : isAvailable
-                                          ? "border-gray-300 text-gray-700 hover:border-[#0F766E] hover:text-[#0F766E]"
-                                          : "border-gray-200 text-gray-300 cursor-not-allowed"
+                                      ? "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-[#0F766E] hover:text-[#0F766E]"
+                                           : "border-gray-200 dark:border-gray-600 text-gray-300 dark:text-gray-500 cursor-not-allowed"
                                       }`}
                                     >
                                       {size}
@@ -412,19 +412,19 @@ export default function ProductDetailPage() {
 
       {/* Quantity */}
       <div className=" mb-6  items-center gap-3">
-        <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">
+        <span className="text-xs font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">
           Quantity
         </span>
 
-        <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+        <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
           <button
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition"
+            className="w-10 h-10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
           >
             <FiMinus size={14} />
           </button>
 
-          <span className="w-10 h-10 flex items-center justify-center text-sm font-medium text-gray-900 border-x border-gray-300">
+          <span className="w-10 h-10 flex items-center justify-center text-sm font-medium text-gray-900 dark:text-gray-100 border-x border-gray-300 dark:border-gray-600">
             {quantity}
           </span>
 
@@ -434,7 +434,7 @@ export default function ProductDetailPage() {
                 Math.min(selectedVariant?.inventory_quantity || 99, q + 1)
               )
             }
-            className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition"
+            className="w-10 h-10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
           >
             <FiPlus size={14} />
           </button>
@@ -492,24 +492,24 @@ export default function ProductDetailPage() {
 
         {/* Reviews */}
         {product.reviews && product.reviews.length > 0 && (
-          <div className="mt-8 bg-white rounded-lg border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-lg font-medium text-gray-900 tracking-wide mb-6">
+          <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 lg:p-8">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 tracking-wide mb-6">
               Customer Reviews ({product.reviews.length})
             </h2>
             <div className="space-y-6">
               {product.reviews.map((review) => (
-                <div key={review._id} className="border-b border-gray-100 last:border-b-0 pb-6 last:pb-0">
+                <div key={review._id} className="border-b border-gray-200 dark:border-gray-700 last:border-b-0 pb-6 last:pb-0">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-700 uppercase">
+                      <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
                         {review.customer?.name?.charAt(0) || "U"}
                       </div>
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {review.customer?.name || "Anonymous"}
                       </span>
                     </div>
                     {review.created_at && (
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-gray-400 dark:text-gray-500">
                         {new Date(review.created_at).toLocaleDateString()}
                       </span>
                     )}
@@ -519,12 +519,12 @@ export default function ProductDetailPage() {
                       <FiStar
                         key={star}
                         size={14}
-                        className={star <= (review.rating || 0) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}
+                        className={star <= (review.rating || 0) ? "text-yellow-400 fill-yellow-400" : "text-gray-300 dark:text-gray-500"}
                       />
                     ))}
                   </div>
                   {review.comment && (
-                    <p className="text-sm text-gray-600 leading-relaxed">{review.comment}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{review.comment}</p>
                   )}
                 </div>
               ))}

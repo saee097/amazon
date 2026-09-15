@@ -53,7 +53,7 @@ function VerifyEmailInner() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-emerald-50/40 px-4 py-12">
-      <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
+      <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-8 text-center shadow-sm">
         <div
           className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full ${
             status === "success"

@@ -86,28 +86,28 @@ export default function SuperAdminDashboard() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Customers</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats?.totalCustomers || 0}</p>
               <Link href="/admin/customers" className="text-sm text-[#0F766E] hover:underline mt-2 block">
                 View all
               </Link>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Admins</p>
               <p className="text-2xl font-bold text-purple-600">{adminStats?.totalAdmins || 0}</p>
               <Link href="/admin/admins" className="text-sm text-[#0F766E] hover:underline mt-2 block">
                 Manage admins
               </Link>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
               <p className="text-sm text-gray-500 dark:text-gray-400">Active Admins</p>
               <p className="text-2xl font-bold text-green-600">{adminStats?.activeAdmins || 0}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                 {stats?.totalCustomers || 0} customers
               </p>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Products</p>
               <p className="text-2xl font-bold text-blue-600">{stats?.totalProducts || 0}</p>
               <Link href="/admin/products" className="text-sm text-[#0F766E] hover:underline mt-2 block">
@@ -117,7 +117,7 @@ export default function SuperAdminDashboard() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+            <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Store Performance</h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
@@ -141,7 +141,7 @@ export default function SuperAdminDashboard() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Quick Actions</h2>
               <div className="space-y-3">
                 <Link
@@ -170,7 +170,7 @@ export default function SuperAdminDashboard() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">System Health</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
@@ -204,7 +204,7 @@ export default function SuperAdminDashboard() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Recent Critical Logs</h2>
                 <Link href="/admin/logs" className="text-sm text-[#0F766E] hover:underline">View All</Link>
@@ -227,7 +227,7 @@ export default function SuperAdminDashboard() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">System Overview</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">

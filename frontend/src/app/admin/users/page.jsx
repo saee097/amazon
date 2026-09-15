@@ -9,16 +9,13 @@ import {
   FiSearch,
   FiFilter,
   FiPlus,
-  FiEdit,
   FiTrash2,
   FiX,
   FiChevronLeft,
   FiChevronRight,
-  FiMoreVertical,
-  FiCheck,
-  FiXCircle,
   FiUserCheck,
 } from "react-icons/fi";
+import { Pencil } from "lucide-react";
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -31,7 +28,6 @@ export default function AdminUsers() {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
-  const [showActionsMenu, setShowActionsMenu] = useState(null);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -271,7 +267,7 @@ export default function AdminUsers() {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Role</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Created</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -298,31 +294,23 @@ export default function AdminUsers() {
                         <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
                           {user.created_at ? new Date(user.created_at).toLocaleDateString() : "-"}
                         </td>
-                        <td className="px-6 py-4 relative">
-                          <button
-                            onClick={() => setShowActionsMenu(showActionsMenu === user._id ? null : user._id)}
-                            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300"
-                          >
-                            <FiMoreVertical className="w-4 h-4" />
-                          </button>
-                          {showActionsMenu === user._id && (
-                            <div className="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 z-10">
-                              <button
-                                onClick={() => { openEdit(user); setShowActionsMenu(null); }}
-                                className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
-                              >
-                                <FiEdit className="w-4 h-4" />
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => { handleDelete(user._id); setShowActionsMenu(null); }}
-                                className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                              >
-                                <FiTrash2 className="w-4 h-4" />
-                                Delete
-                              </button>
-                            </div>
-                          )}
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => openEdit(user)}
+                              title="Edit user"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#0F766E] bg-[#0F766E]/5 border border-[#0F766E]/20 hover:bg-[#0F766E]/10 transition"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(user._id)}
+                              title="Delete user"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-rose-600 transition hover:bg-rose-50"
+                            >
+                              <FiTrash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -357,7 +345,7 @@ export default function AdminUsers() {
           {showModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-                <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-6 py-4">
+                <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
                   <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                     {editingUser ? "Edit User" : "Add User"}
                   </h2>

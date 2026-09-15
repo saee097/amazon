@@ -132,48 +132,48 @@ function LoginForm() {
   const isValid = form.email && form.password && validateEmail(form.email);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-emerald-50/40 flex flex-col items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-emerald-50/40 dark:from-gray-900 dark:via-gray-800 dark:to-emerald-900/30 flex flex-col items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
 
         {/* Brand */}
         <div className="text-center mb-8">
-          <div className="mx-auto mb-4 flex h-13 w-13 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0F766E] to-[#0d5e58] text-white shadow-lg" style={{height:52,width:52}}>
+          <div className="mx-auto mb-4 flex h-13 w-13 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F766E] to-[#0d5e58] text-white shadow-lg" style={{height:52,width:52}}>
             <svg className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
               <path d="M3 3h2l.4 2M7 13h10l4-8H5.4" />
               <circle cx="9" cy="20" r="1.5" /><circle cx="18" cy="20" r="1.5" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Welcome back</h1>
-          <p className="mt-2 text-sm text-gray-500">Sign in to your account</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Welcome back</h1>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Sign in to your account</p>
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 shadow-sm">
 
           {/* Alerts */}
           {success && (
-            <div className="mb-5 flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            <div className="mb-5 flex items-start gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-300">
               <svg className="mt-0.5 h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/></svg>
               {success}
             </div>
           )}
 
           {locked && (
-            <div className="mb-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+            <div className="mb-5 rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/20 px-4 py-3 text-sm text-rose-800 dark:text-rose-300">
               <p className="font-semibold">Account locked</p>
               <p className="mt-0.5">Please contact support or try again later.</p>
             </div>
           )}
 
           {rateLimited && (
-            <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <div className="mb-5 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-900 dark:text-amber-300">
               <p className="font-semibold">Too many attempts</p>
               <p className="mt-0.5">Please wait a few minutes then try again, or use a demo account below.</p>
             </div>
           )}
 
           {errors.submit && !locked && !rateLimited && (
-            <div className="mb-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <div className="mb-5 rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/20 px-4 py-3 text-sm text-rose-700 dark:text-rose-300">
               {errors.submit}
             </div>
           )}
@@ -181,7 +181,7 @@ function LoginForm() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700">Email address</label>
+                            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Email address</label>
               <input
                 type="email"
                 name="email"
@@ -192,16 +192,17 @@ function LoginForm() {
                 className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition ${
                   errors.email
                     ? "border-rose-300 focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
-                    : "border-gray-300 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
+                    : "border-gray-300 dark:border-gray-600 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 }`}
               />
-              {errors.email && <p className="mt-1 text-xs text-rose-600">{errors.email}</p>}
+              {errors.email && <p className="mt-1 text-xs text-rose-600">
+{errors.email}</p>}
             </div>
 
             {/* Password */}
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-700">Password</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
                 <a href="/auth/forgot-password" className="text-xs font-medium text-[#0F766E] hover:underline">
                   Forgot password?
                 </a>
@@ -217,13 +218,13 @@ function LoginForm() {
                   className={`w-full rounded-xl border px-4 py-3 pr-12 text-sm outline-none transition ${
                     errors.password
                       ? "border-rose-300 focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
-                      : "border-gray-300 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
+                      : "border-gray-300 dark:border-gray-600 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((p) => !p)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
@@ -237,15 +238,15 @@ function LoginForm() {
             </div>
 
             {/* Remember me */}
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-[#0F766E] focus:ring-[#0F766E]"
-              />
-              <span className="text-sm text-gray-600">Remember me</span>
-            </label>
+             <label className="flex cursor-pointer items-center gap-2">
+               <input
+                 type="checkbox"
+                 checked={rememberMe}
+                 onChange={(e) => setRememberMe(e.target.checked)}
+                 className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-[#0F766E] focus:ring-[#0F766E]"
+               />
+               <span className="text-sm text-gray-600 dark:text-gray-400">Remember me</span>
+             </label>
 
             {/* Submit */}
             <button
@@ -265,15 +266,15 @@ function LoginForm() {
             {/* Google */}
             {GOOGLE_ENABLED && (
               <>
-                <div className="relative my-2">
-                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"/></div>
-                  <div className="relative flex justify-center text-xs"><span className="bg-white px-3 text-gray-400">or</span></div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || "/api"}/auth/google`}
-                  className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-300 bg-white py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                >
+            <div className="relative my-2">
+                   <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200 dark:border-gray-700"/></div>
+                   <div className="relative flex justify-center text-xs"><span className="bg-white dark:bg-gray-800 px-3 text-gray-400 dark:text-gray-500">or</span></div>
+                 </div>
+                 <button
+                   type="button"
+                   onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || "/api"}/auth/google`}
+                   className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 transition hover:bg-gray-50 dark:hover:bg-gray-700"
+                 >
                   <svg className="h-5 w-5" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.88 7.49-2.38l-3.57-2.77c-.89.66-2.03.98-3.12.98-2.21 0-4.19-.74-5.56-2.06h-3.97v2.95c1.86 1.08 4.1 1.79 6.53 1.79z"/>
@@ -288,7 +289,7 @@ function LoginForm() {
         </div>
 
         {/* Register link */}
-        <p className="mt-6 text-center text-sm text-gray-500">
+        <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
           Don't have an account?{" "}
           <a href="/auth/register" className="font-semibold text-[#0F766E] hover:underline">
             Create one free
@@ -296,44 +297,44 @@ function LoginForm() {
         </p>
 
         {/* Demo credentials */}
-        <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50/70 p-5 shadow-sm">
+        <div className="mt-6 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50/70 dark:bg-amber-900/10 p-5 shadow-sm">
           <div className="flex items-start gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
               </svg>
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-amber-900">Demo accounts</p>
-              <p className="mt-0.5 text-xs text-amber-700">
+              <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">Demo accounts</p>
+              <p className="mt-0.5 text-xs text-amber-700 dark:text-amber-300">
                 Click any row to auto-fill credentials
               </p>
-              <ul className="mt-3 divide-y divide-amber-200 overflow-hidden rounded-xl border border-amber-200 bg-white/90">
+              <ul className="mt-3 divide-y divide-amber-200 dark:divide-amber-800 overflow-hidden rounded-xl border border-amber-200 dark:border-amber-800 bg-white/90 dark:bg-gray-800/90">
                 {DEMO_ACCOUNTS.map((acct) => (
                   <li key={acct.role}>
                     <button
                       type="button"
                       onClick={() => fillDemo(acct)}
-                      className="grid w-full grid-cols-12 items-center gap-2 px-3 py-2.5 text-left text-xs transition hover:bg-amber-50"
+                      className="grid w-full grid-cols-12 items-center gap-2 px-3 py-2.5 text-left text-xs transition hover:bg-amber-50 dark:hover:bg-amber-900/20"
                     >
                       <span className="col-span-12 flex items-center gap-2 sm:col-span-3">
                         <span className={`h-2 w-2 shrink-0 rounded-full ${acct.dot}`}/>
-                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${acct.accent}`}>
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${acct.accent} dark:bg-opacity-20`}>
                           {acct.role}
                         </span>
                       </span>
-                      <span className="col-span-7 truncate font-mono text-[11px] text-gray-700 sm:col-span-5">
+                      <span className="col-span-7 truncate font-mono text-[11px] text-gray-700 dark:text-gray-300 sm:col-span-5">
                         {acct.email}
                       </span>
-                      <span className="col-span-5 truncate font-mono text-[11px] text-gray-500 sm:col-span-4">
+                      <span className="col-span-5 truncate font-mono text-[11px] text-gray-500 dark:text-gray-400 sm:col-span-4">
                         {acct.password}
                       </span>
                     </button>
                   </li>
                 ))}
               </ul>
-              <p className="mt-3 text-[11px] text-amber-700">
-                Run <code className="rounded bg-white/70 px-1 font-mono">npm run seed</code> on your Supabase instance to create these users.
+              <p className="mt-3 text-[11px] text-amber-700 dark:text-amber-300">
+                Run <code className="rounded bg-white/70 dark:bg-gray-700 px-1 font-mono">npm run seed</code> on your Supabase instance to create these users.
               </p>
             </div>
           </div>

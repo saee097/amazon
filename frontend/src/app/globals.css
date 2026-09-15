@@ -14,6 +14,16 @@
   --primary-light: #ccfbf1;
 }
 
+.dark {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --primary: #0F766E;
+  --primary-hover: #0F766E;
+  --primary-light: #115652;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -22,6 +32,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 input, textarea, select {
@@ -34,6 +45,10 @@ input, textarea, select {
   animation: shimmer-slide 1.5s infinite;
 }
 
+.dark .shimmer-bg {
+  background: linear-gradient(90deg, #374151 0%, #4b5563 50%, #374151 100%);
+}
+
 .shimmer-shine {
   background: linear-gradient(
     90deg,
@@ -42,6 +57,15 @@ input, textarea, select {
     transparent 100%
   );
   animation: shimmer-shine 1.5s infinite;
+}
+
+.dark .shimmer-shine {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
 }
 
 @keyframes shimmer-slide {
@@ -80,4 +104,34 @@ img {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
 }

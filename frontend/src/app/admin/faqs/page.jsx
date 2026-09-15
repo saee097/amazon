@@ -9,7 +9,7 @@ export default function AdminFaqs() {
           Add New FAQ
         </button>
       </div>
-      <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
         <p className="text-gray-500">No FAQs found.</p>
       </div>
     </div>

@@ -70,16 +70,16 @@ export default function CheckoutPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col items-center justify-center px-4 py-8 sm:py-12">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 py-8 sm:py-12">
         <div className="w-full max-w-md mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl sm:text-4xl font-light text-gray-800 mb-3">
+            <h1 className="text-3xl sm:text-4xl font-light text-gray-800 dark:text-gray-200 mb-3">
               Checkout
             </h1>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-6 sm:p-8 w-full text-center">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 sm:p-8 w-full text-center">
             <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-            <p className="mt-4 text-gray-600">Loading checkout...</p>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading checkout...</p>
           </div>
         </div>
       </div>
@@ -88,15 +88,15 @@ export default function CheckoutPage() {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col items-center justify-center px-4 py-8 sm:py-12">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 py-8 sm:py-12">
         <div className="w-full max-w-md mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl sm:text-4xl font-light text-gray-800 mb-3">
+            <h1 className="text-3xl sm:text-4xl font-light text-gray-800 dark:text-gray-200 mb-3">
               Checkout
             </h1>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-6 sm:p-8 w-full text-center">
-            <p className="text-gray-500 mb-4">Your cart is empty.</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 sm:p-8 w-full text-center">
+            <p className="text-gray-500 dark:text-gray-400 mb-4">Your cart is empty.</p>
             <Link href="/products" className="text-sm font-medium text-[#0F766E] hover:underline">
               Continue Shopping
             </Link>
@@ -107,23 +107,23 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col items-center justify-center px-4 py-8 sm:py-12">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 py-8 sm:py-12">
       <div className="w-full max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl sm:text-4xl font-light text-gray-800 mb-3">
+          <h1 className="text-3xl sm:text-4xl font-light text-gray-800 dark:text-gray-200 mb-3">
             Checkout
           </h1>
-          <p className="text-base sm:text-lg text-gray-600 px-4">
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 px-4">
             Complete your purchase
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Shipping Address</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Shipping Address</h2>
               {addresses.length === 0 ? (
-                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
+                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                   <span>No addresses found.</span>
                   <Link href="/addresses" className="font-medium text-[#0F766E] hover:underline">
                     Add a shipping address
@@ -134,7 +134,7 @@ export default function CheckoutPage() {
                   {addresses.map((address) => (
                     <label
                       key={address._id}
-                      className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50"
+                      className="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
                     >
                       <input
                         type="radio"
@@ -144,8 +144,8 @@ export default function CheckoutPage() {
                         className="text-[#0F766E]"
                       />
                       <div>
-                        <p className="font-medium text-gray-800">{address.street}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="font-medium text-gray-800 dark:text-gray-200">{address.street}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           {address.city}, {address.state && `${address.state},`} {address.country}
                         </p>
                       </div>
@@ -155,13 +155,13 @@ export default function CheckoutPage() {
               )}
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Payment Method</h2>
-              <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Payment Method</h2>
+              <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                 Cash on Delivery
               </div>
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Coupon Code
                 </label>
                 <input
@@ -169,23 +169,23 @@ export default function CheckoutPage() {
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                   placeholder="Enter coupon code"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-500 outline-none transition focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E]/20"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-3 text-sm text-gray-500 dark:text-gray-400 outline-none transition focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E]/20 bg-white dark:bg-gray-700"
                 />
               </div>
             </div>
           </div>
 
           <div>
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Order Summary</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Order Summary</h2>
               <div className="space-y-2 mb-4">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Subtotal</span>
-                  <span className="font-medium text-gray-800">${cart?.totals?.subtotal || 0}</span>
+                  <span className="text-gray-500 dark:text-gray-400">Subtotal</span>
+                  <span className="font-medium text-gray-800 dark:text-gray-200">${cart?.totals?.subtotal || 0}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Shipping</span>
-                  <span className="font-medium text-gray-800">${cart?.totals?.shipping || 0}</span>
+                  <span className="text-gray-500 dark:text-gray-400">Shipping</span>
+                  <span className="font-medium text-gray-800 dark:text-gray-200">${cart?.totals?.shipping || 0}</span>
                 </div>
                 {cart?.totals?.discount > 0 && (
                   <div className="flex justify-between text-sm text-green-600">
@@ -193,9 +193,9 @@ export default function CheckoutPage() {
                     <span>-${cart.totals.discount}</span>
                   </div>
                 )}
-                <div className="border-t pt-2 flex justify-between font-bold">
-                  <span>Total</span>
-                  <span>${cart?.totals?.total || 0}</span>
+                <div className="border-t dark:border-gray-700 pt-2 flex justify-between font-bold">
+                  <span className="text-gray-700 dark:text-gray-300">Total</span>
+                  <span className="text-gray-900 dark:text-gray-100">${cart?.totals?.total || 0}</span>
                 </div>
               </div>
               <button
@@ -205,7 +205,7 @@ export default function CheckoutPage() {
               >
                 {submitting ? "Placing Order..." : "Place Order"}
               </button>
-              {error && <p className="mt-3 text-sm text-red-600" role="alert">{error}</p>}
+              {error && <p className="mt-3 text-sm text-red-500" role="alert">{error}</p>}
             </div>
           </div>
         </div>

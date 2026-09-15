@@ -19,7 +19,7 @@ export default function ShippingPage() {
               <h2 className="text-xl font-medium text-gray-800 mb-4">Shipping Policy</h2>
               <div className="space-y-4 text-sm text-gray-600 leading-relaxed">
                 <p>We offer free standard shipping on all orders over $50. Orders below $50 are subject to a flat $5.99 shipping fee.</p>
-                <div className="border-t border-gray-100 pt-4">
+                <div className="border-t border-gray-200 pt-4">
                   <h3 className="text-sm font-semibold text-gray-800 mb-2">Delivery Times</h3>
                   <ul className="list-disc list-inside space-y-1 text-gray-600">
                     <li>Standard Shipping (5-7 business days)</li>
@@ -27,7 +27,7 @@ export default function ShippingPage() {
                     <li>Overnight Shipping (1 business day)</li>
                   </ul>
                 </div>
-                <div className="border-t border-gray-100 pt-4">
+                <div className="border-t border-gray-200 pt-4">
                   <h3 className="text-sm font-semibold text-gray-800 mb-2">Order Processing</h3>
                   <p>Orders are processed within 1-2 business days. You will receive a confirmation email with tracking information once your order ships.</p>
                 </div>
@@ -38,7 +38,7 @@ export default function ShippingPage() {
               <h2 className="text-xl font-medium text-gray-800 mb-4">Returns &amp; Exchanges</h2>
               <div className="space-y-4 text-sm text-gray-600 leading-relaxed">
                 <p>We accept returns within 30 days of delivery. Items must be unworn, unwashed, and in their original packaging with tags attached.</p>
-                <div className="border-t border-gray-100 pt-4">
+                <div className="border-t border-gray-200 pt-4">
                   <h3 className="text-sm font-semibold text-gray-800 mb-2">How to Return</h3>
                   <ol className="list-decimal list-inside space-y-1 text-gray-600">
                     <li>Contact our support team to initiate a return</li>
@@ -47,7 +47,7 @@ export default function ShippingPage() {
                     <li>Drop off at any authorized carrier location</li>
                   </ol>
                 </div>
-                <div className="border-t border-gray-100 pt-4">
+                <div className="border-t border-gray-200 pt-4">
                   <h3 className="text-sm font-semibold text-gray-800 mb-2">Refund Timeline</h3>
                   <p>Refunds are processed within 5-7 business days after we receive your return. The refund will be issued to the original payment method.</p>
                 </div>

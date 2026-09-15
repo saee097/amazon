@@ -10,12 +10,14 @@ ON CONFLICT (slug) DO NOTHING;
 
 -- Categories
 INSERT INTO categories (category_name, slug, description) VALUES
+  ('Women', 'women', 'Women\'s fashion'),
+  ('Men', 'men', 'Men\'s fashion'),
+  ('Accessories', 'accessories', 'Watches and accessories'),
   ('T-Shirts', 't-shirts', 'Casual t-shirts'),
   ('Jeans', 'jeans', 'Denim jeans'),
   ('Dresses', 'dresses', 'Elegant dresses'),
   ('Jackets', 'jackets', 'Outerwear jackets'),
-  ('Sneakers', 'sneakers', 'Footwear'),
-  ('Accessories', 'accessories', 'Watches and accessories')
+  ('Sneakers', 'sneakers', 'Footwear')
 ON CONFLICT (slug) DO NOTHING;
 
 -- Products with variants and images
@@ -128,13 +130,20 @@ INSERT INTO banners (heading, subheading, image, link_url, sort_order) VALUES
   ('Active Lifestyle', 'Sportswear', 'https://m.media-amazon.com/images/I/71xEQd9JYgL._AC_SR768,1024_.jpg', '/products?category=sneakers', 5),
   ('Sportswear', 'Active Lifestyle', 'https://m.media-amazon.com/images/I/61RkAxZS5SL._AC_SR768,1024_.jpg', '/products', 6);
 
--- Menu items
-INSERT INTO menu_items (title, url, sort_order) VALUES
-  ('New Arrivals', '/products', 1),
-  ('T-Shirts', '/products?category=t-shirts', 2),
-  ('Jeans', '/products?category=jeans', 3),
-  ('Dresses', '/products?category=dresses', 4),
-  ('Sale', '/products', 5);
+-- Menu items (production-ready navigation structure)
+INSERT INTO menu_items (title, url, sort_order, status) VALUES
+  ('Home', '/', 1, 'active'),
+  ('Shop All', '/products', 2, 'active'),
+  ('New Arrivals', '/products?sort=newest', 3, 'active'),
+  ('Women', '/products?category=women', 4, 'active'),
+  ('Men', '/products?category=men', 5, 'active'),
+  ('Accessories', '/products?category=accessories', 6, 'active'),
+  ('Sale', '/products?sale=true', 7, 'active'),
+  ('T-Shirts', '/products?category=t-shirts', 8, 'active'),
+  ('Jeans', '/products?category=jeans', 9, 'active'),
+  ('Dresses', '/products?category=dresses', 10, 'active'),
+  ('Sneakers', '/products?category=sneakers', 11, 'active'),
+  ('Jackets', '/products?category=jackets', 12, 'active');
 
 -- Warehouses
 INSERT INTO warehouses (name, location) VALUES

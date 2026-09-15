@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getSupabaseAdmin } from "../../supabase/admin";
+import { getSupabaseAdmin } from "@/server/supabase/admin";
 import { requireAdmin } from "../../lib/auth";
 import { jsonError, jsonOk } from "../../lib/response";
 
@@ -19,6 +19,27 @@ function dateKey(value: Date) {
   return value.toISOString().slice(0, 10);
 }
 
+function calcDelta(current: number, previous: number): number {
+  if (previous === 0) return current > 0 ? 100 : 0;
+  return +(((current - previous) / previous) * 100).toFixed(1);
+}
+
+function calcRevenue(orders: OrderRow[]): number {
+  return +orders
+    .filter((o) => o.order_status !== "cancelled")
+    .reduce((sum, o) => sum + Number(o.total), 0)
+    .toFixed(2);
+}
+
+function calcAOV(orders: OrderRow[]): number {
+  const active = orders.filter((o) => o.order_status !== "cancelled");
+  return active.length ? +(active.reduce((sum, o) => sum + Number(o.total), 0) / active.length).toFixed(2) : 0;
+}
+
+function safeCount(result: { count?: number | null }): number {
+  return typeof result.count === "number" ? result.count : 0;
+}
+
 export async function handleDashboard(method: string, path: string[], request: NextRequest) {
   if (method !== "GET") return jsonError("Method not allowed", 405);
 
@@ -33,7 +54,11 @@ export async function handleDashboard(method: string, path: string[], request: N
     seriesStart.setUTCHours(0, 0, 0, 0);
     seriesStart.setUTCDate(seriesStart.getUTCDate() - 6);
 
-    const [usersResult, productsResult, ordersResult, recentOrdersResult, variantsResult, returnsResult, refundsResult, logsResult, orderItemsResult, recentCustomersResult, recentBannersResult] = await Promise.all([
+    // Previous 7-day window for delta calculations (days 7–14 ago)
+    const prevStart = new Date(seriesStart);
+    prevStart.setUTCDate(prevStart.getUTCDate() - 7);
+
+    const [usersResult, productsResult, ordersResult, recentOrdersResult, variantsResult, returnsResult, refundsResult, logsResult, orderItemsResult, recentCustomersResult, recentBannersResult, prevOrdersResult, newCustomersCurrentResult, newCustomersPrevResult, newProductsCurrentResult, newProductsPrevResult, newReturnsCurrentResult, newReturnsPrevResult, newRefundsCurrentResult, newRefundsPrevResult, newLowStockCurrentResult, newLowStockPrevResult] = await Promise.all([
       supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "customer"),
       supabase.from("products").select("id", { count: "exact", head: true }).eq("status", "active"),
       supabase.from("orders").select("id, total, order_status, payment_status, created_at").gte("created_at", seriesStart.toISOString()),
@@ -45,13 +70,26 @@ export async function handleDashboard(method: string, path: string[], request: N
       supabase.from("order_items").select("product_id, quantity, line_total, products(title, slug)").limit(500),
       supabase.from("profiles").select("id, first_name, last_name, email, phone, avatar_url, role, status, created_at").eq("role", "customer").order("created_at", { ascending: false }).limit(5),
       supabase.from("banners").select("id, heading, subheading, image, link_url, status, sort_order, created_at").order("created_at", { ascending: false }).limit(6),
+      // Previous period — for delta calculations
+      supabase.from("orders").select("id, total, order_status, payment_status, created_at").gte("created_at", prevStart.toISOString()).lt("created_at", seriesStart.toISOString()),
+      supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "customer").gte("created_at", seriesStart.toISOString()),
+      supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "customer").gte("created_at", prevStart.toISOString()).lt("created_at", seriesStart.toISOString()),
+      supabase.from("products").select("id", { count: "exact", head: true }).eq("status", "active").gte("created_at", seriesStart.toISOString()),
+      supabase.from("products").select("id", { count: "exact", head: true }).eq("status", "active").gte("created_at", prevStart.toISOString()).lt("created_at", seriesStart.toISOString()),
+      supabase.from("returns").select("id", { count: "exact", head: true }).eq("status", "requested").gte("created_at", seriesStart.toISOString()),
+      supabase.from("returns").select("id", { count: "exact", head: true }).eq("status", "requested").gte("created_at", prevStart.toISOString()).lt("created_at", seriesStart.toISOString()),
+      supabase.from("refunds").select("id", { count: "exact", head: true }).eq("status", "pending").gte("created_at", seriesStart.toISOString()),
+      supabase.from("refunds").select("id", { count: "exact", head: true }).eq("status", "pending").gte("created_at", prevStart.toISOString()).lt("created_at", seriesStart.toISOString()),
+      supabase.from("product_variants").select("id", { count: "exact", head: true }).lt("inventory_quantity", 10).gte("created_at", seriesStart.toISOString()),
+      supabase.from("product_variants").select("id", { count: "exact", head: true }).lt("inventory_quantity", 10).gte("created_at", prevStart.toISOString()).lt("created_at", seriesStart.toISOString()),
     ]);
 
-    const results = [usersResult, productsResult, ordersResult, recentOrdersResult, variantsResult, returnsResult, refundsResult, logsResult, orderItemsResult, recentCustomersResult, recentBannersResult] as Array<{ error?: { message?: string } | null }>;
-    const failed = results.find((result) => result.error);
+    const allResults = [usersResult, productsResult, ordersResult, recentOrdersResult, variantsResult, returnsResult, refundsResult, logsResult, orderItemsResult, recentCustomersResult, recentBannersResult, prevOrdersResult, newCustomersCurrentResult, newCustomersPrevResult, newProductsCurrentResult, newProductsPrevResult, newReturnsCurrentResult, newReturnsPrevResult, newRefundsCurrentResult, newRefundsPrevResult, newLowStockCurrentResult, newLowStockPrevResult] as Array<{ error?: { message?: string } | null }>;
+    const failed = allResults.find((result) => result.error);
     if (failed?.error) return jsonError(failed.error.message || "Unable to load dashboard data", 500);
 
     const orders = (ordersResult.data || []) as unknown as OrderRow[];
+    const prevOrders = (prevOrdersResult.data || []) as unknown as OrderRow[];
     const dailyRevenue = Array.from({ length: 7 }, (_, index) => {
       const date = new Date(seriesStart);
       date.setUTCDate(seriesStart.getUTCDate() + index);
@@ -75,17 +113,52 @@ export async function handleDashboard(method: string, path: string[], request: N
       productTotals.set(item.product_id, current);
     }
 
+    const totalCustomers = safeCount(usersResult);
+    const totalProducts = safeCount(productsResult);
+    const pendingReturns = safeCount(returnsResult);
+    const pendingRefunds = safeCount(refundsResult);
+    const lowStockCount = (variantsResult.data || []).length;
+
+    const prevGrossSales = calcRevenue(prevOrders);
+    const prevAOV = calcAOV(prevOrders);
+    const prevTotalOrders = prevOrders.filter((o) => o.order_status !== "cancelled").length;
+    const newCustomersCurrent = safeCount(newCustomersCurrentResult);
+    const newCustomersPrev = safeCount(newCustomersPrevResult);
+    const newProductsCurrent = safeCount(newProductsCurrentResult);
+    const newProductsPrev = safeCount(newProductsPrevResult);
+    const newReturnsCurrent = safeCount(newReturnsCurrentResult);
+    const newReturnsPrev = safeCount(newReturnsPrevResult);
+    const newRefundsCurrent = safeCount(newRefundsCurrentResult);
+    const newRefundsPrev = safeCount(newRefundsPrevResult);
+    const newLowStockCurrent = safeCount(newLowStockCurrentResult);
+    const newLowStockPrev = safeCount(newLowStockPrevResult);
+
+    const currentGrossSales = +grossSales.toFixed(2);
+    const currentAOV = activeOrders.length ? +(grossSales / activeOrders.length).toFixed(2) : 0;
+
+    const deltas = {
+      grossSales: calcDelta(currentGrossSales, prevGrossSales),
+      totalOrders: calcDelta(activeOrders.length, prevTotalOrders),
+      totalCustomers: calcDelta(newCustomersCurrent, newCustomersPrev),
+      totalProducts: calcDelta(newProductsCurrent, newProductsPrev),
+      averageOrderValue: calcDelta(currentAOV, prevAOV),
+      lowStockCount: newLowStockPrev > 0 ? calcDelta(newLowStockCurrent, newLowStockPrev) : newLowStockCurrent > 0 ? 100 : 0,
+      pendingReturns: calcDelta(newReturnsCurrent, newReturnsPrev),
+      pendingRefunds: calcDelta(newRefundsCurrent, newRefundsPrev),
+    };
+
     const overview = {
       stats: {
-        grossSales: +grossSales.toFixed(2),
+        grossSales: currentGrossSales,
         paidRevenue: +orders.filter((order) => order.payment_status === "paid" && order.order_status !== "cancelled").reduce((sum, order) => sum + Number(order.total), 0).toFixed(2),
         totalOrders: orders.length,
-        totalCustomers: usersResult.count || 0,
-        totalProducts: productsResult.count || 0,
-        pendingReturns: returnsResult.count || 0,
-        pendingRefunds: refundsResult.count || 0,
-        lowStockCount: (variantsResult.data || []).length,
-        averageOrderValue: activeOrders.length ? +(grossSales / activeOrders.length).toFixed(2) : 0,
+        totalCustomers,
+        totalProducts,
+        pendingReturns,
+        pendingRefunds,
+        lowStockCount,
+        averageOrderValue: currentAOV,
+        deltas,
       },
       dailyRevenue,
       statusCounts: ORDER_STATUSES.map((status) => ({ status, count: orders.filter((order) => order.order_status === status).length })),

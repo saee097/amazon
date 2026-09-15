@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiSearch, FiHeart, FiShoppingBag, FiUser, FiMenu, FiX, FiLogIn, FiInstagram, FiFacebook, FiTwitter, FiMail } from "react-icons/fi";
 import { getUser, getToken, removeToken } from "@/lib/auth";
+import { ThemeToggleButton } from "@/components/ThemeProvider";
 
 export default function ClientShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -66,21 +67,21 @@ export default function ClientShell({ children }: { children: React.ReactNode })
           </div>
 
           {/* Header */}
-          <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-200 shadow-sm">
+          <header className="sticky top-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 shadow-sm">
             <div className="container mx-auto px-4">
               <div className="flex items-center justify-between h-16">
 
                 {/* Mobile menu toggle */}
                 <button
                   onClick={() => setMobileOpen(!mobileOpen)}
-                  className="lg:hidden p-2 -ml-2 text-gray-700 hover:text-[#0F766E]"
+                  className="lg:hidden p-2 -ml-2 text-gray-700 hover:text-[#0F766E] dark:text-gray-300 dark:hover:text-[#0F766E]"
                 >
                   {mobileOpen ? <FiX size={20} /> : <FiMenu size={20} />}
                 </button>
 
                 {/* Logo */}
                 <Link href="/" className="flex-shrink-0">
-                  <span className="text-xl font-bold tracking-wider text-gray-900">STORE</span>
+                  <span className="text-xl font-bold tracking-wider text-gray-900 dark:text-gray-100">STORE</span>
                 </Link>
 
                 {/* Desktop Search */}
@@ -89,48 +90,49 @@ export default function ClientShell({ children }: { children: React.ReactNode })
                     <input
                       type="text"
                       placeholder="Search for products..."
-                      className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#0F766E] text-sm bg-gray-50"
+                      className="w-full pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-[#0F766E] text-sm bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                     />
-                    <FiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                    <FiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={16} />
                   </div>
                 </div>
 
                 {/* Icons */}
                 <div className="flex items-center gap-6">
-                  <Link href="/wishlist" className="hidden sm:flex flex-col items-center text-gray-600 hover:text-[#0F766E]">
+                  <Link href="/wishlist" className="hidden sm:flex flex-col items-center text-gray-600 hover:text-[#0F766E] dark:text-gray-400 dark:hover:text-[#0F766E]">
                     <FiHeart size={20} />
                     <span className="text-[10px] mt-1">Wishlist</span>
                   </Link>
-                  <Link href="/cart" className="hidden sm:flex flex-col items-center text-gray-600 hover:text-[#0F766E]">
+                  <Link href="/cart" className="hidden sm:flex flex-col items-center text-gray-600 hover:text-[#0F766E] dark:text-gray-400 dark:hover:text-[#0F766E]">
                     <FiShoppingBag size={20} />
                     <span className="text-[10px] mt-1">Cart</span>
                   </Link>
                   {isLoggedIn ? (
-                    <Link href={getProfileLink()} className="hidden sm:flex flex-col items-center text-gray-600 hover:text-[#0F766E]">
+                    <Link href={getProfileLink()} className="hidden sm:flex flex-col items-center text-gray-600 hover:text-[#0F766E] dark:text-gray-400 dark:hover:text-[#0F766E]">
                       <FiUser size={20} />
                       <span className="text-[10px] mt-1">Account</span>
                     </Link>
                   ) : (
-                    <Link href="/auth/login" className="hidden sm:flex flex-col items-center text-gray-600 hover:text-[#0F766E]">
+                    <Link href="/auth/login" className="hidden sm:flex flex-col items-center text-gray-600 hover:text-[#0F766E] dark:text-gray-400 dark:hover:text-[#0F766E]">
                       <FiLogIn size={20} />
                       <span className="text-[10px] mt-1">Sign In</span>
                     </Link>
                   )}
+                  <ThemeToggleButton className="sm:ml-2" />
                 </div>
               </div>
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:block border-t border-gray-100 bg-white">
+            <nav className="hidden lg:block border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
               <div className="container mx-auto px-4">
-                <div className="flex items-center gap-8 h-10 text-sm font-medium text-gray-700">
-                  <Link href="/" className="hover:text-[#0F766E]">Home</Link>
-                  <Link href="/products" className="hover:text-[#0F766E]">Shop All</Link>
-                  <Link href="/products?category=new" className="hover:text-[#0F766E]">New Arrivals</Link>
-                  <Link href="/products?category=sale" className="hover:text-[#0F766E] text-red-600">Sale</Link>
-                  <Link href="/products?category=women" className="hover:text-[#0F766E]">Women</Link>
-                  <Link href="/products?category=men" className="hover:text-[#0F766E]">Men</Link>
-                  <Link href="/products?category=accessories" className="hover:text-[#0F766E]">Accessories</Link>
+                <div className="flex items-center gap-8 h-10 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Link href="/" className="hover:text-[#0F766E] dark:hover:text-[#0F766E]">Home</Link>
+                  <Link href="/products" className="hover:text-[#0F766E] dark:hover:text-[#0F766E]">Shop All</Link>
+                  <Link href="/products?category=new" className="hover:text-[#0F766E] dark:hover:text-[#0F766E]">New Arrivals</Link>
+                  <Link href="/products?category=sale" className="hover:text-[#0F766E] dark:hover:text-red-500">Sale</Link>
+                  <Link href="/products?category=women" className="hover:text-[#0F766E] dark:hover:text-[#0F766E]">Women</Link>
+                  <Link href="/products?category=men" className="hover:text-[#0F766E] dark:hover:text-[#0F766E]">Men</Link>
+                  <Link href="/products?category=accessories" className="hover:text-[#0F766E] dark:hover:text-[#0F766E]">Accessories</Link>
                 </div>
               </div>
             </nav>
@@ -138,30 +140,30 @@ export default function ClientShell({ children }: { children: React.ReactNode })
 
           {/* Mobile Menu */}
           {mobileOpen && (
-            <div className="lg:hidden bg-white border-b border-gray-200">
+            <div className="lg:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
               <div className="container mx-auto px-4 py-4 space-y-4">
                 <div className="relative">
                   <input
                     type="text"
                     placeholder="Search..."
-                    className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg text-sm"
+                    className="w-full pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                   />
-                  <FiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                  <FiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={16} />
                 </div>
                 <div className="space-y-3 text-sm font-medium">
-                  <Link href="/" className="block py-2 border-b border-gray-100" onClick={() => setMobileOpen(false)}>Home</Link>
-                  <Link href="/products" className="block py-2 border-b border-gray-100" onClick={() => setMobileOpen(false)}>Shop All</Link>
-                  <Link href="/products?category=new" className="block py-2 border-b border-gray-100" onClick={() => setMobileOpen(false)}>New Arrivals</Link>
-                  <Link href="/products?category=sale" className="block py-2 border-b border-gray-100 text-red-600" onClick={() => setMobileOpen(false)}>Sale</Link>
-                  <Link href="/products?category=women" className="block py-2 border-b border-gray-100" onClick={() => setMobileOpen(false)}>Women</Link>
-                  <Link href="/products?category=men" className="block py-2 border-b border-gray-100" onClick={() => setMobileOpen(false)}>Men</Link>
-                  <Link href="/products?category=accessories" className="block py-2 border-b border-gray-100" onClick={() => setMobileOpen(false)}>Accessories</Link>
-                  <Link href="/wishlist" className="block py-2 border-b border-gray-100" onClick={() => setMobileOpen(false)}>Wishlist</Link>
-                  <Link href="/cart" className="block py-2 border-b border-gray-100" onClick={() => setMobileOpen(false)}>Cart</Link>
+                  <Link href="/" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Home</Link>
+                  <Link href="/products" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Shop All</Link>
+                  <Link href="/products?category=new" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>New Arrivals</Link>
+                  <Link href="/products?category=sale" className="block py-2 border-b border-gray-200 dark:border-gray-800 text-red-600" onClick={() => setMobileOpen(false)}>Sale</Link>
+                  <Link href="/products?category=women" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Women</Link>
+                  <Link href="/products?category=men" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Men</Link>
+                  <Link href="/products?category=accessories" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Accessories</Link>
+                  <Link href="/wishlist" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Wishlist</Link>
+                  <Link href="/cart" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Cart</Link>
                   {isLoggedIn ? (
-                    <Link href={getProfileLink()} className="block py-2 border-b border-gray-100" onClick={() => setMobileOpen(false)}>Account</Link>
+                    <Link href={getProfileLink()} className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Account</Link>
                   ) : (
-                    <Link href="/auth/login" className="block py-2 border-b border-gray-100" onClick={() => setMobileOpen(false)}>Sign In</Link>
+                    <Link href="/auth/login" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Sign In</Link>
                   )}
                 </div>
               </div>
@@ -228,7 +230,7 @@ export default function ClientShell({ children }: { children: React.ReactNode })
               </div>
             </div>
 
-            <div className="border-t border-gray-800 mt-12 pt-8">
+            <div className="border-t border-gray-800 dark:border-gray-700 mt-12 pt-8">
               <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div className="text-sm text-gray-500 text-center md:text-left">
                   <p>&copy; 2026 STORE. All rights reserved.</p>

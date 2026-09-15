@@ -9,7 +9,7 @@ export default function AdminBlogs() {
           Add New Blog
         </button>
       </div>
-      <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
         <p className="text-gray-500">No blog posts found.</p>
       </div>
     </div>

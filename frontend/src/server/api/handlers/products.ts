@@ -1,6 +1,7 @@
 // @ts-nocheck
+// Module reloaded to pick up updated getSupabaseAdmin client with ws transport
 import { NextRequest } from "next/server";
-import { getSupabaseAdmin } from "../../supabase/admin";
+import { getSupabaseAdmin } from "@/server/supabase/admin";
 import { requireAdmin, requireAuth } from "../../lib/auth";
 import { mapBrand, mapCategory, mapProduct, toMongoId, toMongoIds } from "../../lib/mapper";
 import { jsonError, jsonOk } from "../../lib/response";
@@ -367,8 +368,20 @@ export async function handleProducts(
       if (authError) return authError;
 
       const body = await request.json();
-      const { data, error } = await supabase.from("banners").insert(body).select().single();
-      if (error) return jsonError(error.message, 400);
+      console.log("Banner create body:", body);
+      const cleanBody = {
+        heading: body.heading,
+        subheading: body.subheading || null,
+        image: body.image,
+        link_url: body.link_url || null,
+        sort_order: body.sort_order ? Number(body.sort_order) : 0,
+        status: body.status || "active",
+      };
+      const { data, error } = await supabase.from("banners").insert(cleanBody).select().single();
+      if (error) {
+        console.error("Banner insert error:", error);
+        return jsonError(error.message, 400);
+      }
       return jsonOk(toMongoId(data), 201);
     }
 
@@ -377,7 +390,14 @@ export async function handleProducts(
       if (authError) return authError;
 
       const body = await request.json();
-      const { data, error } = await supabase.from("banners").update(body).eq("id", id).select().single();
+      const cleanBody: Record<string, unknown> = {};
+      if (body.heading !== undefined) cleanBody.heading = body.heading;
+      if (body.subheading !== undefined) cleanBody.subheading = body.subheading || null;
+      if (body.image !== undefined) cleanBody.image = body.image;
+      if (body.link_url !== undefined) cleanBody.link_url = body.link_url || null;
+      if (body.sort_order !== undefined) cleanBody.sort_order = Number(body.sort_order);
+      if (body.status !== undefined) cleanBody.status = body.status;
+      const { data, error } = await supabase.from("banners").update(cleanBody).eq("id", id).select().single();
       if (error) return jsonError(error.message, 400);
       return jsonOk(toMongoId(data));
     }
@@ -411,7 +431,13 @@ export async function handleProducts(
       if (authError) return authError;
 
       const body = await request.json();
-      const { data, error } = await supabase.from("menu_items").insert(body).select().single();
+      const cleanBody = {
+        title: body.title,
+        url: body.url || "/",
+        sort_order: body.sort_order ? Number(body.sort_order) : 0,
+        status: body.status || "active",
+      };
+      const { data, error } = await supabase.from("menu_items").insert(cleanBody).select().single();
       if (error) return jsonError(error.message, 400);
       return jsonOk(toMongoId(data), 201);
     }
@@ -421,7 +447,12 @@ export async function handleProducts(
       if (authError) return authError;
 
       const body = await request.json();
-      const { data, error } = await supabase.from("menu_items").update(body).eq("id", id).select().single();
+      const cleanBody: Record<string, unknown> = {};
+      if (body.title !== undefined) cleanBody.title = body.title;
+      if (body.url !== undefined) cleanBody.url = body.url || "/";
+      if (body.sort_order !== undefined) cleanBody.sort_order = Number(body.sort_order);
+      if (body.status !== undefined) cleanBody.status = body.status;
+      const { data, error } = await supabase.from("menu_items").update(cleanBody).eq("id", id).select().single();
       if (error) return jsonError(error.message, 400);
       return jsonOk(toMongoId(data));
     }
@@ -484,8 +515,8 @@ export async function handleProducts(
 
   if (resource === "coupons") {
     if (method === "GET" && !id) {
-      const { data } = await supabase.from("coupons").select("*").order("created_at", { ascending: false });
-      return jsonOk(toMongoIds(data || []));
+    const { data } = await supabase.from("coupons").select("*").order("created_at", { ascending: false });
+    return jsonOk(toMongoIds(data || []));
     }
 
     if (method === "GET" && id) {

@@ -19,8 +19,8 @@ const PAGE_SIZE = 25;
 
 const STOCK_STATUS = {
   out_of_stock: { label: "Out of Stock", cls: "bg-rose-50 text-rose-700 ring-1 ring-rose-200" },
-  low_stock:    { label: "Low Stock",    cls: "bg-amber-50 text-amber-700 ring-1 ring-amber-200" },
-  in_stock:     { label: "In Stock",     cls: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" },
+  low_stock: { label: "Low Stock", cls: "bg-amber-50 text-amber-700 ring-1 ring-amber-200" },
+  in_stock: { label: "In Stock", cls: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" },
 };
 
 export default function AdminInventory() {
@@ -179,7 +179,7 @@ export default function AdminInventory() {
           { label: "Low Stock", count: counts.low_stock, cls: "text-amber-700", icon: AlertTriangle },
           { label: "Out of Stock", count: counts.out_of_stock, cls: "text-rose-700", icon: XCircle },
         ].map(({ label, count, cls, icon: Icon }) => (
-          <div key={label} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div key={label} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div className="flex items-center justify-between">
               <p className={`text-2xl font-bold ${cls} dark:text-gray-100`}>{count}</p>
               <Icon size={20} className={`${cls} opacity-70`} />
@@ -212,7 +212,7 @@ export default function AdminInventory() {
       )}
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:flex-row">
+      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:flex-row">
         <div className="relative flex-1">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
@@ -236,7 +236,7 @@ export default function AdminInventory() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
         {paginated.length === 0 ? (
           <div className="py-20 text-center">
             <Package className="mx-auto text-gray-300" size={36} />
@@ -260,9 +260,8 @@ export default function AdminInventory() {
                 {paginated.map((item) => (
                   <tr
                     key={item._id}
-                    className={`transition hover:bg-gray-50 dark:hover:bg-gray-700/30 ${
-                      item.status === "out_of_stock" ? "bg-rose-50/30 dark:bg-rose-900/10" : ""
-                    }`}
+                    className={`transition hover:bg-gray-50 dark:hover:bg-gray-700/30 ${item.status === "out_of_stock" ? "bg-rose-50/30 dark:bg-rose-900/10" : ""
+                      }`}
                   >
                     <td className="px-6 py-4">
                       <p className="font-medium text-gray-900 dark:text-gray-100">
@@ -308,13 +307,12 @@ export default function AdminInventory() {
                         </div>
                       ) : (
                         <span
-                          className={`font-semibold ${
-                            item.inventory_quantity <= 0
+                          className={`font-semibold ${item.inventory_quantity <= 0
                               ? "text-rose-600"
                               : item.inventory_quantity < 10
-                              ? "text-amber-600"
-                              : "text-gray-900 dark:text-gray-100"
-                          }`}
+                                ? "text-amber-600"
+                                : "text-gray-900 dark:text-gray-100"
+                            }`}
                         >
                           {item.inventory_quantity}
                         </span>
@@ -322,9 +320,8 @@ export default function AdminInventory() {
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                          STOCK_STATUS[item.status]?.cls || "bg-gray-100 text-gray-600"
-                        }`}
+                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${STOCK_STATUS[item.status]?.cls || "bg-gray-100 text-gray-600"
+                          }`}
                       >
                         {STOCK_STATUS[item.status]?.label || item.status}
                       </span>
@@ -351,7 +348,7 @@ export default function AdminInventory() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4 dark:border-gray-700">
+          <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4 dark:border-gray-700">
             <p className="text-sm text-gray-500">
               Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of{" "}
               {filtered.length}

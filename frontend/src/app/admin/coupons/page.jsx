@@ -45,7 +45,7 @@ export default function AdminCoupons() {
         </a>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
         {coupons.length === 0 ? (
           <div className="p-8 text-center">
             <p className="text-gray-500">No coupons found.</p>

@@ -104,7 +104,7 @@ export default function AdminStock() {
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">New Stock Entry</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -207,7 +207,7 @@ export default function AdminStock() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
         {stock.length === 0 ? (
           <div className="p-8 text-center">
             <p className="text-gray-500">No stock records found.</p>

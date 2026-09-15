@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 import api from "@/lib/api";
+import StatusBadge from "@/components/StatusBadge";
 import {
   Plus,
   Search,
@@ -12,6 +14,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  AlertTriangle,
 } from "lucide-react";
 
 const PAGE_SIZE = 20;
@@ -33,6 +36,60 @@ function slugify(str) {
     .replace(/\s+/g, "-");
 }
 
+function CategoryIcon({ image_url, name }) {
+  if (image_url) {
+    return (
+      <img
+        src={image_url}
+        alt={name}
+        className="h-8 w-8 rounded-lg object-cover border border-gray-200"
+      />
+    );
+  }
+  return (
+    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700">
+      <FolderTree size={14} className="text-gray-400" />
+    </div>
+  );
+}
+
+function DeleteConfirmDialog({ open, onClose, onConfirm, itemName }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-800">
+        <div className="flex items-start gap-4 p-6">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
+            <AlertTriangle size={20} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Delete category?
+            </h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              This action cannot be undone. The category <strong className="font-medium">"{itemName}"</strong> will be permanently removed, along with any child categories that reference it.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
+          <button
+            onClick={onClose}
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-700"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,12 +106,15 @@ export default function AdminCategories() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
 
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+
   const load = useCallback(async (isRefresh = false) => {
     isRefresh ? setRefreshing(true) : setLoading(true);
     setError("");
     try {
-      const { data } = await api.get("/admin/categories");
-      setCategories(data.data || []);
+      const res = await api.get("/admin/categories");
+      setCategories(res.data?.data || []);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load categories.");
     } finally {
@@ -105,12 +165,16 @@ export default function AdminCategories() {
     setShowModal(true);
   };
 
+  const confirmDelete = (cat) => {
+    setDeletingId(cat._id);
+    setDeleteConfirmOpen(true);
+  };
+
   const handleNameChange = (e) => {
     const name = e.target.value;
     setForm((f) => ({
       ...f,
       category_name: name,
-      // Auto-generate slug only for new categories
       ...(editing ? {} : { slug: slugify(name) }),
     }));
   };
@@ -119,20 +183,22 @@ export default function AdminCategories() {
     e.preventDefault();
     setSaving(true);
     setError("");
+    setSuccess("");
     try {
       const payload = {
         ...form,
         parent_id: form.parent_id || null,
       };
       if (editing) {
-        await api.put(`/admin/categories/${editing._id}`, payload);
+        const res = await api.put(`/admin/categories/${editing._id}`, payload);
+        const updated = res.data?.data;
         setCategories((prev) =>
-          prev.map((c) => (c._id === editing._id ? { ...c, ...payload } : c))
+          prev.map((c) => (c._id === editing._id ? { ...updated } : c))
         );
         setSuccess("Category updated.");
       } else {
-        const { data } = await api.post("/admin/categories", payload);
-        setCategories((prev) => [data.data, ...prev]);
+        const res = await api.post("/admin/categories", payload);
+        setCategories((prev) => [res.data?.data, ...prev]);
         setSuccess("Category created.");
       }
       setShowModal(false);
@@ -144,14 +210,17 @@ export default function AdminCategories() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm("Delete this category? This cannot be undone.")) return;
+  const handleDelete = async () => {
+    if (!deletingId) return;
     try {
-      await api.delete(`/admin/categories/${id}`);
-      setCategories((prev) => prev.filter((c) => c._id !== id));
+      await api.delete(`/admin/categories/${deletingId}`);
+      setCategories((prev) => prev.filter((c) => c._id !== deletingId));
       setSuccess("Category deleted.");
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to delete category.");
+    } finally {
+      setDeleteConfirmOpen(false);
+      setDeletingId(null);
     }
   };
 
@@ -166,12 +235,10 @@ export default function AdminCategories() {
     );
   }
 
-  // Parent categories (for selector — exclude the category being edited)
   const parentOptions = categories.filter((c) => !editing || c._id !== editing._id);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-950 dark:text-gray-100">Categories</h1>
@@ -186,17 +253,16 @@ export default function AdminCategories() {
             <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
             Refresh
           </button>
-          <button
-            onClick={openCreate}
+          <Link
+            href="/admin/categories/create"
             className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#0F766E]/90"
           >
             <Plus size={16} />
             Add Category
-          </button>
+          </Link>
         </div>
       </div>
 
-      {/* Alerts */}
       {error && (
         <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
           {error}
@@ -208,8 +274,7 @@ export default function AdminCategories() {
         </div>
       )}
 
-      {/* Filters */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:flex-row">
+      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:flex-row">
         <div className="relative flex-1">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
@@ -231,18 +296,17 @@ export default function AdminCategories() {
         </select>
       </div>
 
-      {/* Table */}
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
         {paginated.length === 0 ? (
           <div className="py-20 text-center">
             <FolderTree className="mx-auto text-gray-300" size={36} />
             <p className="mt-4 text-sm text-gray-500">No categories found.</p>
-            <button
-              onClick={openCreate}
+            <Link
+              href="/admin/categories/create"
               className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#0F766E] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0F766E]/90"
             >
               <Plus size={15} /> Add Category
-            </button>
+            </Link>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -264,17 +328,7 @@ export default function AdminCategories() {
                     <tr key={cat._id} className="transition hover:bg-gray-50 dark:hover:bg-gray-700/30">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2.5">
-                          {cat.image_url ? (
-                            <img
-                              src={cat.image_url}
-                              alt={cat.category_name}
-                              className="h-8 w-8 rounded-lg object-cover border border-gray-200"
-                            />
-                          ) : (
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700">
-                              <FolderTree size={14} className="text-gray-400" />
-                            </div>
-                          )}
+                          <CategoryIcon image_url={cat.image_url} name={cat.category_name} />
                           <span className="font-semibold text-gray-900 dark:text-gray-100">
                             {cat.category_name}
                           </span>
@@ -285,32 +339,26 @@ export default function AdminCategories() {
                         {parent ? parent.category_name : <span className="text-gray-300">—</span>}
                       </td>
                       <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                            cat.status === "active"
-                              ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
-                              : "bg-gray-100 text-gray-600 ring-1 ring-gray-200"
-                          }`}
-                        >
-                          {cat.status}
-                        </span>
+                        <StatusBadge status={cat.status} />
                       </td>
                       <td className="max-w-xs truncate px-6 py-4 text-sm text-gray-500">
                         {cat.description || "—"}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-3">
+                        <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => openEdit(cat)}
-                            className="inline-flex items-center gap-1 text-xs font-medium text-sky-600 hover:underline"
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-[#0F766E] bg-[#0F766E]/5 border border-[#0F766E]/20 hover:bg-[#0F766E]/10 transition"
+                            title="Edit category"
                           >
-                            <Pencil size={12} /> Edit
+                            <Pencil size={14} />
                           </button>
                           <button
-                            onClick={() => handleDelete(cat._id)}
-                            className="inline-flex items-center gap-1 text-xs font-medium text-rose-600 hover:underline"
+                            onClick={() => confirmDelete(cat)}
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition"
+                            title="Delete category"
                           >
-                            <Trash2 size={12} /> Delete
+                            <Trash2 size={14} />
                           </button>
                         </div>
                       </td>
@@ -322,9 +370,8 @@ export default function AdminCategories() {
           </div>
         )}
 
-        {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4 dark:border-gray-700">
+          <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4 dark:border-gray-700">
             <p className="text-sm text-gray-500">
               Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of{" "}
               {filtered.length}
@@ -334,6 +381,7 @@ export default function AdminCategories() {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-300 disabled:opacity-40 hover:bg-gray-50 dark:border-gray-600"
+                title="Previous page"
               >
                 <ChevronLeft size={15} />
               </button>
@@ -342,6 +390,7 @@ export default function AdminCategories() {
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-300 disabled:opacity-40 hover:bg-gray-50 dark:border-gray-600"
+                title="Next page"
               >
                 <ChevronRight size={15} />
               </button>
@@ -353,14 +402,15 @@ export default function AdminCategories() {
       {/* Create / Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-800">
-            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+          <div className="w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl dark:bg-gray-800">
+            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
               <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
                 {editing ? "Edit Category" : "New Category"}
               </h2>
               <button
                 onClick={() => setShowModal(false)}
                 className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                aria-label="Close"
               >
                 <X size={18} />
               </button>
@@ -473,6 +523,14 @@ export default function AdminCategories() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation */}
+      <DeleteConfirmDialog
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleDelete}
+        itemName={categories.find((c) => c._id === deletingId)?.category_name || "this category"}
+      />
     </div>
   );
 }

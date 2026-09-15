@@ -54,7 +54,7 @@ function KpiCard({ label, value, detail, href, icon: Icon, tone, delta }) {
   return (
     <Link
       href={href}
-      className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
+      className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5  transition  hover:border-gray-300 dark:bg-gray-800"
     >
       <div className="relative flex items-start justify-between gap-4">
         <div className="min-w-0">
@@ -65,7 +65,7 @@ function KpiCard({ label, value, detail, href, icon: Icon, tone, delta }) {
           <p className="mt-2 text-2xl font-bold text-gray-950 dark:text-gray-100">{value}</p>
           <p className="mt-1 text-xs text-gray-400">{detail}</p>
         </div>
-        <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${tone} shadow-sm`}>
+        <span className={`flex h-11 w-11 shrink-0 items-center border-gray-200 border justify-center rounded-xl ${tone} `}>
           <Icon size={20} aria-hidden="true" />
         </span>
       </div>
@@ -108,7 +108,7 @@ export default function AdminAnalytics() {
 
   if (error && !overview) {
     return (
-      <div className="mx-auto max-w-xl rounded-2xl border border-rose-200 bg-rose-50 p-6">
+      <div className="mx-auto max-w-xl rounded-xl border border-rose-200 bg-rose-50 p-6">
         <h1 className="text-lg font-semibold text-rose-950">Analytics unavailable</h1>
         <p className="mt-2 text-sm text-rose-800">{error}</p>
         <button
@@ -263,8 +263,8 @@ export default function AdminAnalytics() {
       {/* Revenue Chart + Order Pipeline */}
       <div className="grid gap-6 lg:grid-cols-5">
         {/* Revenue Bar Chart */}
-        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:col-span-3">
-          <div className="flex items-start justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:col-span-3">
+          <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
               <h2 className="text-base font-semibold text-gray-950 dark:text-gray-100">Revenue Trend</h2>
               <p className="mt-1 text-sm text-gray-500">Daily sales · last 7 days</p>
@@ -283,7 +283,7 @@ export default function AdminAnalytics() {
               </div>
             ) : (
               <>
-                <div className="grid h-56 items-end gap-2 border-b border-gray-100 dark:border-gray-700" style={{ gridTemplateColumns: `repeat(${dailyRevenue.length}, minmax(0, 1fr))` }}>
+                <div className="grid h-56 items-end gap-2 border-b border-gray-200 dark:border-gray-700" style={{ gridTemplateColumns: `repeat(${dailyRevenue.length}, minmax(0, 1fr))` }}>
                   {dailyRevenue.map((point) => (
                     <div key={point.date} className="group flex h-full flex-col justify-end">
                       <div
@@ -314,8 +314,8 @@ export default function AdminAnalytics() {
         </section>
 
         {/* Order Pipeline */}
-        <section className="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:col-span-2">
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+        <section className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:col-span-2">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
               <h2 className="text-base font-semibold text-gray-950 dark:text-gray-100">Order Pipeline</h2>
               <p className="mt-1 text-sm text-gray-500">Orders by status · 7d</p>
@@ -351,8 +351,8 @@ export default function AdminAnalytics() {
       {/* Top Products + Daily Orders table */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Top Products */}
-        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
               <h2 className="text-base font-semibold text-gray-950 dark:text-gray-100">Top Products</h2>
               <p className="mt-1 text-sm text-gray-500">By revenue this week</p>
@@ -400,8 +400,8 @@ export default function AdminAnalytics() {
         </section>
 
         {/* Daily Revenue Table */}
-        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
               <h2 className="text-base font-semibold text-gray-950 dark:text-gray-100">Daily Breakdown</h2>
               <p className="mt-1 text-sm text-gray-500">Revenue & orders per day</p>
@@ -459,7 +459,7 @@ export default function AdminAnalytics() {
       </div>
 
       {/* Fulfillment metrics */}
-      <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <h2 className="mb-4 text-base font-semibold text-gray-950 dark:text-gray-100">Fulfillment Metrics</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
@@ -468,7 +468,7 @@ export default function AdminAnalytics() {
             { label: "Pending Returns", value: num(stats?.pendingReturns), sub: "Awaiting action", tone: "text-amber-600" },
             { label: "Pending Refunds", value: num(stats?.pendingRefunds), sub: "To be processed", tone: "text-rose-600" },
           ].map(({ label, value, sub, tone }) => (
-            <div key={label} className="rounded-xl border border-gray-100 p-4 dark:border-gray-700">
+            <div key={label} className="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
               <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">{label}</p>
               <p className={`mt-2 text-2xl font-bold ${tone}`}>{value}</p>
               <p className="mt-1 text-xs text-gray-400">{sub}</p>

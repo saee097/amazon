@@ -69,10 +69,10 @@ export default function ProductImageGallery({
 
   if (safeImages.length === 0) {
     return (
-      <div className={`bg-gray-100 rounded-lg aspect-square flex items-center justify-center ${className}`}>
+      <div className={`bg-gray-100 dark:bg-gray-700 rounded-lg aspect-square flex items-center justify-center ${className}`}>
         <div className="text-center">
           <svg
-            className="w-12 h-12 text-gray-300 mx-auto mb-2"
+            className="w-12 h-12 text-gray-300 dark:text-gray-500 mx-auto mb-2"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -84,7 +84,7 @@ export default function ProductImageGallery({
               d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
             />
           </svg>
-          <p className="text-sm text-gray-400">No Image Available</p>
+          <p className="text-sm text-gray-400 dark:text-gray-400">No Image Available</p>
         </div>
       </div>
     );
@@ -93,7 +93,7 @@ export default function ProductImageGallery({
   return (
     <div className={`w-full ${className}`}>
       {/* Main Image */}
-      <div className="relative bg-white rounded-lg border border-gray-200 overflow-hidden aspect-square">
+      <div className="relative bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden aspect-square">
         <AnimatePresence mode="wait">
           <motion.div
             key={selectedIndex}
@@ -111,15 +111,15 @@ export default function ProductImageGallery({
                 tabIndex={0}
               >
                 {loading && (
-                  <div className="absolute inset-0 bg-gray-100 animate-pulse rounded-lg z-[1]" />
+                  <div className="absolute inset-0 bg-gray-100 dark:bg-gray-700 animate-pulse rounded-lg z-[1]" />
                 )}
                 {hasError ? (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gray-50 rounded-lg">
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div className="text-center">
-                      <svg className="w-10 h-10 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-10 h-10 text-gray-300 dark:text-gray-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                       </svg>
-                      <p className="text-sm text-gray-400">Failed to load image</p>
+                      <p className="text-sm text-gray-400 dark:text-gray-400">Failed to load image</p>
                     </div>
                   </div>
                 ) : (
@@ -139,22 +139,22 @@ export default function ProductImageGallery({
                     priority
                     onLoad={handleImageLoad}
                     onError={handleImageError}
-                    unoptimized={safeImages[selectedIndex].image_url.startsWith("data:") || safeImages[selectedIndex].image_url.startsWith("http")}
+                    unoptimized={safeImages[selectedIndex].image_url.startsWith("data:")}
                   />
                 )}
               </div>
             ) : (
               <>
                 {loading && (
-                  <div className="absolute inset-0 bg-gray-100 animate-pulse rounded-lg z-[1]" />
+                  <div className="absolute inset-0 bg-gray-100 dark:bg-gray-700 animate-pulse rounded-lg z-[1]" />
                 )}
                 {hasError ? (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gray-50 rounded-lg">
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div className="text-center">
-                      <svg className="w-10 h-10 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-10 h-10 text-gray-300 dark:text-gray-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                       </svg>
-                      <p className="text-sm text-gray-400">Failed to load image</p>
+                      <p className="text-sm text-gray-400 dark:text-gray-400">Failed to load image</p>
                     </div>
                   </div>
                 ) : (
@@ -190,16 +190,16 @@ export default function ProductImageGallery({
             <button
               onClick={() => handleSelect(prevIndex)}
               aria-label="Previous image"
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center bg-white/90 hover:bg-white text-gray-700 rounded-full shadow-md border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center bg-white/90 hover:bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 rounded-full shadow-md border border-gray-200 dark:border-gray-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
             <button
               onClick={() => handleSelect(nextIndex)}
               aria-label="Next image"
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center bg-white/90 hover:bg-white text-gray-700 rounded-full shadow-md border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center bg-white/90 hover:bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 rounded-full shadow-md border border-gray-200 dark:border-gray-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
             </button>
           </>
         )}
@@ -216,7 +216,7 @@ export default function ProductImageGallery({
               className={`relative w-16 h-16 flex-shrink-0 rounded-lg border-2 overflow-hidden transition-all duration-200 ${
                 selectedIndex === idx
                   ? "border-orange-500 shadow-md ring-1 ring-orange-500 scale-105"
-                  : "border-gray-200 hover:border-gray-400"
+                  : "border-gray-200 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
               }`}
             >
               <Image

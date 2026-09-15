@@ -17,7 +17,11 @@ export function mapCategory(cat: Row | null) {
     category_name: cat.category_name,
     slug: cat.slug,
     description: cat.description,
+    image_url: cat.image_url,
+    parent_id: cat.parent_id as string | null,
     status: cat.status,
+    created_at: cat.created_at,
+    updated_at: cat.updated_at,
   };
 }
 

@@ -44,17 +44,17 @@ function GoogleCallbackPage() {
   }, [router, searchParams]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md mx-auto text-center">
         {error ? (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-600 font-medium">{error}</p>
-            <p className="text-sm text-red-500 mt-1">Redirecting to login...</p>
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <p className="text-sm text-red-600 dark:text-red-400 font-medium">{error}</p>
+            <p className="text-sm text-red-500 dark:text-red-400 mt-1">Redirecting to login...</p>
           </div>
         ) : (
           <>
             <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-            <p className="mt-4 text-gray-600">Signing you in with Google...</p>
+            <p className="mt-4 text-gray-600 dark:text-gray-300">Signing you in with Google...</p>
           </>
         )}
       </div>

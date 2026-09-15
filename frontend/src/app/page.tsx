@@ -122,21 +122,21 @@ export default function HomePage() {
 
   if (redirecting) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="w-12 h-12 rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         <div className="text-center mb-10">
-          <h1 className="text-3xl sm:text-4xl font-medium text-gray-800 tracking-wide uppercase">
+          <h1 className="text-3xl sm:text-4xl font-medium text-gray-800 dark:text-gray-200 tracking-wide uppercase">
             STORE
           </h1>
-          <p className="text-sm text-gray-500 mt-2">
+<p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
             Discover the latest trends in fashion and curated picks powered by real backend data.
           </p>
         </div>
@@ -147,7 +147,7 @@ export default function HomePage() {
               <a
                 key={item._id}
                 href={item.url || "/"}
-                className="rounded-full border border-gray-200 bg-white px-4 py-2 text-xs font-medium uppercase tracking-wide text-gray-700 hover:border-[#0F766E] hover:text-[#0F766E] transition"
+                className="rounded-full border border-gray-200 bg-white dark:bg-gray-800 px-4 py-2 text-xs font-medium uppercase tracking-wide text-gray-700 dark:text-gray-300 hover:border-[#0F766E] hover:text-[#0F766E] transition"
               >
                 {item.title}
               </a>
@@ -162,7 +162,7 @@ export default function HomePage() {
                 <Link
                   key={banner._id}
                   href={banner.link_url || "/products"}
-                  className="group relative overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition hover:shadow-lg"
+                  className="group relative overflow-hidden rounded-3xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm transition hover:shadow-lg"
                 >
                   <div className="relative h-56 overflow-hidden">
                     <img
@@ -175,7 +175,7 @@ export default function HomePage() {
                     <p className="text-sm uppercase tracking-[0.3em] text-[#0F766E]">
                       {banner.subheading}
                     </p>
-                    <h2 className="mt-3 text-xl font-semibold text-gray-900">
+                    <h2 className="mt-3 text-xl font-semibold text-gray-900 dark:text-gray-100">
                       {banner.heading}
                     </h2>
                   </div>
@@ -189,7 +189,7 @@ export default function HomePage() {
           <section className="mb-10">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-medium text-gray-800 tracking-wide uppercase">
+                <h2 className="text-2xl font-medium text-gray-800 dark:text-gray-200 tracking-wide uppercase">
                   Shop by Category
                 </h2>
                 <p className="text-sm text-gray-500 mt-1">
@@ -209,9 +209,9 @@ export default function HomePage() {
                 <Link
                   key={category._id}
                   href={`/products?category=${category.slug}`}
-                  className="rounded-3xl border border-gray-200 bg-white p-4 text-center transition hover:border-[#0F766E] hover:bg-[#ECFDF5]"
+                  className="rounded-3xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-center transition hover:border-[#0F766E] dark:hover:border-[#0F766E] hover:bg-[#ECFDF5]"
                 >
-                  <p className="text-sm font-semibold uppercase tracking-wide text-gray-700">
+                  <p className="text-sm font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300">
                     {category.category_name}
                   </p>
                 </Link>
@@ -224,7 +224,7 @@ export default function HomePage() {
           <section className="mb-10">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-medium text-gray-800 tracking-wide uppercase">
+                <h2 className="text-2xl font-medium text-gray-800 dark:text-gray-200 tracking-wide uppercase">
                   Recommended For You
                 </h2>
                 <p className="text-sm text-gray-500 mt-1">
@@ -249,24 +249,24 @@ export default function HomePage() {
                   <Link
                     key={product._id}
                     href={`/products/${product.slug}`}
-                    className="group block bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                    className="group block bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-300"
                   >
-                    <div className="relative h-72 bg-gray-50">
+                    <div className="relative h-72 bg-gray-50 dark:bg-gray-800">
                       <ProductImage product={product} aspectRatio="aspect-[3/4]" />
                     </div>
                     <div className="p-4">
-                      <h3 className="text-sm font-medium text-gray-900 mb-1 line-clamp-2">
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1 line-clamp-2">
                         {product.title}
                       </h3>
-                      <p className="text-xs text-gray-500 mb-2">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                         {product.brand?.brand_name || product.category?.category_name}
                       </p>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-sm font-semibold text-gray-900">
+                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                           {formatPrice(currentPrice)}
                         </span>
                         {hasDiscount && (
-                          <span className="text-xs text-gray-400 line-through">
+                          <span className="text-xs text-gray-400 dark:text-gray-500 line-through">
                             {formatPrice(comparePrice)}
                           </span>
                         )}
@@ -282,7 +282,7 @@ export default function HomePage() {
         <section className="mb-10">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
             <div>
-              <h2 className="text-2xl font-medium text-gray-800 tracking-wide uppercase">
+              <h2 className="text-2xl font-medium text-gray-800 dark:text-gray-200 tracking-wide uppercase">
                 Featured Products
               </h2>
               <p className="text-sm text-gray-500 mt-1">
@@ -307,7 +307,7 @@ export default function HomePage() {
               return (
                 <div
                   key={product._id}
-                  className="group bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                  className="group bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-300"
                 >
                    <Link href={`/products/${product.slug}`} className="block relative">
                     <ProductImage
@@ -329,11 +329,11 @@ export default function HomePage() {
                       }
                       overlayActions={
                         <>
-                          <button className="w-8 h-8 bg-white flex items-center justify-center shadow-sm hover:bg-gray-50 rounded-full">
-                            <FiHeart size={14} className="text-gray-700" />
+                          <button className="w-8 h-8 bg-white dark:bg-gray-800 flex items-center justify-center shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-full">
+                            <FiHeart size={14} className="text-gray-700 dark:text-gray-300" />
                           </button>
-                          <button className="w-8 h-8 bg-white flex items-center justify-center shadow-sm hover:bg-gray-50 rounded-full">
-                            <FiSearch size={14} className="text-gray-700" />
+                          <button className="w-8 h-8 bg-white dark:bg-gray-800 flex items-center justify-center shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-full">
+                            <FiSearch size={14} className="text-gray-700 dark:text-gray-300" />
                           </button>
                         </>
                       }
@@ -341,19 +341,19 @@ export default function HomePage() {
                   </Link>
                   <div className="p-4">
                      <Link href={`/products/${product.slug}`}>
-                      <h3 className="text-sm font-medium text-gray-900 mb-1 group-hover:text-[#0F766E] transition-colors line-clamp-2">
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1 group-hover:text-[#0F766E] transition-colors line-clamp-2">
                         {product.title}
                       </h3>
                     </Link>
-                    <p className="text-xs text-gray-500 mb-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                       {product.brand?.brand_name || product.category?.category_name}
                     </p>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-sm font-semibold text-gray-900">
+                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {formatPrice(currentPrice)}
                       </span>
                       {hasDiscount && (
-                        <span className="text-xs text-gray-400 line-through">
+                        <span className="text-xs text-gray-400 dark:text-gray-500 line-through">
                           {formatPrice(comparePrice)}
                         </span>
                       )}

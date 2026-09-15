@@ -74,7 +74,7 @@ function StatCard({ label, value, detail, href, icon: Icon, tone, delta }) {
   return (
     <Link
       href={href}
-      className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md"
+      className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5  transition  hover:border-gray-300 "
     >
       <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-gradient-to-br from-transparent to-gray-50 opacity-60 transition group-hover:scale-110" />
       <div className="relative flex items-start justify-between gap-4">
@@ -86,7 +86,7 @@ function StatCard({ label, value, detail, href, icon: Icon, tone, delta }) {
           <p className="mt-2 text-2xl font-bold tracking-tight text-gray-950">{value}</p>
           <p className="mt-1 text-xs text-gray-500">{detail}</p>
         </div>
-        <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${tone} shadow-sm`}>
+        <span className={`flex h-11 w-11 shrink-0 border border-gray-200 items-center justify-center rounded-xl ${tone} `}>
           <Icon size={20} aria-hidden="true" />
         </span>
       </div>
@@ -145,12 +145,12 @@ export default function AdminDashboard() {
 
   if (error && !overview) {
     return (
-      <div className="mx-auto max-w-xl rounded-2xl border border-rose-200 bg-rose-50 p-6">
+      <div className="mx-auto max-w-xl rounded-xl border border-rose-200 bg-rose-50 p-6">
         <h1 className="text-lg font-semibold text-rose-950">Dashboard unavailable</h1>
         <p className="mt-2 text-sm text-rose-800">{error}</p>
         <button
           onClick={() => loadOverview()}
-          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-rose-700 px-4 py-2 text-sm font-medium text-white hover:bg-rose-800"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-rose-700 px-4 py-2 text-sm font-medium text-white hover:bg-rose-800"
         >
           <RefreshCw size={15} /> Try again
         </button>
@@ -170,7 +170,7 @@ export default function AdminDashboard() {
       href: "/admin/analytics",
       icon: BadgeDollarSign,
       tone: "bg-emerald-50 text-emerald-700",
-      delta: 12.4,
+      delta: stats.deltas?.grossSales ?? 0,
     },
     {
       label: "Orders",
@@ -179,7 +179,7 @@ export default function AdminDashboard() {
       href: "/admin/orders",
       icon: ShoppingBag,
       tone: "bg-sky-50 text-sky-700",
-      delta: 8.1,
+      delta: stats.deltas?.totalOrders ?? 0,
     },
     {
       label: "Customers",
@@ -188,7 +188,7 @@ export default function AdminDashboard() {
       href: "/admin/customers",
       icon: Users,
       tone: "bg-indigo-50 text-indigo-700",
-      delta: 3.2,
+      delta: stats.deltas?.totalCustomers ?? 0,
     },
     {
       label: "Low stock",
@@ -197,7 +197,7 @@ export default function AdminDashboard() {
       href: "/admin/inventory",
       icon: AlertTriangle,
       tone: "bg-amber-50 text-amber-700",
-      delta: -2.1,
+      delta: stats.deltas?.lowStockCount ?? 0,
     },
   ];
 
@@ -209,7 +209,7 @@ export default function AdminDashboard() {
       href: "/admin/analytics",
       icon: DollarSign,
       tone: "bg-emerald-50 text-emerald-700",
-      delta: 4.6,
+      delta: stats.deltas?.averageOrderValue ?? 0,
     },
     {
       label: "Pending returns",
@@ -218,7 +218,7 @@ export default function AdminDashboard() {
       href: "/admin/returns",
       icon: RotateCcw,
       tone: "bg-rose-50 text-rose-700",
-      delta: -1.5,
+      delta: stats.deltas?.pendingReturns ?? 0,
     },
     {
       label: "Pending refunds",
@@ -227,7 +227,7 @@ export default function AdminDashboard() {
       href: "/admin/refunds",
       icon: CreditCard,
       tone: "bg-violet-50 text-violet-700",
-      delta: 0,
+      delta: stats.deltas?.pendingRefunds ?? 0,
     },
     {
       label: "Active products",
@@ -236,7 +236,7 @@ export default function AdminDashboard() {
       href: "/admin/products",
       icon: Package,
       tone: "bg-amber-50 text-amber-700",
-      delta: 5.8,
+      delta: stats.deltas?.totalProducts ?? 0,
     },
   ];
 
@@ -270,13 +270,13 @@ export default function AdminDashboard() {
           <button
             onClick={() => loadOverview(true)}
             disabled={refreshing}
-            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-9 items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700  hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <RefreshCw size={15} className={refreshing ? "animate-spin" : ""} /> Refresh
           </button>
           <Link
             href="/admin/analytics"
-            className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-3 text-sm font-semibold text-white shadow-sm hover:bg-[#0F766E]/90"
+            className="inline-flex h-9 items-center gap-2 rounded-xl bg-[#0F766E] px-3 text-sm font-semibold text-white  hover:bg-[#0F766E]/90"
           >
             <Eye size={15} /> Full report
           </Link>
@@ -296,8 +296,8 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-5">
-        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm lg:col-span-3">
-          <div className="flex items-start justify-between border-b border-gray-100 px-6 py-4">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white  lg:col-span-3">
+          <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4">
             <div>
               <h2 className="text-base font-semibold text-gray-950">Revenue trend</h2>
               <p className="mt-1 text-sm text-gray-500">Daily sales excluding cancelled orders.</p>
@@ -335,8 +335,8 @@ export default function AdminDashboard() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-gray-200 bg-white shadow-sm lg:col-span-2">
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+        <section className="rounded-xl border border-gray-200 bg-white  lg:col-span-2">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div>
               <h2 className="text-base font-semibold text-gray-950">Order pipeline</h2>
               <p className="mt-1 text-sm text-gray-500">Orders created this week.</p>
@@ -358,7 +358,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
             ))}
-            <div className="mt-4 grid grid-cols-3 gap-3 border-t border-gray-100 pt-4">
+            <div className="mt-4 grid grid-cols-3 gap-3 border-t border-gray-200 pt-4">
               {statusCounts.slice(0, 3).map((item) => (
                 <div key={item.status} className="text-center">
                   <p className="text-lg font-bold text-gray-950">{item.count}</p>
@@ -371,8 +371,8 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white ">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div>
               <h2 className="text-base font-semibold text-gray-950">Recent orders</h2>
               <p className="mt-1 text-sm text-gray-500">Newest orders across the store.</p>
@@ -431,8 +431,8 @@ export default function AdminDashboard() {
           )}
         </section>
 
-        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white ">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div>
               <h2 className="text-base font-semibold text-gray-950">Inventory attention</h2>
               <p className="mt-1 text-sm text-gray-500">Variants with fewer than 10 units.</p>
@@ -455,7 +455,7 @@ export default function AdminDashboard() {
                 >
                   <div className="min-w-0 flex items-center gap-3">
                     <span
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
                         variant.inventory_quantity <= 0 ? "bg-rose-50 text-rose-600" : "bg-amber-50 text-amber-600"
                       }`}
                     >
@@ -485,8 +485,8 @@ export default function AdminDashboard() {
       </div>
 
       {recentCustomers && recentCustomers.length > 0 && (
-        <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+        <section className="rounded-xl border border-gray-200 bg-white ">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div>
               <h2 className="text-base font-semibold text-gray-950">New Customers</h2>
               <p className="mt-1 text-sm text-gray-500">Recently registered customers.</p>
@@ -547,8 +547,8 @@ export default function AdminDashboard() {
       )}
 
       {recentBanners && recentBanners.length > 0 && (
-        <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+        <section className="rounded-xl border border-gray-200 bg-white ">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div>
               <h2 className="text-base font-semibold text-gray-950">Recent Banners</h2>
               <p className="mt-1 text-sm text-gray-500">Latest banners shown on the storefront.</p>
@@ -603,8 +603,8 @@ export default function AdminDashboard() {
       )}
 
       <div className="grid gap-6 lg:grid-cols-5">
-        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm lg:col-span-3">
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white  lg:col-span-3">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div>
               <h2 className="text-base font-semibold text-gray-950">Top products</h2>
               <p className="mt-1 text-sm text-gray-500">Ranked by all-time order-item revenue.</p>
@@ -621,7 +621,7 @@ export default function AdminDashboard() {
                 <li key={product._id} className="flex items-center justify-between gap-3 px-6 py-3 hover:bg-gray-50/60">
                   <div className="flex min-w-0 items-center gap-3">
                     <span
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${
                         index === 0
                           ? "bg-amber-100 text-amber-700"
                           : index === 1
@@ -648,8 +648,8 @@ export default function AdminDashboard() {
           )}
         </section>
 
-        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm lg:col-span-2">
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white  lg:col-span-2">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div>
               <h2 className="text-base font-semibold text-gray-950">Activity</h2>
               <p className="mt-1 text-sm text-gray-500">Recent audited actions.</p>
@@ -680,7 +680,7 @@ export default function AdminDashboard() {
         </section>
       </div>
 
-      <section className="grid gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:grid-cols-4">
+      <section className="grid gap-4 rounded-xl border border-gray-200 bg-white p-6  sm:grid-cols-4">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
             <DollarSign size={18} />

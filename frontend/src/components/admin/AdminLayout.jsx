@@ -8,8 +8,6 @@ import {
   BarChart3,
   Bell,
   Search,
-  Sun,
-  Moon,
   ChevronRight,
   Menu,
   LogOut,
@@ -55,6 +53,8 @@ import {
 import { getUser, removeToken } from "@/lib/auth";
 import { ROLES, getRoleDisplayName } from "@/lib/rbac";
 import api from "@/lib/api";
+import { ToastProvider } from "@/components/ui/Toast";
+import { ThemeToggleButton } from "@/components/ThemeProvider";
 
 // ─── Sidebar navigation sections ─────────────────────────────────────────────
 const SIDEBAR_SECTIONS = [
@@ -72,7 +72,7 @@ const SIDEBAR_SECTIONS = [
       { label: "Products", href: "/admin/products", icon: Package, permission: "products:view" },
       { label: "Variants", href: "/admin/variants", icon: Layers, permission: "products:view" },
       { label: "Categories", href: "/admin/categories", icon: FolderTree, permission: "categories:view" },
-      { label: "Brands", href: "/admin/brands", icon: Tag, permission: "products:view" },
+      { label: "Brands", href: "/admin/brands", icon: Tag, permission: "brands:view" },
       { label: "Collections", href: "/admin/collections", icon: Star, permission: "products:view" },
     ],
   },
@@ -344,7 +344,6 @@ export default function AdminLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [darkMode, setDarkMode] = useState(false);
 
   // Search
   const [searchOpen, setSearchOpen] = useState(false);
@@ -365,12 +364,6 @@ export default function AdminLayout({ children }) {
   useEffect(() => {
     const user = getUser();
     setCurrentUser(user);
-
-    const savedTheme = localStorage.getItem("admin_theme");
-    if (savedTheme === "dark") {
-      setDarkMode(true);
-      document.documentElement.classList.add("dark");
-    }
 
     const savedCollapsed = localStorage.getItem("admin_sidebar_collapsed");
     if (savedCollapsed === "true") setCollapsed(true);
@@ -418,20 +411,6 @@ export default function AdminLayout({ children }) {
     } finally {
       setNotifLoading(false);
     }
-  }, []);
-
-  const toggleTheme = useCallback(() => {
-    setDarkMode((prev) => {
-      const next = !prev;
-      if (next) {
-        document.documentElement.classList.add("dark");
-        localStorage.setItem("admin_theme", "dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-        localStorage.setItem("admin_theme", "light");
-      }
-      return next;
-    });
   }, []);
 
   const toggleCollapsed = useCallback(() => {
@@ -490,7 +469,8 @@ export default function AdminLayout({ children }) {
   const unreadCount = notifications.length;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <ToastProvider>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* ── Mobile Overlay ── */}
       {mobileOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
@@ -586,8 +566,8 @@ export default function AdminLayout({ children }) {
                 <Search size={18} />
               </button>
               {searchOpen && (
-                <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
-                  <div className="border-b border-gray-100 p-3 dark:border-gray-700">
+                <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
+                  <div className="border-b border-gray-200 p-3 dark:border-gray-700">
                     <div className="relative">
                       <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       <input
@@ -631,13 +611,7 @@ export default function AdminLayout({ children }) {
             </div>
 
             {/* Dark mode toggle */}
-            <button
-              onClick={toggleTheme}
-              className="rounded-xl p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition"
-              aria-label="Toggle theme"
-            >
-              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
+            <ThemeToggleButton aria-label="Toggle theme" />
 
             {/* Notifications */}
             <div ref={notifRef} className="relative">
@@ -657,8 +631,8 @@ export default function AdminLayout({ children }) {
                 )}
               </button>
               {notifOpen && (
-                <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
-                  <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+                <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
+                  <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-700">
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Notifications</p>
                     <Link
                       href="/admin/notifications"
@@ -722,8 +696,8 @@ export default function AdminLayout({ children }) {
               </button>
 
               {userMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
-                  <div className="border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+                <div className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
+                  <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
                     <p className="text-xs font-bold text-gray-900 dark:text-gray-100">
                       {currentUser?.first_name} {currentUser?.last_name}
                     </p>
@@ -747,7 +721,7 @@ export default function AdminLayout({ children }) {
                       </li>
                     ))}
                     <li>
-                      <hr className="my-1 border-gray-100 dark:border-gray-700" />
+                      <hr className="my-1 border-gray-200 dark:border-gray-700" />
                     </li>
                     <li>
                       <button
@@ -787,5 +761,6 @@ export default function AdminLayout({ children }) {
         </footer>
       </div>
     </div>
-  );
+  </ToastProvider>
+);
 }

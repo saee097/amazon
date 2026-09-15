@@ -22,9 +22,9 @@ import { getToken } from "@/lib/auth";
 import { useState, useMemo } from "react";
 
 const STATUS_OPTIONS = [
-  { value: "draft", label: "Draft" },
-  { value: "active", label: "Active" },
-  { value: "archived", label: "Archived" },
+  { value: "active", label: "Active — Visible to customers" },
+  { value: "draft", label: "Draft — Hidden from customers" },
+  { value: "archived", label: "Archived — Hidden from customers" },
 ];
 
 function slugify(text) {
@@ -45,8 +45,8 @@ function readFileAsDataURL(file) {
 
 function Section({ icon: Icon, title, description, children }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-      <header className="flex items-start gap-4 border-b border-gray-100 bg-gray-50/60 px-6 py-4">
+    <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+      <header className="flex items-start gap-4 border-b border-gray-200 bg-gray-50/60 px-6 py-4">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#0F766E]/10 text-[#0F766E]">
           <Icon size={19} aria-hidden="true" />
         </span>
@@ -97,7 +97,7 @@ export default function AdminProductsCreate() {
     cost_price: "",
     category: "",
     brand: "",
-    status: "draft",
+    status: "active",
     sku: "",
     barcode: "",
     inventory_quantity: 0,
@@ -415,7 +415,7 @@ export default function AdminProductsCreate() {
             <Field label="Meta description"><textarea name="meta_description" value={form.meta_description} onChange={handleChange} rows={3} className={inputClass} /></Field>
           </Section>
 
-          <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-5 text-sm text-amber-900 shadow-sm">
+          <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-5 text-sm text-amber-900 shadow-sm">
             <p className="font-semibold">Inventory summary</p>
             <ul className="mt-2 space-y-1 text-xs">
               <li>Variants defined: <strong>{form.variants.length}</strong></li>

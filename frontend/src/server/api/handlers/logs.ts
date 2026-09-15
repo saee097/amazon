@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getSupabaseAdmin } from "../../supabase/admin";
+import { getSupabaseAdmin } from "@/server/supabase/admin";
 import { requirePermission } from "../../lib/auth";
 import { jsonError, jsonData } from "../../lib/response";
 

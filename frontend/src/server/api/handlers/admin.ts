@@ -1,9 +1,9 @@
 // @ts-nocheck
 import { NextRequest } from "next/server";
-import { getSupabaseAdmin } from "../../supabase/admin";
+import { getSupabaseAdmin } from "@/server/supabase/admin";
 import { logAudit, requireAdmin } from "../../lib/auth";
 import { handleLogs } from "./logs";
-import { mapCategory, mapOrder, mapProduct, mapProfile, toMongoId, toMongoIds } from "../../lib/mapper";
+import { mapBrand, mapCategory, mapOrder, mapProduct, mapProfile, toMongoId, toMongoIds } from "../../lib/mapper";
 import { getPermissionsForRole } from "../../lib/permissions";
 import { jsonError, jsonOk, jsonData } from "../../lib/response";
 
@@ -21,7 +21,7 @@ export async function handleAdmin(
   }
 
   const { user: admin, error: authError } = await requireAdmin(request);
-  if (authError && resource !== "system") return authError;
+  if (authError) return authError;
 
   // GET /admin/products
   if (method === "GET" && resource === "products") {
@@ -243,6 +243,57 @@ export async function handleAdmin(
     if (error) return jsonError(error.message, 400);
     await logAudit(admin!._id, "delete_category", "categories", id, {}, request.headers.get("x-forwarded-for"));
     return jsonOk({ message: "Category deleted" });
+  }
+
+  // ─── BRANDS ─────────────────────────────────────────────────────────
+
+  // GET /admin/brands
+  if (method === "GET" && resource === "brands" && !id) {
+    const { data } = await supabase.from("brands").select("*").order("brand_name");
+    return jsonOk((data || []).map(mapBrand));
+  }
+
+  // GET /admin/brands/:id
+  if (method === "GET" && resource === "brands" && id) {
+    const { data, error } = await supabase.from("brands").select("*").eq("id", id).single();
+    if (error || !data) return jsonError("Brand not found", 404);
+    return jsonOk(mapBrand(data));
+  }
+
+  // POST /admin/brands
+  if (method === "POST" && resource === "brands" && !id) {
+    const { error: authError } = await requireAdmin(request);
+    if (authError) return authError;
+    const body = await request.json();
+    const slug = body.slug || body.brand_name?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const { data, error } = await supabase.from("brands").insert({ brand_name: body.brand_name, slug, description: body.description, logo_url: body.logo_url, status: body.status || "active" }).select().single();
+    if (error) return jsonError(error.message, 400);
+    return jsonOk(mapBrand(data), 201);
+  }
+
+  // PUT /admin/brands/:id
+  if (method === "PUT" && resource === "brands" && id) {
+    const { error: authError } = await requireAdmin(request);
+    if (authError) return authError;
+    const body = await request.json();
+    const updates: Record<string, unknown> = {};
+    if (body.brand_name !== undefined) updates.brand_name = body.brand_name;
+    if (body.slug !== undefined) updates.slug = body.slug;
+    if (body.description !== undefined) updates.description = body.description;
+    if (body.logo_url !== undefined) updates.logo_url = body.logo_url;
+    if (body.status !== undefined) updates.status = body.status;
+    const { data, error } = await supabase.from("brands").update(updates).eq("id", id).select().single();
+    if (error) return jsonError(error.message, 400);
+    return jsonOk(mapBrand(data));
+  }
+
+  // DELETE /admin/brands/:id
+  if (method === "DELETE" && resource === "brands" && id) {
+    const { error: authError } = await requireAdmin(request);
+    if (authError) return authError;
+    const { error } = await supabase.from("brands").delete().eq("id", id);
+    if (error) return jsonError(error.message, 400);
+    return jsonOk({ message: "Brand deleted" });
   }
 
   // GET /admin/orders
@@ -493,6 +544,49 @@ export async function handleAdmin(
     return jsonOk((data || []).map(mapProfile));
   }
 
+  // POST /admin/customers
+  if (method === "POST" && resource === "customers" && !id) {
+    const { error: authError } = await requireAdmin(request);
+    if (authError) return authError;
+    const body = await request.json();
+    const { data, error } = await supabase.from("profiles").insert({
+      email: body.email,
+      first_name: body.first_name,
+      last_name: body.last_name,
+      phone: body.phone || null,
+      role: "customer",
+      status: body.status || "active",
+    }).select().single();
+    if (error) return jsonError(error.message, 400);
+    return jsonOk(mapProfile(data), 201);
+  }
+
+  // PUT /admin/customers/:id
+  if (method === "PUT" && resource === "customers" && id) {
+    const { error: authError } = await requireAdmin(request);
+    if (authError) return authError;
+    const body = await request.json();
+    const updates: Record<string, unknown> = {};
+    if (body.first_name !== undefined) updates.first_name = body.first_name;
+    if (body.last_name !== undefined) updates.last_name = body.last_name;
+    if (body.email !== undefined) updates.email = body.email;
+    if (body.phone !== undefined) updates.phone = body.phone;
+    if (body.status !== undefined) updates.status = body.status;
+    if (body.role !== undefined) updates.role = body.role;
+    const { data, error } = await supabase.from("profiles").update(updates).eq("id", id).select().single();
+    if (error) return jsonError(error.message, 400);
+    return jsonOk(mapProfile(data));
+  }
+
+  // DELETE /admin/customers/:id
+  if (method === "DELETE" && resource === "customers" && id) {
+    const { error: authError } = await requireAdmin(request);
+    if (authError) return authError;
+    const { error } = await supabase.from("profiles").delete().eq("id", id);
+    if (error) return jsonError(error.message, 400);
+    return jsonOk({ message: "Customer deleted" });
+  }
+
   // GET /admin/roles
   if (method === "GET" && resource === "roles") {
     const { data } = await supabase.from("roles").select("*").order("name");
@@ -593,6 +687,61 @@ export async function handleAdmin(
     if (error) return jsonError(error.message, 400);
     return jsonOk(toMongoId(data), 201);
   }
+
+  // POST /admin/upload/image
+  if (method === "POST" && resource === "upload" && id === "image") {
+    const { error: authError } = await requireAdmin(request);
+    if (authError) return authError;
+
+    const formData = await request.formData();
+    const file = formData.get("image") as File | null;
+
+    if (!file) {
+      return jsonError("No image file provided", 400);
+    }
+
+    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!validTypes.includes(file.type)) {
+      return jsonError("Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed", 400);
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      return jsonError("File size must be less than 5MB", 400);
+    }
+
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 10);
+    const ext = file.name.split(".").pop() || "jpg";
+    const fileName = `${timestamp}-${random}.${ext}`;
+    const filePath = `uploads/${fileName}`;
+
+    // Ensure bucket exists
+    const { data: buckets } = await supabase.storage.listBuckets();
+    const bucketExists = buckets?.some((b) => b.name === "images");
+    if (!bucketExists) {
+      await supabase.storage.createBucket("images", { public: true });
+    }
+
+    const { error: uploadError } = await supabase.storage
+      .from("images")
+      .upload(filePath, buffer, {
+        contentType: file.type,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error("Storage upload error:", uploadError);
+      return jsonError("Failed to upload image", 500);
+    }
+
+    const { data: urlData } = supabase.storage.from("images").getPublicUrl(filePath);
+
+    return jsonOk({ url: urlData.publicUrl });
+  }
+
   // GET /admin/shipments
   if (method === "GET" && resource === "shipments") {
     const { data } = await supabase

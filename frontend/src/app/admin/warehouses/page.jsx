@@ -42,7 +42,7 @@ export default function AdminWarehouses() {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
         {warehouses.length === 0 ? (
           <div className="p-8 text-center">
             <p className="text-gray-500">No warehouses found.</p>

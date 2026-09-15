@@ -5,15 +5,15 @@ import { FiShield, FiArrowLeft } from "react-icons/fi";
 
 export default function UnauthorizedPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col items-center justify-center px-4 py-8 sm:py-12">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 py-8 sm:py-12">
       <div className="w-full max-w-md mx-auto text-center">
         <div className="mb-6">
           <FiShield className="w-20 h-20 mx-auto text-red-400" />
         </div>
-        <h1 className="text-3xl sm:text-4xl font-light text-gray-800 mb-3">
+        <h1 className="text-3xl sm:text-4xl font-light text-gray-800 dark:text-gray-200 mb-3">
           Access Denied
         </h1>
-        <p className="text-base sm:text-lg text-gray-600 px-4 mb-8">
+        <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 px-4 mb-8">
           You do not have permission to access this page. Please contact your administrator if you believe this is an error.
         </p>
         <Link

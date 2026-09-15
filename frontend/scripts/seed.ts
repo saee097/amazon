@@ -12,6 +12,7 @@ import { createClient } from "@supabase/supabase-js";
 import { readFileSync, existsSync } from "fs";
 import { resolve } from "path";
 import { envVar } from "../src/server/lib/env";
+import ws from "ws";
 
 function loadEnvFile(filename: string) {
   const envPath = resolve(process.cwd(), filename);
@@ -39,6 +40,7 @@ if (!url || !serviceKey) {
 
 const supabase = createClient(url, serviceKey, {
   auth: { autoRefreshToken: false, persistSession: false },
+  realtime: { transport: ws },
 });
 
 const ADMIN_PERMISSIONS = [

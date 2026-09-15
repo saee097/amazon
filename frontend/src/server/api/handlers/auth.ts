@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { NextRequest } from "next/server";
-import { getSupabaseAdmin } from "../../supabase/admin";
+import { getSupabaseAdmin } from "@/server/supabase/admin";
 import {
   extractToken,
   formatAuthResponse,
