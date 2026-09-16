@@ -29,6 +29,18 @@ export const resetPasswordSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
+export const verifyCodeSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  code: z.string().min(6, "Code must be 6 digits").max(6, "Code must be 6 digits"),
+});
+
+export const resetByCodeSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  code: z.string().min(6, "Code must be 6 digits").max(6, "Code must be 6 digits"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string().min(1, "Please confirm your password"),
+});
+
 export const productSchema = z.object({
   title: z.string().min(1, "Title is required").max(255),
   slug: z.string().max(255).optional(),
@@ -167,6 +179,8 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type VerifyCodeInput = z.infer<typeof verifyCodeSchema>;
+export type ResetByCodeInput = z.infer<typeof resetByCodeSchema>;
 export type ProductInput = z.infer<typeof productSchema>;
 export type CategoryInput = z.infer<typeof categorySchema>;
 export type BrandInput = z.infer<typeof brandSchema>;

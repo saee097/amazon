@@ -346,6 +346,7 @@ CREATE TABLE vendors (
   name TEXT NOT NULL,
   email TEXT,
   phone TEXT,
+  commission_rate NUMERIC(5,2) NOT NULL DEFAULT 0,
   status TEXT NOT NULL DEFAULT 'active',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

@@ -441,6 +441,9 @@ export async function handleAdmin(
 
     let query = supabase.from("profiles").select("*", { count: "exact" });
 
+    if (admin.role !== "superadmin") {
+      query = query.neq("role", "superadmin");
+    }
     if (role) query = query.eq("role", role);
     if (status) query = query.eq("status", status);
     if (search) {
@@ -457,7 +460,9 @@ export async function handleAdmin(
 
   // POST /admin/users
   if (method === "POST" && resource === "users") {
-    const body = await request.json();
+    if (admin.role !== "superadmin" && (body.role || "customer") === "superadmin") {
+      return jsonError("Only super admins can create super admin accounts", 403);
+    }
     const { data: authData, error } = await supabase.auth.admin.createUser({
       email: body.email,
       password: body.password || "TempPass123!",
@@ -491,7 +496,16 @@ export async function handleAdmin(
 
   // PUT /admin/users/:id
   if (method === "PUT" && resource === "users" && id) {
+    if (admin.role !== "superadmin") {
+      const { data: targetUser } = await supabase.from("profiles").select("role").eq("id", id).single();
+      if (targetUser && targetUser.role === "superadmin") {
+        return jsonError("Only super admins can edit super admin accounts", 403);
+      }
+    }
     const body = await request.json();
+    if (admin.role !== "superadmin" && body.role === "superadmin") {
+      return jsonError("Only super admins can assign super admin role", 403);
+    }
     const updates: Record<string, unknown> = {};
     if (body.first_name !== undefined) updates.first_name = body.first_name;
     if (body.last_name !== undefined) updates.last_name = body.last_name;

@@ -5,15 +5,12 @@ import api from "@/lib/api";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
-  const [success, setSuccess] = useState(false);
-  const [resetToken, setResetToken] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [success, setSuccess] = useState(false);
+  const [devCode, setDevCode] = useState("");
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  const validateEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -22,7 +19,6 @@ export default function ForgotPasswordPage() {
       setErrors({ email: "Email is required" });
       return;
     }
-
     if (!validateEmail(email)) {
       setErrors({ email: "Please enter a valid email address" });
       return;
@@ -30,19 +26,15 @@ export default function ForgotPasswordPage() {
 
     try {
       setLoading(true);
+      setErrors({});
 
-      const { data } = await api.post(
-        "/auth/forgot-password",
-        {
-          email,
-        }
-      );
+      const { data } = await api.post("/auth/forgot-password", { email });
 
       setSuccess(true);
-      setResetToken(data.resetToken || "");
-    } catch (error) {
+      setDevCode(data.devCode || "");
+    } catch (err) {
       setErrors({
-        submit: error?.response?.data?.message || "Something went wrong",
+        submit: err?.response?.data?.message || "Something went wrong",
       });
     } finally {
       setLoading(false);
@@ -59,30 +51,34 @@ export default function ForgotPasswordPage() {
             Forgot Password
           </h1>
           <p className="text-base sm:text-lg text-gray-600 px-4">
-            Enter your email to receive a password reset link.
+            Enter your email to receive a verification code.
           </p>
         </div>
 
         <div className="bg-white rounded-lg border border-gray-200 p-6 sm:p-8">
           {success ? (
-            <div className="bg-green-50 border border-green-200 p-4 rounded-lg text-center">
-              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-lg text-center">
+              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-emerald-100 flex items-center justify-center">
+                <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
               <h3 className="font-semibold text-gray-800 mb-2">Check your email</h3>
               <p className="text-sm text-gray-600 mb-4">
-                We&apos;ve sent a password reset link to <strong>{email}</strong>
+                We&apos;ve sent a 6-digit verification code to{" "}
+                <strong>{email}</strong>
               </p>
-              {resetToken && (
-                <a
-                  className="inline-block text-sm text-[#0F766E] hover:underline"
-                  href={`/auth/reset-password/${resetToken}`}
-                >
-                  (Development: Open reset link)
-                </a>
+              {devCode && (
+                <p className="text-sm font-mono text-gray-700 bg-gray-100 rounded-lg p-2 mb-4">
+                  Dev code: {devCode}
+                </p>
               )}
+              <a
+                href={`/auth/verify-code?email=${encodeURIComponent(email)}`}
+                className="inline-block text-sm text-[#0F766E] hover:underline"
+              >
+                Continue to verify code
+              </a>
             </div>
           ) : (
             <>
@@ -102,7 +98,7 @@ export default function ForgotPasswordPage() {
                     placeholder="Enter your email"
                     className={`w-full rounded-lg border px-4 py-3 text-gray-500 text-sm outline-none transition ${
                       errors.email ? "border-red-300 focus:border-red-500" : "border-gray-300 focus:border-[#0F766E]"
-                    } focus:ring-1 focus:ring-[#0F766E]/20`}
+                    } focus:ring-1 focus:ring-[#0F766E]/20 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
@@ -119,7 +115,7 @@ export default function ForgotPasswordPage() {
                   disabled={loading || !isFormValid}
                   className="w-full rounded-lg bg-[#0F766E] py-3.5 text-sm font-semibold text-white hover:bg-[#0F766E]/90 disabled:opacity-70 disabled:cursor-not-allowed transition transform"
                 >
-                  {loading ? "Sending..." : "Send Reset Link"}
+                  {loading ? "Sending..." : "Send Verification Code"}
                 </button>
               </form>
             </>
@@ -127,10 +123,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         <div className="mt-6 text-center">
-          <a
-            href="/auth/login"
-            className="text-sm text-[#0F766E] hover:underline"
-          >
+          <a href="/auth/login" className="text-sm text-[#0F766E] hover:underline">
             Back to Sign In
           </a>
         </div>

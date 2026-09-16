@@ -10,12 +10,19 @@ import {
 } from "../../lib/auth";
 import { mapProfile } from "../../lib/mapper";
 import { jsonError, jsonOk, jsonRaw } from "../../lib/response";
-import { loginSchema, registerSchema, changePasswordSchema, forgotPasswordSchema, resetPasswordSchema } from "../../lib/validation";
+import { loginSchema, registerSchema, changePasswordSchema, forgotPasswordSchema, resetPasswordSchema, verifyCodeSchema, resetByCodeSchema } from "../../lib/validation";
+import { sendVerificationCode } from "../../lib/email";
 import { validateJson } from "../../lib/validate";
 
 const RATE_LIMIT_WINDOW = 60_000;
 const RATE_LIMIT_MAX = 10;
 const attempts = new Map<string, { count: number; resetAt: number }>();
+
+const resetCodes = new Map<string, { email: string; code: string; expiresAt: number; verified?: boolean }>();
+
+function generateCode(): string {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
 
 function checkRateLimit(key: string): boolean {
   const now = Date.now();
@@ -367,15 +374,52 @@ export async function handleAuth(
 
     const { email } = body;
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-    await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${siteUrl}/auth/reset-password`,
+    const code = generateCode();
+    resetCodes.set(email.toLowerCase(), {
+      email: email.toLowerCase(),
+      code,
+      expiresAt: Date.now() + 10 * 60 * 1000,
     });
 
-    return jsonRaw({ success: true, message: "Password reset email sent if account exists" });
+    try {
+      await sendVerificationCode(email, code);
+    } catch {
+      // In dev mode without email service, still succeed
+    }
+
+    return jsonRaw({
+      success: true,
+      message: "Verification code sent",
+      devCode: code,
+    });
   }
 
-  // POST /auth/reset-password/:token
+  // POST /auth/verify-code
+  if (method === "POST" && action === "verify-code") {
+    const { data: body, error: validationError } = await validateJson(request, verifyCodeSchema);
+    if (validationError) return validationError;
+
+    const { email, code } = body;
+    const emailKey = email.toLowerCase();
+
+    const stored = resetCodes.get(emailKey);
+    if (!stored) {
+      return jsonError("Invalid or expired code. Please request a new one.", 400);
+    }
+    if (stored.code !== code) {
+      return jsonError("Invalid code. Please try again.", 400);
+    }
+    if (Date.now() > stored.expiresAt) {
+      resetCodes.delete(emailKey);
+      return jsonError("Code has expired. Please request a new one.", 400);
+    }
+
+    resetCodes.set(emailKey, { ...stored, verified: true });
+
+    return jsonOk({ message: "Code verified. You may now reset your password." });
+  }
+
+  // POST /auth/reset-password/:token (token-based, legacy)
   if (method === "POST" && action === "reset-password" && path[2]) {
     const { data: body, error: validationError } = await validateJson(request, resetPasswordSchema);
     if (validationError) return validationError;
@@ -394,6 +438,50 @@ export async function handleAuth(
     } else {
       await supabase.auth.admin.updateUserById(data.user.id, { password });
     }
+
+    return jsonOk({ message: "Password reset successful" });
+  }
+
+  // POST /auth/reset-password (code-based)
+  if (method === "POST" && action === "reset-password" && !path[2]) {
+    const { data: body, error: validationError } = await validateJson(request, resetByCodeSchema);
+    if (validationError) return validationError;
+
+    const { email, code, password, confirmPassword } = body;
+
+    if (password !== confirmPassword) {
+      return jsonError("Passwords do not match", 400);
+    }
+
+    const emailKey = email.toLowerCase();
+    const stored = resetCodes.get(emailKey);
+    if (!stored) {
+      return jsonError("Invalid or expired code. Please request a new one.", 400);
+    }
+    if (!stored.verified) {
+      return jsonError("Please verify your code first.", 400);
+    }
+    if (Date.now() > stored.expiresAt) {
+      resetCodes.delete(emailKey);
+      return jsonError("Code has expired. Please request a new one.", 400);
+    }
+
+    resetCodes.delete(emailKey);
+
+    const { data: userData, error: userError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("email", emailKey)
+      .single();
+
+    if (userError || !userData) {
+      return jsonError("User not found", 404);
+    }
+
+    const { error: updateError } = await supabase.auth.admin.updateUserById(userData.id, {
+      password,
+    });
+    if (updateError) return jsonError(updateError.message, 400);
 
     return jsonOk({ message: "Password reset successful" });
   }
