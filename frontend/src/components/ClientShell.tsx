@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import { FiSearch, FiHeart, FiShoppingBag, FiUser, FiMenu, FiX, FiLogIn, FiInstagram, FiFacebook, FiTwitter, FiMail } from "react-icons/fi";
 import { getUser, getToken, removeToken } from "@/lib/auth";
 import { ThemeToggleButton } from "@/components/ThemeProvider";
+import api from "@/lib/api";
+import { subscribeStoreUpdate } from "@/lib/storeEvents";
 
 export default function ClientShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -15,6 +17,29 @@ export default function ClientShell({ children }: { children: React.ReactNode })
   const showNavbar = !isAdminRoute && !isAuthRoute;
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<null | string>(null);
+  const [cartCount, setCartCount] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
+
+  const fetchCounts = async () => {
+    if (!isLoggedIn) {
+      setCartCount(0);
+      setWishlistCount(0);
+      return;
+    }
+    try {
+      const [cartRes, wishlistRes] = await Promise.allSettled([
+        api.get("/store/cart").catch(() => null),
+        api.get("/store/wishlist").catch(() => null),
+      ]);
+      const cartData = cartRes.status === "fulfilled" && cartRes.value?.data?.data?.items;
+      const wishlistData = wishlistRes.status === "fulfilled" && wishlistRes.value?.data?.data;
+      setCartCount(cartData ? cartData.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0) : 0);
+      setWishlistCount(wishlistData ? wishlistData.length : 0);
+    } catch {
+      setCartCount(0);
+      setWishlistCount(0);
+    }
+  };
 
   useEffect(() => {
     const user = getUser();
@@ -22,6 +47,11 @@ export default function ClientShell({ children }: { children: React.ReactNode })
     setIsLoggedIn(!!token && !!user);
     setUserRole(user?.role || null);
   }, [pathname]);
+
+  useEffect(() => {
+    fetchCounts();
+    return subscribeStoreUpdate(fetchCounts);
+  }, [isLoggedIn]);
 
   const handleLogout = () => {
     removeToken();
@@ -98,12 +128,18 @@ export default function ClientShell({ children }: { children: React.ReactNode })
 
                 {/* Icons */}
                 <div className="flex items-center gap-6">
-                  <Link href="/wishlist" className="hidden sm:flex flex-col items-center text-gray-600 hover:text-[#0F766E] dark:text-gray-400 dark:hover:text-[#0F766E]">
+                  <Link href="/wishlist" className="hidden sm:flex flex-col items-center text-gray-600 hover:text-[#0F766E] dark:text-gray-400 dark:hover:text-[#0F766E] relative">
                     <FiHeart size={20} />
+                    {wishlistCount > 0 && (
+                      <span className="absolute -top-2 -right-3 bg-[#0F766E] text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{wishlistCount}</span>
+                    )}
                     <span className="text-[10px] mt-1">Wishlist</span>
                   </Link>
-                  <Link href="/cart" className="hidden sm:flex flex-col items-center text-gray-600 hover:text-[#0F766E] dark:text-gray-400 dark:hover:text-[#0F766E]">
+                  <Link href="/cart" className="hidden sm:flex flex-col items-center text-gray-600 hover:text-[#0F766E] dark:text-gray-400 dark:hover:text-[#0F766E] relative">
                     <FiShoppingBag size={20} />
+                    {cartCount > 0 && (
+                      <span className="absolute -top-2 -right-3 bg-[#0F766E] text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{cartCount}</span>
+                    )}
                     <span className="text-[10px] mt-1">Cart</span>
                   </Link>
                   {isLoggedIn ? (
@@ -222,7 +258,6 @@ export default function ClientShell({ children }: { children: React.ReactNode })
                 <h4 className="font-semibold text-sm uppercase tracking-wider mb-5 text-white">Company</h4>
                 <ul className="space-y-3 text-sm text-gray-400">
                   <li><Link href="/about" className="hover:text-[#0F766E] transition-colors">About Us</Link></li>
-                  <li><Link href="/careers" className="hover:text-[#0F766E] transition-colors">Careers</Link></li>
                   <li><Link href="/stores" className="hover:text-[#0F766E] transition-colors">Store Locator</Link></li>
                   <li><Link href="/privacy" className="hover:text-[#0F766E] transition-colors">Privacy Policy</Link></li>
                   <li><Link href="/terms" className="hover:text-[#0F766E] transition-colors">Terms of Service</Link></li>

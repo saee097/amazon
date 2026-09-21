@@ -151,9 +151,11 @@ INSERT INTO warehouses (name, location) VALUES
   ('West Coast Hub', 'Los Angeles, CA');
 
 -- Coupons
-INSERT INTO coupons (code, discount_type, discount_value, min_order, max_uses, status) VALUES
-  ('WELCOME10', 'percentage', 10, 50, 1000, 'active'),
-  ('SAVE20', 'percentage', 20, 100, 500, 'active');
+INSERT INTO coupons (code, discount_type, discount_value, min_order, max_uses, used_count, status, per_user_usage_limit, start_date, expires_at, max_discount) VALUES
+  ('WELCOME10', 'percentage', 10, 50, 1000, 0, 'active', 1, '2026-01-01T00:00:00Z', '2026-12-31T23:59:59Z', NULL),
+  ('SAVE20', 'percentage', 20, 100, 500, 0, 'active', 1, '2026-06-01T00:00:00Z', '2026-06-30T23:59:59Z', NULL),
+  ('SUMMER20', 'percentage', 20, 100, 500, 0, 'active', 1, '2026-06-01T00:00:00Z', '2026-06-30T23:59:59Z', 50)
+ON CONFLICT (code) DO NOTHING;
 
 -- Sample vendors
 INSERT INTO vendors (name, email, phone, status) VALUES

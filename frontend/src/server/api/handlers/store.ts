@@ -9,25 +9,89 @@ import {
   mapProduct,
   toMongoIds,
 } from "../../lib/mapper";
-import { jsonError, jsonOk } from "../../lib/response";
+import { jsonError, jsonOk, jsonData } from "../../lib/response";
 import { cartItemSchema, checkoutSchema } from "../../lib/validation";
 import { validateJson } from "../../lib/validate";
+import { parseProductFilters } from "../../lib/params";
 
-async function loadProductsWithRelations(filters?: { q?: string; slug?: string; id?: string }) {
+async function loadProductsWithRelations(filters: {
+  q?: string;
+  slug?: string;
+  id?: string;
+  category?: string;
+  brand?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sort?: string;
+  inStock?: string;
+  sizes?: string;
+  colors?: string;
+  page: number;
+  limit: number;
+  skip: number;
+}) {
   const supabase = getSupabaseAdmin();
   let query = supabase
     .from("products")
-    .select("*, categories(*), brands(*), product_variants(*), product_images(*)")
-    .eq("status", "active")
-    .order("created_at", { ascending: false });
+    .select("*, categories(*), brands(*), product_variants(*), product_images(*)", { count: "exact" })
+    .eq("status", "active");
 
-  if (filters?.slug) query = query.eq("slug", filters.slug);
-  if (filters?.id) query = query.eq("id", filters.id);
-  if (filters?.q) query = query.ilike("title", `%${filters.q}%`);
+  let categoryId: string | null = null;
+  let brandId: string | null = null;
 
-  const { data, error } = await query;
+  if (filters.category) {
+    const { data: catData } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("slug", filters.category)
+      .single();
+    if (catData) categoryId = catData.id;
+    else return { data: [], count: 0, pagination: { page: filters.page, limit: filters.limit, total: 0, totalPages: 0 } };
+  }
+
+  if (filters.brand) {
+    const { data: brandData } = await supabase
+      .from("brands")
+      .select("id")
+      .eq("slug", filters.brand)
+      .single();
+    if (brandData) brandId = brandData.id;
+    else return { data: [], count: 0, pagination: { page: filters.page, limit: filters.limit, total: 0, totalPages: 0 } };
+  }
+
+  if (filters.slug) query = query.eq("slug", filters.slug);
+  if (filters.id) query = query.eq("id", filters.id);
+  if (filters.q) query = query.ilike("title", `%${filters.q}%`);
+  if (categoryId) query = query.eq("category_id", categoryId);
+  if (brandId) query = query.eq("brand_id", brandId);
+  if (filters.minPrice) query = query.gte("price", filters.minPrice);
+  if (filters.maxPrice) query = query.lte("price", filters.maxPrice);
+  if (filters.inStock === "true") {
+    query = query.gt("product_variants!inner.inventory_quantity", 0);
+  }
+  if (filters.sizes) {
+    const sizeArr = filters.sizes.split(",").filter(Boolean);
+    if (sizeArr.length > 0) {
+      query = query.or(sizeArr.map((s) => `product_variants!inner.size.eq.${s}`).join(","));
+    }
+  }
+  if (filters.colors) {
+    const colorArr = filters.colors.split(",").filter(Boolean);
+    if (colorArr.length > 0) {
+      query = query.or(colorArr.map((c) => `product_variants!inner.color.eq.${c}`).join(","));
+    }
+  }
+
+  const sortField = filters.sort ? filters.sort.replace(/^-/, "") : "created_at";
+  const ascending = filters.sort ? !filters.sort.startsWith("-") : false;
+  query = query.order(sortField, { ascending });
+
+  query = query.range(filters.skip, filters.skip + filters.limit - 1);
+
+  const { data, error, count } = await query;
   if (error) throw error;
-  return (data || []).map((p) =>
+
+  const products = (data || []).map((p) =>
     mapProduct(p, {
       category: p.categories,
       brand: p.brands,
@@ -37,6 +101,18 @@ async function loadProductsWithRelations(filters?: { q?: string; slug?: string; 
       ),
     })
   );
+
+  const total = count || 0;
+  return {
+    data: products,
+    count: total,
+    pagination: {
+      page: filters.page,
+      limit: filters.limit,
+      total,
+      totalPages: Math.ceil(total / filters.limit),
+    },
+  };
 }
 
 async function getOrCreateCart(userId: string) {
@@ -71,9 +147,10 @@ export async function handleStore(
 
   // GET /store/products
   if (method === "GET" && resource === "products" && !path[2]) {
-    const q = request.nextUrl.searchParams.get("q") || undefined;
-    const products = await loadProductsWithRelations({ q });
-    return jsonOk(products);
+    const searchParams = request.nextUrl.searchParams;
+    const filters = parseProductFilters(searchParams);
+    const result = await loadProductsWithRelations(filters);
+    return jsonData(result.data, { pagination: result.pagination });
   }
 
   // GET /store/products/:idOrSlug
@@ -145,6 +222,30 @@ export async function handleStore(
     );
 
     return jsonOk({ _id: cart!.id, items: mappedItems, totals });
+  }
+
+  // DELETE /store/cart/items/:id
+  if (method === "DELETE" && resource === "cart" && path[2] === "items" && path[3]) {
+    const { user, error } = await requireAuth(request);
+    if (error) return error;
+
+    const { data: cart } = await supabase
+      .from("carts")
+      .select("id")
+      .eq("user_id", user!._id)
+      .single();
+
+    if (!cart) return jsonError("Cart not found", 404);
+
+    const { error: deleteError } = await supabase
+      .from("cart_items")
+      .delete()
+      .eq("id", path[3])
+      .eq("cart_id", cart.id);
+
+    if (deleteError) return jsonError("Failed to remove item", 400);
+
+    return jsonOk({ message: "Item removed from cart" });
   }
 
   // POST /store/cart
@@ -254,6 +355,73 @@ export async function handleStore(
     return jsonOk(result);
   }
 
+  // GET /store/coupons/validate?code=XXX&subtotal=123
+  if (method === "GET" && resource === "coupons" && path[2] === "validate") {
+    const { user, error } = await requireAuth(request);
+    if (error) return error;
+
+    const code = (request.nextUrl.searchParams.get("code") || "").toUpperCase();
+    const subtotal = Number(request.nextUrl.searchParams.get("subtotal") || 0);
+
+    if (!code) return jsonError("Coupon code is required", 400);
+
+    const { data: coupon } = await supabase
+      .from("coupons")
+      .select("*")
+      .eq("code", code)
+      .eq("status", "active")
+      .single();
+
+    if (!coupon) return jsonError("Coupon not found or inactive", 400);
+
+    const now = new Date();
+    if (coupon.start_date && new Date(coupon.start_date) > now) {
+      return jsonError("Coupon is not yet active", 400);
+    }
+    if (coupon.expires_at && new Date(coupon.expires_at) <= now) {
+      return jsonError("Coupon has expired", 400);
+    }
+    if (coupon.max_uses && coupon.used_count >= coupon.max_uses) {
+      return jsonError("Coupon usage limit reached", 400);
+    }
+    if (subtotal < Number(coupon.min_order || 0)) {
+      return jsonError(`Minimum order of $${Number(coupon.min_order || 0).toFixed(2)} required`, 400);
+    }
+
+    // Per-user usage check
+    const { count: userUsageCount } = await supabase
+      .from("coupon_usage")
+      .select("*", { count: "exact", head: true })
+      .eq("coupon_id", coupon.id)
+      .eq("user_id", user!._id);
+
+    if (coupon.per_user_usage_limit && (userUsageCount || 0) >= coupon.per_user_usage_limit) {
+      return jsonError("You have already used this coupon the maximum number of times", 400);
+    }
+
+    let discount = 0;
+    if (coupon.discount_type === "percentage") {
+      discount = (subtotal * Number(coupon.discount_value)) / 100;
+      if (coupon.max_discount && discount > Number(coupon.max_discount)) {
+        discount = Number(coupon.max_discount);
+      }
+    } else {
+      discount = Number(coupon.discount_value);
+    }
+
+    return jsonOk({
+      valid: true,
+      coupon: {
+        code: coupon.code,
+        discount_type: coupon.discount_type,
+        discount_value: Number(coupon.discount_value),
+        discount: +discount.toFixed(2),
+        max_discount: coupon.max_discount ? Number(coupon.max_discount) : null,
+        min_order: Number(coupon.min_order || 0),
+      },
+    });
+  }
+
   // POST /store/checkout
   if (method === "POST" && resource === "checkout") {
     const { user, error } = await requireAuth(request);
@@ -348,6 +516,7 @@ export async function handleStore(
     }
 
     let discount = 0;
+    let appliedCoupon: any = null;
     if (couponCode) {
       const { data: coupon } = await supabase
         .from("coupons")
@@ -358,17 +527,43 @@ export async function handleStore(
 
       if (!coupon) return jsonError("Coupon not found or inactive", 400);
 
+      const now = new Date();
+      if (coupon.start_date && new Date(coupon.start_date) > now) {
+        return jsonError("Coupon is not yet active", 400);
+      }
+      if (coupon.expires_at && new Date(coupon.expires_at) <= now) {
+        return jsonError("Coupon has expired", 400);
+      }
+
       const subtotal = items.reduce((s, i) => s + Number(i.price) * i.quantity, 0);
       const meetsMinimum = subtotal >= Number(coupon.min_order || 0);
       const hasUsesRemaining = !coupon.max_uses || coupon.used_count < coupon.max_uses;
-      if (!meetsMinimum || !hasUsesRemaining || (coupon.expires_at && new Date(coupon.expires_at) <= new Date())) {
+      if (!meetsMinimum || !hasUsesRemaining) {
         return jsonError("Coupon is no longer valid for this order", 400);
       }
+
+      // Per-user usage check
+      const { count: userUsageCount } = await supabase
+        .from("coupon_usage")
+        .select("*", { count: "exact", head: true })
+        .eq("coupon_id", coupon.id)
+        .eq("user_id", user!._id);
+
+      if (coupon.per_user_usage_limit && (userUsageCount || 0) >= coupon.per_user_usage_limit) {
+        return jsonError("You have already used this coupon the maximum number of times", 400);
+      }
+
       if (coupon.discount_type === "percentage") {
         discount = (subtotal * Number(coupon.discount_value)) / 100;
+        if (coupon.max_discount && discount > Number(coupon.max_discount)) {
+          discount = Number(coupon.max_discount);
+        }
       } else {
         discount = Number(coupon.discount_value);
       }
+
+      appliedCoupon = coupon;
+
       await supabase
         .from("coupons")
         .update({ used_count: (coupon.used_count || 0) + 1 })
@@ -472,6 +667,15 @@ export async function handleStore(
       order_id: order.id,
       user_id: user!._id,
     });
+
+    // Record coupon usage for per-user tracking
+    if (appliedCoupon) {
+      await supabase.from("coupon_usage").insert({
+        coupon_id: appliedCoupon.id,
+        user_id: user!._id,
+        order_id: order.id,
+      });
+    }
 
     for (const reserved of reservedItems) {
       try {

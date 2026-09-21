@@ -13,6 +13,6 @@ export async function GET() {
       timestamp: new Date().toISOString(),
     });
   } catch (catchErr) {
-    return NextResponse.json({ status: "error", database: "unhealthy", error: catchErr.message }, { status: 503 });
+    return NextResponse.json({ status: "error", database: "unhealthy", error: (catchErr as Error).message }, { status: 503 });
   }
 }

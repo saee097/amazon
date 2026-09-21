@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Trash2 } from "lucide-react";
 import api from "@/lib/api";
 import { getToken, removeToken } from "@/lib/auth";
 import ProductImage from "@/components/ui/ProductImage";
@@ -12,27 +13,37 @@ export default function CartPage() {
   const [cartItems, setCartItems] = useState([]);
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [removingId, setRemovingId] = useState(null);
+
+  const loadCart = async () => {
+    try {
+      const { data } = await api.get("/store/cart");
+      setCart(data.data || null);
+      setCartItems(data.data?.items || []);
+    } catch {
+      removeToken();
+      router.push("/auth/login");
+    }
+  };
+
+  const handleDelete = async (itemId) => {
+    setRemovingId(itemId);
+    try {
+      await api.delete(`/store/cart/items/${itemId}`);
+      loadCart();
+    } catch {
+    } finally {
+      setRemovingId(null);
+    }
+  };
 
   useEffect(() => {
     if (!getToken()) {
       router.push("/auth/login");
       return;
     }
-
-    const loadCart = async () => {
-      try {
-        const { data } = await api.get("/store/cart");
-        setCart(data.data || null);
-        setCartItems(data.data?.items || []);
-      } catch {
-        removeToken();
-        router.push("/auth/login");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadCart();
+    setLoading(false);
   }, [router]);
 
   if (loading) {
@@ -90,10 +101,18 @@ export default function CartPage() {
                         Qty: {item.quantity} | ${item.price} each
                       </p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right flex items-center gap-3">
                       <p className="font-semibold text-gray-800 dark:text-gray-200">
                         ${item.lineTotal || item.price * item.quantity}
                       </p>
+                      <button
+                        onClick={() => handleDelete(item._id)}
+                        disabled={removingId === item._id}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-red-100 text-red-600 rounded-lg hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                      >
+                        <Trash2 size={14} />
+                        Delete
+                      </button>
                     </div>
                   </div>
                 ))}

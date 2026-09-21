@@ -82,7 +82,7 @@ export default function HomePage() {
 
         setProducts(productsRes.data.data || []);
         setCategories(categoriesRes.data.data || []);
-        setBanners((bannersRes.data.data || []).filter((b) => b.status === "active" || !b.status));
+        setBanners((bannersRes.data.data || []).filter((b: any) => b.status === "active" || !b.status));
         setMenuItems((menuItemsRes.data.data || []).sort(
           (a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0)
         ));
@@ -249,9 +249,10 @@ export default function HomePage() {
                   <Link
                     key={product._id}
                     href={`/products/${product.slug}`}
-                    className="group block bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                      title={product.title}
+                    className="group block bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden  duration-300"
                   >
-                    <div className="relative h-72 bg-gray-50 dark:bg-gray-800">
+                    <div className="relative bg-gray-50 dark:bg-gray-800">
                       <ProductImage product={product} aspectRatio="aspect-[3/4]" />
                     </div>
                     <div className="p-4">
@@ -307,9 +308,11 @@ export default function HomePage() {
               return (
                 <div
                   key={product._id}
-                  className="group bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                  className="group bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden  duration-300"
                 >
-                   <Link href={`/products/${product.slug}`} className="block relative">
+                   <Link href={`/products/${product.slug}`} className="block relative"
+                   title={product.title}
+                   >
                     <ProductImage
                       product={product}
                       aspectRatio="aspect-[3/4]"

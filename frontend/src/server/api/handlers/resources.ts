@@ -12,7 +12,6 @@ const RESOURCE_TABLES: Record<string, string> = {
   "/admin/vendors": "vendors",
   "/admin/notifications": "notifications",
   "/admin/security": "security_settings",
-  "/admin/blogs": "collections",
   "/admin/faqs": "faqs",
   "/admin/newsletter": "notifications",
   "/admin/payments": "orders",

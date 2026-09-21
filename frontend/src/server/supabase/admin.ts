@@ -15,12 +15,12 @@ export function getSupabaseAdmin() {
   if (!adminClient) {
     adminClient = createClient(url, serviceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
-      realtime: { transport: ws },
+      realtime: { transport: ws as any },
     });
   }
 
   try {
-    adminClient.auth.setAuth(null);
+    (adminClient.auth as any).setAuth(null);
   } catch {
     /* non-browser safe */
   }

@@ -15,6 +15,8 @@ export default function CheckoutPage() {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const paymentMethod = "cash_on_delivery";
   const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -44,6 +46,50 @@ export default function CheckoutPage() {
 
   const cartItems = cart?.items || [];
 
+  const applyCoupon = async () => {
+    const code = couponCode.trim();
+    if (!code) {
+      setError("Please enter a coupon code");
+      return;
+    }
+
+    setApplyingCoupon(true);
+    setError("");
+    try {
+      const subtotal = cart?.totals?.subtotal || 0;
+      const { data } = await api.get("/store/coupons/validate", {
+        params: { code: code.toUpperCase(), subtotal },
+      });
+      if (data?.valid) {
+        setAppliedCoupon(data.coupon);
+        // Update cart totals with discount
+        const newTotals = {
+          ...cart.totals,
+          discount: data.coupon.discount,
+          total: Math.max(0, (cart.totals.subtotal || 0) + (cart.totals.shipping || 0) - data.coupon.discount),
+        };
+        setCart({ ...cart, totals: newTotals });
+      }
+    } catch (err) {
+      setError(err?.response?.data?.message || "Invalid coupon");
+      setAppliedCoupon(null);
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    const newTotals = {
+      ...cart.totals,
+      discount: 0,
+      total: (cart.totals.subtotal || 0) + (cart.totals.shipping || 0),
+    };
+    setCart({ ...cart, totals: newTotals });
+    setError("");
+  };
+
   const placeOrder = async () => {
     if (cartItems.length === 0) {
       return;
@@ -54,7 +100,7 @@ export default function CheckoutPage() {
     try {
       const idempotencyKey = `checkout_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
       await api.post("/store/checkout", {
-        couponCode,
+        couponCode: appliedCoupon?.code || "",
         paymentMethod,
         addressId: selectedAddress,
         idempotencyKey,
@@ -164,13 +210,45 @@ export default function CheckoutPage() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Coupon Code
                 </label>
-                <input
-                  type="text"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  placeholder="Enter coupon code"
-                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-3 text-sm text-gray-500 dark:text-gray-400 outline-none transition focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E]/20 bg-white dark:bg-gray-700"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => {
+                      setCouponCode(e.target.value.toUpperCase());
+                      if (error) setError("");
+                    }}
+                    placeholder="Enter coupon code"
+                    disabled={!!appliedCoupon}
+                    className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-3 text-sm text-gray-500 dark:text-gray-400 outline-none transition focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E]/20 bg-white dark:bg-gray-700 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+                  />
+                  {appliedCoupon ? (
+                    <button
+                      type="button"
+                      onClick={removeCoupon}
+                      className="px-4 py-3 text-sm font-medium text-red-600 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition"
+                    >
+                      Remove
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={applyCoupon}
+                      disabled={applyingCoupon || !couponCode.trim()}
+                      className="px-4 py-3 text-sm font-medium text-white bg-[#0F766E] rounded-lg hover:bg-[#0F766E]/90 transition disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      {applyingCoupon ? "Applying..." : "Apply"}
+                    </button>
+                  )}
+                </div>
+                {appliedCoupon && (
+                  <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Coupon applied: <span className="font-semibold">{appliedCoupon.code}</span> (-${appliedCoupon.discount})
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -187,15 +265,17 @@ export default function CheckoutPage() {
                   <span className="text-gray-500 dark:text-gray-400">Shipping</span>
                   <span className="font-medium text-gray-800 dark:text-gray-200">${cart?.totals?.shipping || 0}</span>
                 </div>
-                {cart?.totals?.discount > 0 && (
+                {appliedCoupon && (
                   <div className="flex justify-between text-sm text-green-600">
-                    <span>Discount</span>
-                    <span>-${cart.totals.discount}</span>
+                    <span>Discount ({appliedCoupon.code})</span>
+                    <span>-${appliedCoupon.discount}</span>
                   </div>
                 )}
                 <div className="border-t dark:border-gray-700 pt-2 flex justify-between font-bold">
                   <span className="text-gray-700 dark:text-gray-300">Total</span>
-                  <span className="text-gray-900 dark:text-gray-100">${cart?.totals?.total || 0}</span>
+                  <span className="text-gray-900 dark:text-gray-100">
+                    ${(cart?.totals?.total || 0).toFixed(2)}
+                  </span>
                 </div>
               </div>
               <button

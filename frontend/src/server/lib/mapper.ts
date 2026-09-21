@@ -50,8 +50,8 @@ export function mapVariant(v: Row) {
   };
 }
 
-function normalizeImageUrl(url?: string | null): string | undefined {
-  if (!url) return undefined;
+function normalizeImageUrl(url: unknown): string | undefined {
+  if (!url || typeof url !== "string") return undefined;
   return url.replace(/\.svg$/i, ".jpg");
 }
 

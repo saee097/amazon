@@ -20,7 +20,7 @@ export default function AdminCoupons() {
   const load = async () => {
     try {
       setLoading(true);
-      const { data } = await api.get("/catalog/coupons");
+      const { data } = await api.get("/coupons");
       setCoupons(data.data || []);
       setError("");
     } catch {
@@ -50,6 +50,7 @@ export default function AdminCoupons() {
       discount_value: "",
       min_order: "",
       max_uses: "",
+      max_discount: "",
       per_user_usage_limit: "",
       start_date: "",
       expires_at: "",
@@ -69,9 +70,9 @@ export default function AdminCoupons() {
     setSaving(true);
     try {
       if (editing) {
-        await api.put(`/catalog/coupons/${editing._id || editing.id}`, form);
+        await api.put(`/coupons/${editing._id || editing.id}`, form);
       } else {
-        await api.post("/catalog/coupons", form);
+        await api.post("/coupons", form);
       }
       setShowModal(false);
       setEditing(null);
@@ -87,7 +88,7 @@ export default function AdminCoupons() {
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this coupon?")) return;
     try {
-      await api.delete(`/catalog/coupons/${id}`);
+      await api.delete(`/coupons/${id}`);
       setCoupons(coupons.filter((c) => c._id !== id && c.id !== id));
     } catch {
       setError("Failed to delete coupon");
@@ -257,6 +258,51 @@ export default function AdminCoupons() {
                     onChange={(e) => setForm({ ...form, max_uses: e.target.value })}
                     placeholder="e.g. 100"
                     min="1"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:outline-none focus:border-[#0F766E] dark:bg-gray-700 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Discount</label>
+                  <input
+                    type="number"
+                    value={form.max_discount || ""}
+                    onChange={(e) => setForm({ ...form, max_discount: e.target.value })}
+                    placeholder="e.g. 50"
+                    min="0"
+                    step="0.01"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:outline-none focus:border-[#0F766E] dark:bg-gray-700 dark:text-gray-100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Per User Limit</label>
+                  <input
+                    type="number"
+                    value={form.per_user_usage_limit || ""}
+                    onChange={(e) => setForm({ ...form, per_user_usage_limit: e.target.value })}
+                    placeholder="e.g. 3"
+                    min="1"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:outline-none focus:border-[#0F766E] dark:bg-gray-700 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
+                  <input
+                    type="datetime-local"
+                    value={form.start_date || ""}
+                    onChange={(e) => setForm({ ...form, start_date: e.target.value })}
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:outline-none focus:border-[#0F766E] dark:bg-gray-700 dark:text-gray-100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expires At</label>
+                  <input
+                    type="datetime-local"
+                    value={form.expires_at || ""}
+                    onChange={(e) => setForm({ ...form, expires_at: e.target.value })}
                     className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:outline-none focus:border-[#0F766E] dark:bg-gray-700 dark:text-gray-100"
                   />
                 </div>

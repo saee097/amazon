@@ -23,6 +23,7 @@ export default function AdminCouponsCreate() {
     discount_value: "",
     min_order: "",
     max_uses: "",
+    max_discount: "",
     per_user_usage_limit: "",
     start_date: "",
     expires_at: "",
@@ -53,6 +54,7 @@ export default function AdminCouponsCreate() {
         discount_value: form.discount_value ? Number(form.discount_value) : undefined,
         min_order: form.min_order ? Number(form.min_order) : undefined,
         max_uses: form.max_uses ? Number(form.max_uses) : undefined,
+        max_discount: form.max_discount ? Number(form.max_discount) : undefined,
         per_user_usage_limit: form.per_user_usage_limit ? Number(form.per_user_usage_limit) : undefined,
         start_date: form.start_date || undefined,
         expires_at: form.expires_at || undefined,
@@ -178,20 +180,36 @@ export default function AdminCouponsCreate() {
                 placeholder="e.g. 50"
               />
             </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Max Uses
-              </label>
-              <input
-                type="number"
-                name="max_uses"
-                value={form.max_uses}
-                onChange={handleChange}
-                min={1}
-                className={inputClass}
-                placeholder="e.g. 100"
-              />
-            </div>
+<div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Max Uses
+                  </label>
+                  <input
+                    type="number"
+                    name="max_uses"
+                    value={form.max_uses}
+                    onChange={handleChange}
+                    min={1}
+                    className={inputClass}
+                    placeholder="e.g. 100"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Max Discount
+                  </label>
+                  <input
+                    type="number"
+                    name="max_discount"
+                    value={form.max_discount}
+                    onChange={handleChange}
+                    min={0}
+                    step="0.01"
+                    className={inputClass}
+                    placeholder="e.g. 50"
+                  />
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Cap for percentage discounts</p>
+                </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Per User Usage Limit

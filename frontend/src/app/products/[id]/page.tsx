@@ -7,6 +7,7 @@ import api from "@/lib/api";
 import { FiHeart, FiSearch, FiStar, FiMinus, FiPlus, FiArrowLeft, FiShare } from "react-icons/fi";
 import ProductImageGallery from "@/components/ui/ProductImageGallery";
 import { getToken } from "@/lib/auth";
+import { notifyStoreUpdate } from "@/lib/storeEvents";
 
 type ProductDetail = {
   _id: string;
@@ -122,6 +123,7 @@ export default function ProductDetailPage() {
         quantity,
       });
       setCartMessage("Added to cart successfully");
+      notifyStoreUpdate();
       setTimeout(() => setCartMessage(""), 3000);
     } catch {
       setCartMessage("Failed to add to cart. Please try again.");

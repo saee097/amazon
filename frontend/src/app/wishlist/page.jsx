@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/api";
 import { getToken, removeToken } from "@/lib/auth";
+import { notifyStoreUpdate } from "@/lib/storeEvents";
 import ProductImage from "@/components/ui/ProductImage";
 
 export default function WishlistPage() {
@@ -36,6 +37,7 @@ export default function WishlistPage() {
   const addToCart = async (productId) => {
     try {
       await api.post("/store/cart", { productId });
+      notifyStoreUpdate();
       router.push("/cart");
     } catch (err) {
       console.error("Failed to add to cart:", err);

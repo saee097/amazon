@@ -1,36 +1,117 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Amazon Store Frontend
+
+A production-grade e-commerce application built with **Next.js 16**, **React 19**, **TypeScript**, **Tailwind CSS 4**, **Redux Toolkit**, **Axios**, **Supabase** (PostgreSQL + Auth), and **Zod**.
+
+## Architecture
+
+### Frontend (this project)
+- **Framework**: Next.js 16 (App Router) with TypeScript strict mode
+- **State Management**: Redux Toolkit with Redux Persist for client-side state
+- **API Client**: Axios with typed interceptors
+- **Validation**: Zod schemas for request/response validation
+- **Styling**: Tailwind CSS 4 (no config file needed)
+
+### Backend
+- **Database**: Supabase PostgreSQL
+- **Auth**: Supabase Auth with role-based access control (super_admin, admin, support, customer)
+- **API**: Next.js Route Handlers (`/api/*`) with server-side Supabase admin clients
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 20+
+- A Supabase project
+
+### Installation
+
+```bash
+cd frontend
+npm install
+```
+
+### Environment Variables
+
+Copy the example file and fill in your Supabase credentials:
+
+```bash
+cp .env.example .env.local
+```
+
+Required variables:
+- `NEXT_PUBLIC_SUPABASE_URL` — your Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — your Supabase anon key
+- `SUPABASE_SERVICE_ROLE_KEY` — **secret** key (server-side only)
+- `NEXT_PUBLIC_SITE_URL` — your site URL for redirect links
+
+### Database Setup
+
+Apply migrations and seed the database:
+
+```bash
+npm run db:migrate
+npm run seed
+```
+
+This creates demo users:
+- **Super Admin**: `superadmin@amazonstore.com` / `Super@123456`
+- **Admin**: `admin@amazonstore.com` / `Admin@123456`
+- **Customer**: `customer@amazonstore.com` / `Customer@123456`
+
+### Development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+```
 
-## Learn More
+### Production
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Vercel
 
-## Deploy on Vercel
+1. Import your repository into Vercel
+2. Set all environment variables in **Project Settings → Environment Variables**
+   - Copy from `.env.production.local` for the production environment
+   - Copy from `.env.local` for the preview environment
+3. Deploy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+> **Important**: `SUPABASE_SERVICE_ROLE_KEY` must be set as a **Server-side** environment variable only. Never expose it as a `NEXT_PUBLIC_*` variable.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project Structure
+
+```
+frontend/
+├── app/                    # Next.js App Router pages and layouts
+├── components/             # Reusable UI components
+├── lib/                    # Client-side utilities (Redux store, Axios, helpers)
+├── server/                 # Server-side code (API handlers, Supabase clients, auth)
+├── public/                 # Static assets
+├── scripts/                # DB migration and seed scripts (not type-checked in build)
+├── supabase/               # SQL migrations and seed data
+├── vercel.json             # Vercel-specific configuration
+└── .env.example            # Environment variable template
+```
+
+## Scripts
+
+| Script           | Description                          |
+|------------------|--------------------------------------|
+| `dev`            | Start development server             |
+| `build`          | Build for production                 |
+| `start`          | Start production server              |
+| `lint`           | Run ESLint                           |
+| `seed`           | Seed database with demo data         |
+| `db:migrate`     | Apply SQL migrations                 |
+| `db:test`        | Test database connection             |
