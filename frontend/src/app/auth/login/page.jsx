@@ -296,49 +296,7 @@ function LoginForm() {
           </a>
         </p>
 
-        {/* Demo credentials */}
-        <div className="mt-6 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50/70 dark:bg-amber-900/10 p-5 ">
-          <div className="flex items-start gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
-              </svg>
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">Demo accounts</p>
-              <p className="mt-0.5 text-xs text-amber-700 dark:text-amber-300">
-                Click any row to auto-fill credentials
-              </p>
-              <ul className="mt-3 divide-y divide-amber-200 dark:divide-amber-800 overflow-hidden rounded-xl border border-amber-200 dark:border-amber-800 bg-white/90 dark:bg-gray-800/90">
-                {DEMO_ACCOUNTS.map((acct) => (
-                  <li key={acct.role}>
-                    <button
-                      type="button"
-                      onClick={() => fillDemo(acct)}
-                      className="grid w-full grid-cols-12 items-center gap-2 px-3 py-2.5 text-left text-xs transition hover:bg-amber-50 dark:hover:bg-amber-900/20"
-                    >
-                      <span className="col-span-12 flex items-center gap-2 sm:col-span-3">
-                        <span className={`h-2 w-2 shrink-0 rounded-full ${acct.dot}`}/>
-                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${acct.accent} dark:bg-opacity-20`}>
-                          {acct.role}
-                        </span>
-                      </span>
-                      <span className="col-span-7 truncate font-mono text-[11px] text-gray-700 dark:text-gray-300 sm:col-span-5">
-                        {acct.email}
-                      </span>
-                      <span className="col-span-5 truncate font-mono text-[11px] text-gray-500 dark:text-gray-400 sm:col-span-4">
-                        {acct.password}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-3 text-[11px] text-amber-700 dark:text-amber-300">
-                Run <code className="rounded bg-white/70 dark:bg-gray-700 px-1 font-mono">npm run seed</code> on your Supabase instance to create these users.
-              </p>
-            </div>
-          </div>
-        </div>
+{/* Demo accounts removed */}
 
       </div>
     </div>
