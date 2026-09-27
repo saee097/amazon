@@ -18,6 +18,7 @@ import {
   Info,
   Truck,
 } from "lucide-react";
+import { AdminPageSkeleton } from "@/components/ui/skeleton";
 import api from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
@@ -332,11 +333,7 @@ export default function AdminProductsEdit() {
   };
 
   if (loading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center text-gray-500">
-        <Loader2 className="mr-2 animate-spin text-[#0F766E]" size={22} /> Loading product...
-      </div>
-    );
+    return <AdminPageSkeleton variant="form" className="mx-auto max-w-6xl" />;
   }
 
   return (

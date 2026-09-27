@@ -13,7 +13,15 @@ import {
   XCircle,
   CheckCircle2,
   Boxes,
+  Edit3,
+  Plus,
+  Minus,
+  RotateCcw,
+  Check,
+  X,
+  Settings2,
 } from "lucide-react";
+import { AdminPageSkeleton } from "@/components/ui/skeleton";
 
 const PAGE_SIZE = 25;
 
@@ -134,14 +142,7 @@ export default function AdminInventory() {
   };
 
   if (loading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#0F766E] border-t-transparent" />
-          <p className="mt-3 text-sm text-gray-500">Loading inventory…</p>
-        </div>
-      </div>
-    );
+    return <AdminPageSkeleton variant="table" className="mx-auto max-w-7xl" />;
   }
 
   return (
@@ -333,9 +334,11 @@ export default function AdminInventory() {
                             setEditingId(item._id);
                             setEditQty(String(item.inventory_quantity));
                           }}
-                          className="text-xs font-medium text-[#0F766E] hover:underline"
+                          title="Update quantity"
+                          className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-2.5 text-xs font-medium text-gray-700  transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                         >
-                          Update Qty
+                          <Edit3 size={13} />
+                          Update
                         </button>
                       )}
                     </td>

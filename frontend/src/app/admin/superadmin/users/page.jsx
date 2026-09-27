@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
+import { AdminPageSkeleton } from "@/components/ui/skeleton";
 
 export default function SuperAdminUsers() {
   const [users, setUsers] = useState([]);
@@ -48,14 +49,7 @@ export default function SuperAdminUsers() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-          <p className="mt-4 text-gray-600">Loading users...</p>
-        </div>
-      </div>
-    );
+    return <AdminPageSkeleton variant="table" className="max-w-7xl" />;
   }
 
   return (

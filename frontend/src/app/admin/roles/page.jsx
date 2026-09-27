@@ -20,6 +20,7 @@ import {
   FiUsers,
   FiSettings,
 } from "react-icons/fi";
+import { SkeletonTable } from "@/components/ui/skeleton";
 
 export default function RolesPage() {
   const router = useRouter();
@@ -130,9 +131,9 @@ export default function RolesPage() {
             </div>
 
             {loading ? (
-              <div className="p-12 text-center">
-                <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-                <p className="mt-4 text-gray-600">Loading roles...</p>
+              <div className="p-6" role="status" aria-busy="true">
+                <span className="sr-only">Loading…</span>
+                <SkeletonTable rows={5} cols={5} className="rounded-none border-0" />
               </div>
             ) : filteredRoles.length === 0 ? (
               <div className="p-12 text-center text-gray-500">

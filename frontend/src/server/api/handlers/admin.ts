@@ -3,14 +3,22 @@ import { NextRequest } from "next/server";
 import { getSupabaseAdmin } from "@/server/supabase/admin";
 import { logAudit, requireAdmin } from "../../lib/auth";
 import { handleLogs } from "./logs";
-import { mapBrand, mapCategory, mapOrder, mapProduct, mapProfile, toMongoId, toMongoIds } from "../../lib/mapper";
+import {
+  mapBrand,
+  mapCategory,
+  mapOrder,
+  mapProduct,
+  mapProfile,
+  toMongoId,
+  toMongoIds,
+} from "../../lib/mapper";
 import { getPermissionsForRole } from "../../lib/permissions";
 import { jsonError, jsonOk, jsonData } from "../../lib/response";
 
 export async function handleAdmin(
   method: string,
   path: string[],
-  request: NextRequest
+  request: NextRequest,
 ) {
   const supabase = getSupabaseAdmin();
   const resource = path[1];
@@ -34,7 +42,7 @@ export async function handleAdmin(
       mapProduct(p, {
         category: p.categories,
         brand: p.brands,
-      })
+      }),
     );
     return jsonOk(products);
   }
@@ -45,7 +53,12 @@ export async function handleAdmin(
     if (authError) return authError;
 
     const body = await request.json();
-    const slug = body.slug || body.title?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const slug =
+      body.slug ||
+      body.title
+        ?.toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
 
     const { data: product, error } = await supabase
       .from("products")
@@ -76,11 +89,22 @@ export async function handleAdmin(
       .select()
       .single();
 
-    if (error || !product) return jsonError(error?.message || "Failed to create product", 400);
+    if (error || !product)
+      return jsonError(error?.message || "Failed to create product", 400);
 
-    const variants = Array.isArray(body.variants) && body.variants.length > 0
-      ? body.variants as any[]
-      : [{ size: "One Size", color: "Default", price: body.price || 0, compare_price: body.compare_price, inventory_quantity: body.inventory_quantity || 0, sku: body.sku }];
+    const variants =
+      Array.isArray(body.variants) && body.variants.length > 0
+        ? (body.variants as any[])
+        : [
+            {
+              size: "One Size",
+              color: "Default",
+              price: body.price || 0,
+              compare_price: body.compare_price,
+              inventory_quantity: body.inventory_quantity || 0,
+              sku: body.sku,
+            },
+          ];
 
     if (variants.length > 0) {
       await supabase.from("product_variants").insert(
@@ -93,7 +117,7 @@ export async function handleAdmin(
           inventory_quantity: v.inventory_quantity ?? 0,
           sku: v.sku ?? body.sku,
           weight: v.weight,
-        }))
+        })),
       );
     }
 
@@ -105,7 +129,7 @@ export async function handleAdmin(
           alt_text: img.alt_text || body.title,
           sort_order: img.sort_order ?? idx,
           is_primary: img.is_primary ?? idx === 0,
-        }))
+        })),
       );
     }
 
@@ -115,12 +139,36 @@ export async function handleAdmin(
       .eq("id", product.id)
       .single();
 
-    const { data: productVariants } = await supabase.from("product_variants").select("*").eq("product_id", product.id);
-    const { data: images } = await supabase.from("product_images").select("*").eq("product_id", product.id).order("sort_order", { ascending: true });
+    const { data: productVariants } = await supabase
+      .from("product_variants")
+      .select("*")
+      .eq("product_id", product.id);
+    const { data: images } = await supabase
+      .from("product_images")
+      .select("*")
+      .eq("product_id", product.id)
+      .order("sort_order", { ascending: true });
 
-    if (!full) return jsonOk(mapProduct(product as any, { category: null, brand: null, variants: [], images: [] }), 201);
+    if (!full)
+      return jsonOk(
+        mapProduct(product as any, {
+          category: null,
+          brand: null,
+          variants: [],
+          images: [],
+        }),
+        201,
+      );
 
-    return jsonOk(mapProduct(full, { category: full.categories, brand: full.brands, variants: productVariants || [], images: (images || []) }), 201);
+    return jsonOk(
+      mapProduct(full, {
+        category: full.categories,
+        brand: full.brands,
+        variants: productVariants || [],
+        images: images || [],
+      }),
+      201,
+    );
   }
 
   // PUT /admin/products/:id
@@ -133,11 +181,14 @@ export async function handleAdmin(
     if (body.title !== undefined) updates.title = body.title;
     if (body.slug !== undefined) updates.slug = body.slug;
     if (body.description !== undefined) updates.description = body.description;
-    if (body.shortDescription !== undefined) updates.short_description = body.shortDescription;
+    if (body.shortDescription !== undefined)
+      updates.short_description = body.shortDescription;
     if (body.price !== undefined) updates.price = body.price;
-    if (body.compare_price !== undefined) updates.compare_price = body.compare_price;
+    if (body.compare_price !== undefined)
+      updates.compare_price = body.compare_price;
     if (body.cost_price !== undefined) updates.cost_price = body.cost_price;
-    if (body.category !== undefined) updates.category_id = body.category || null;
+    if (body.category !== undefined)
+      updates.category_id = body.category || null;
     if (body.brand !== undefined) updates.brand_id = body.brand || null;
     if (body.sku !== undefined) updates.sku = body.sku;
     if (body.barcode !== undefined) updates.barcode = body.barcode;
@@ -146,15 +197,24 @@ export async function handleAdmin(
     if (body.weight_unit !== undefined) updates.weight_unit = body.weight_unit;
     if (body.dimensions !== undefined) updates.dimensions = body.dimensions;
     if (body.taxable !== undefined) updates.taxable = body.taxable;
-    if (body.requires_shipping !== undefined) updates.requires_shipping = body.requires_shipping;
+    if (body.requires_shipping !== undefined)
+      updates.requires_shipping = body.requires_shipping;
     if (body.is_featured !== undefined) updates.is_featured = body.is_featured;
     if (body.meta_title !== undefined) updates.meta_title = body.meta_title;
-    if (body.meta_description !== undefined) updates.meta_description = body.meta_description;
+    if (body.meta_description !== undefined)
+      updates.meta_description = body.meta_description;
     if (body.tags !== undefined) updates.tags = body.tags;
-    if (body.low_stock_threshold !== undefined) updates.low_stock_threshold = body.low_stock_threshold;
+    if (body.low_stock_threshold !== undefined)
+      updates.low_stock_threshold = body.low_stock_threshold;
 
-    const { data, error } = await supabase.from("products").update(updates).eq("id", id).select().single();
-    if (error || !data) return jsonError(error?.message || "Failed to update product", 400);
+    const { data, error } = await supabase
+      .from("products")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error || !data)
+      return jsonError(error?.message || "Failed to update product", 400);
 
     if (Array.isArray(body.images)) {
       await supabase.from("product_images").delete().eq("product_id", id);
@@ -166,7 +226,7 @@ export async function handleAdmin(
             alt_text: img.alt_text || (data as any).title,
             sort_order: img.sort_order ?? idx,
             is_primary: img.is_primary ?? idx === 0,
-          }))
+          })),
         );
       }
     }
@@ -184,7 +244,7 @@ export async function handleAdmin(
             inventory_quantity: v.inventory_quantity ?? 0,
             sku: v.sku ?? (data as any).sku,
             weight: v.weight,
-          }))
+          })),
         );
       }
     }
@@ -195,12 +255,34 @@ export async function handleAdmin(
       .eq("id", id)
       .single();
 
-    const { data: productVariants } = await supabase.from("product_variants").select("*").eq("product_id", id);
-    const { data: images } = await supabase.from("product_images").select("*").eq("product_id", id).order("sort_order", { ascending: true });
+    const { data: productVariants } = await supabase
+      .from("product_variants")
+      .select("*")
+      .eq("product_id", id);
+    const { data: images } = await supabase
+      .from("product_images")
+      .select("*")
+      .eq("product_id", id)
+      .order("sort_order", { ascending: true });
 
-    if (!full) return jsonOk(mapProduct(data as any, { category: null, brand: null, variants: [], images: [] }));
+    if (!full)
+      return jsonOk(
+        mapProduct(data as any, {
+          category: null,
+          brand: null,
+          variants: [],
+          images: [],
+        }),
+      );
 
-    return jsonOk(mapProduct(full, { category: full.categories, brand: full.brands, variants: productVariants || [], images: (images || []) }));
+    return jsonOk(
+      mapProduct(full, {
+        category: full.categories,
+        brand: full.brands,
+        variants: productVariants || [],
+        images: images || [],
+      }),
+    );
   }
 
   // DELETE /admin/products/:id
@@ -215,25 +297,51 @@ export async function handleAdmin(
 
   // GET /admin/categories
   if (method === "GET" && resource === "categories") {
-    const { data } = await supabase.from("categories").select("*").order("category_name");
+    const { data } = await supabase
+      .from("categories")
+      .select("*")
+      .order("category_name");
     return jsonOk((data || []).map(mapCategory));
   }
 
   // POST /admin/categories
   if (method === "POST" && resource === "categories") {
     const body = await request.json();
-    const { data, error } = await supabase.from("categories").insert(body).select().single();
+    const { data, error } = await supabase
+      .from("categories")
+      .insert(body)
+      .select()
+      .single();
     if (error) return jsonError(error.message, 400);
-    await logAudit(admin!._id, "create_category", "categories", data.id, body, request.headers.get("x-forwarded-for"));
+    await logAudit(
+      admin!._id,
+      "create_category",
+      "categories",
+      data.id,
+      body,
+      request.headers.get("x-forwarded-for"),
+    );
     return jsonOk(mapCategory(data), 201);
   }
 
   // PUT /admin/categories/:id
   if (method === "PUT" && resource === "categories" && id) {
     const body = await request.json();
-    const { data, error } = await supabase.from("categories").update(body).eq("id", id).select().single();
+    const { data, error } = await supabase
+      .from("categories")
+      .update(body)
+      .eq("id", id)
+      .select()
+      .single();
     if (error) return jsonError(error.message, 400);
-    await logAudit(admin!._id, "update_category", "categories", id, body, request.headers.get("x-forwarded-for"));
+    await logAudit(
+      admin!._id,
+      "update_category",
+      "categories",
+      id,
+      body,
+      request.headers.get("x-forwarded-for"),
+    );
     return jsonOk(mapCategory(data));
   }
 
@@ -241,7 +349,14 @@ export async function handleAdmin(
   if (method === "DELETE" && resource === "categories" && id) {
     const { error } = await supabase.from("categories").delete().eq("id", id);
     if (error) return jsonError(error.message, 400);
-    await logAudit(admin!._id, "delete_category", "categories", id, {}, request.headers.get("x-forwarded-for"));
+    await logAudit(
+      admin!._id,
+      "delete_category",
+      "categories",
+      id,
+      {},
+      request.headers.get("x-forwarded-for"),
+    );
     return jsonOk({ message: "Category deleted" });
   }
 
@@ -249,13 +364,20 @@ export async function handleAdmin(
 
   // GET /admin/brands
   if (method === "GET" && resource === "brands" && !id) {
-    const { data } = await supabase.from("brands").select("*").order("brand_name");
+    const { data } = await supabase
+      .from("brands")
+      .select("*")
+      .order("brand_name");
     return jsonOk((data || []).map(mapBrand));
   }
 
   // GET /admin/brands/:id
   if (method === "GET" && resource === "brands" && id) {
-    const { data, error } = await supabase.from("brands").select("*").eq("id", id).single();
+    const { data, error } = await supabase
+      .from("brands")
+      .select("*")
+      .eq("id", id)
+      .single();
     if (error || !data) return jsonError("Brand not found", 404);
     return jsonOk(mapBrand(data));
   }
@@ -265,8 +387,23 @@ export async function handleAdmin(
     const { error: authError } = await requireAdmin(request);
     if (authError) return authError;
     const body = await request.json();
-    const slug = body.slug || body.brand_name?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    const { data, error } = await supabase.from("brands").insert({ brand_name: body.brand_name, slug, description: body.description, logo_url: body.logo_url, status: body.status || "active" }).select().single();
+    const slug =
+      body.slug ||
+      body.brand_name
+        ?.toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+    const { data, error } = await supabase
+      .from("brands")
+      .insert({
+        brand_name: body.brand_name,
+        slug,
+        description: body.description,
+        logo_url: body.logo_url,
+        status: body.status || "active",
+      })
+      .select()
+      .single();
     if (error) return jsonError(error.message, 400);
     return jsonOk(mapBrand(data), 201);
   }
@@ -282,7 +419,12 @@ export async function handleAdmin(
     if (body.description !== undefined) updates.description = body.description;
     if (body.logo_url !== undefined) updates.logo_url = body.logo_url;
     if (body.status !== undefined) updates.status = body.status;
-    const { data, error } = await supabase.from("brands").update(updates).eq("id", id).select().single();
+    const { data, error } = await supabase
+      .from("brands")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
     if (error) return jsonError(error.message, 400);
     return jsonOk(mapBrand(data));
   }
@@ -298,22 +440,36 @@ export async function handleAdmin(
 
   // GET /admin/orders
   if (method === "GET" && resource === "orders" && !id) {
-    const { data: orders } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
+    const { data: orders } = await supabase
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: false });
     const result = [];
     for (const order of orders || []) {
       const { data: items } = await supabase
         .from("order_items")
         .select("*, products(*, product_images(*))")
         .eq("order_id", order.id);
-      const { data: profile } = await supabase.from("profiles").select("*").eq("id", order.user_id).single();
-      result.push({ ...mapOrder(order, items || []), customer: profile ? mapProfile(profile) : null });
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", order.user_id)
+        .single();
+      result.push({
+        ...mapOrder(order, items || []),
+        customer: profile ? mapProfile(profile) : null,
+      });
     }
     return jsonOk(result);
   }
 
   // GET /admin/orders/:id
   if (method === "GET" && resource === "orders" && id) {
-    const { data: order, error } = await supabase.from("orders").select("*").eq("id", id).single();
+    const { data: order, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", id)
+      .single();
     if (error || !order) return jsonError("Order not found", 404);
 
     const { data: items } = await supabase
@@ -321,9 +477,16 @@ export async function handleAdmin(
       .select("*, products(*, product_images(*))")
       .eq("order_id", id);
 
-    const { data: profile } = await supabase.from("profiles").select("*").eq("id", order.user_id).single();
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", order.user_id)
+      .single();
 
-    return jsonOk({ ...mapOrder(order, items || []), customer: profile ? mapProfile(profile) : null });
+    return jsonOk({
+      ...mapOrder(order, items || []),
+      customer: profile ? mapProfile(profile) : null,
+    });
   }
 
   // PUT /admin/orders/:id
@@ -333,10 +496,22 @@ export async function handleAdmin(
     if (body.order_status) updates.order_status = body.order_status;
     if (body.payment_status) updates.payment_status = body.payment_status;
 
-    const { data, error } = await supabase.from("orders").update(updates).eq("id", id).select().single();
+    const { data, error } = await supabase
+      .from("orders")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
     if (error) return jsonError(error.message, 400);
 
-    await logAudit(admin!._id, "update_order", "orders", id, updates, request.headers.get("x-forwarded-for"));
+    await logAudit(
+      admin!._id,
+      "update_order",
+      "orders",
+      id,
+      updates,
+      request.headers.get("x-forwarded-for"),
+    );
     return jsonOk(mapOrder(data));
   }
 
@@ -344,7 +519,14 @@ export async function handleAdmin(
   if (method === "DELETE" && resource === "orders" && id) {
     const { error } = await supabase.from("orders").delete().eq("id", id);
     if (error) return jsonError(error.message, 400);
-    await logAudit(admin!._id, "delete_order", "orders", id, {}, request.headers.get("x-forwarded-for"));
+    await logAudit(
+      admin!._id,
+      "delete_order",
+      "orders",
+      id,
+      {},
+      request.headers.get("x-forwarded-for"),
+    );
     return jsonOk({ message: "Order deleted" });
   }
 
@@ -362,7 +544,12 @@ export async function handleAdmin(
       color: v.color,
       sku: v.sku,
       inventory_quantity: v.inventory_quantity,
-      status: v.inventory_quantity <= 0 ? "out_of_stock" : v.inventory_quantity < 10 ? "low_stock" : "in_stock",
+      status:
+        v.inventory_quantity <= 0
+          ? "out_of_stock"
+          : v.inventory_quantity < 10
+            ? "low_stock"
+            : "in_stock",
     }));
     return jsonOk(inventory);
   }
@@ -371,7 +558,9 @@ export async function handleAdmin(
   if (method === "GET" && resource === "stock") {
     const { data } = await supabase
       .from("stock")
-      .select("*, warehouses(name), products(title), product_variants(size, color)")
+      .select(
+        "*, warehouses(name), products(title), product_variants(size, color)",
+      )
       .order("updated_at", { ascending: false });
     return jsonOk(toMongoIds(data || []));
   }
@@ -397,12 +586,77 @@ export async function handleAdmin(
     return jsonOk(toMongoId(data), 201);
   }
 
+  // PUT /admin/stock/:id
+  if (method === "PUT" && resource === "stock" && id) {
+    const { error: authError } = await requireAdmin(request);
+    if (authError) return authError;
+    const body = await request.json();
+    const updates: Record<string, unknown> = {};
+    if (body.warehouse_id !== undefined)
+      updates.warehouse_id = body.warehouse_id;
+    if (body.product_id !== undefined) updates.product_id = body.product_id;
+    if (body.variant_id !== undefined) updates.variant_id = body.variant_id;
+    if (body.quantity !== undefined) updates.quantity = body.quantity;
+    if (body.available_quantity !== undefined)
+      updates.available_quantity = body.available_quantity;
+    if (body.reserved_quantity !== undefined)
+      updates.reserved_quantity = body.reserved_quantity;
+    if (body.damaged_quantity !== undefined)
+      updates.damaged_quantity = body.damaged_quantity;
+    if (body.incoming_quantity !== undefined)
+      updates.incoming_quantity = body.incoming_quantity;
+    const { data, error } = await supabase
+      .from("stock")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error || !data)
+      return jsonError(error?.message || "Failed to update stock", 400);
+    await logAudit(
+      admin!._id,
+      "update_stock",
+      "stock",
+      id,
+      updates,
+      request.headers.get("x-forwarded-for"),
+    );
+    return jsonOk(toMongoId(data));
+  }
+
+  // DELETE /admin/stock/:id
+  if (method === "DELETE" && resource === "stock" && id) {
+    const { error: authError } = await requireAdmin(request);
+    if (authError) return authError;
+    const { error } = await supabase.from("stock").delete().eq("id", id);
+    if (error) return jsonError(error.message, 400);
+    await logAudit(
+      admin!._id,
+      "delete_stock",
+      "stock",
+      id,
+      {},
+      request.headers.get("x-forwarded-for"),
+    );
+    return jsonOk({ message: "Stock entry deleted" });
+  }
+
   // POST /admin/inventory/adjust
   if (method === "POST" && resource === "inventory" && id === "adjust") {
     const body = await request.json();
-    const { warehouse_id, product_id, variant_id, quantity, movement_type, notes } = body;
+    const {
+      warehouse_id,
+      product_id,
+      variant_id,
+      quantity,
+      movement_type,
+      notes,
+    } = body;
     if (!warehouse_id || !product_id || !quantity || !movement_type) {
-      return jsonError("warehouse_id, product_id, quantity, and movement_type are required", 400);
+      return jsonError(
+        "warehouse_id, product_id, quantity, and movement_type are required",
+        400,
+      );
     }
 
     const { error: rpcError } = await supabase.rpc("adjust_inventory", {
@@ -416,7 +670,14 @@ export async function handleAdmin(
     });
     if (rpcError) return jsonError(rpcError.message, 400);
 
-    await logAudit(admin!._id, "inventory_adjusted", "inventory", product_id, { warehouse_id, quantity, movement_type }, request.headers.get("x-forwarded-for"));
+    await logAudit(
+      admin!._id,
+      "inventory_adjusted",
+      "inventory",
+      product_id,
+      { warehouse_id, quantity, movement_type },
+      request.headers.get("x-forwarded-for"),
+    );
     return jsonOk({ message: "Inventory adjusted" });
   }
 
@@ -425,7 +686,9 @@ export async function handleAdmin(
     const limit = parseInt(request.nextUrl.searchParams.get("limit") || "50");
     const { data } = await supabase
       .from("inventory_movements")
-      .select("*, warehouses(name), products(title), product_variants(size, color)")
+      .select(
+        "*, warehouses(name), products(title), product_variants(size, color)",
+      )
       .order("created_at", { ascending: false })
       .limit(limit);
     return jsonOk(toMongoIds(data || []));
@@ -447,11 +710,15 @@ export async function handleAdmin(
     if (role) query = query.eq("role", role);
     if (status) query = query.eq("status", status);
     if (search) {
-      query = query.or(`email.ilike.%${search}%,first_name.ilike.%${search}%,last_name.ilike.%${search}%`);
+      query = query.or(
+        `email.ilike.%${search}%,first_name.ilike.%${search}%,last_name.ilike.%${search}%`,
+      );
     }
 
     const from = (page - 1) * limit;
-    query = query.range(from, from + limit - 1).order("created_at", { ascending: false });
+    query = query
+      .range(from, from + limit - 1)
+      .order("created_at", { ascending: false });
 
     const { data, count } = await query;
     const totalPages = Math.max(1, Math.ceil((count || 0) / limit));
@@ -460,8 +727,15 @@ export async function handleAdmin(
 
   // POST /admin/users
   if (method === "POST" && resource === "users") {
-    if (admin.role !== "superadmin" && (body.role || "customer") === "superadmin") {
-      return jsonError("Only super admins can create super admin accounts", 403);
+    const body = await request.json();
+    if (
+      admin.role !== "superadmin" &&
+      (body.role || "customer") === "superadmin"
+    ) {
+      return jsonError(
+        "Only super admins can create super admin accounts",
+        403,
+      );
     }
     const { data: authData, error } = await supabase.auth.admin.createUser({
       email: body.email,
@@ -490,16 +764,27 @@ export async function handleAdmin(
       })
       .eq("id", authData.user.id);
 
-    const { data: profile } = await supabase.from("profiles").select("*").eq("id", authData.user.id).single();
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", authData.user.id)
+      .single();
     return jsonOk(mapProfile(profile!), 201);
   }
 
   // PUT /admin/users/:id
   if (method === "PUT" && resource === "users" && id) {
     if (admin.role !== "superadmin") {
-      const { data: targetUser } = await supabase.from("profiles").select("role").eq("id", id).single();
+      const { data: targetUser } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", id)
+        .single();
       if (targetUser && targetUser.role === "superadmin") {
-        return jsonError("Only super admins can edit super admin accounts", 403);
+        return jsonError(
+          "Only super admins can edit super admin accounts",
+          403,
+        );
       }
     }
     const body = await request.json();
@@ -516,7 +801,12 @@ export async function handleAdmin(
     }
     if (body.status) updates.status = body.status;
 
-    const { data, error } = await supabase.from("profiles").update(updates).eq("id", id).select().single();
+    const { data, error } = await supabase
+      .from("profiles")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
     if (error) return jsonError(error.message, 400);
     return jsonOk(mapProfile(data));
   }
@@ -534,7 +824,10 @@ export async function handleAdmin(
     };
 
     if (statusMap[action]) {
-      await supabase.from("profiles").update({ status: statusMap[action] }).in("id", userIds);
+      await supabase
+        .from("profiles")
+        .update({ status: statusMap[action] })
+        .in("id", userIds);
     }
 
     return jsonOk({ message: `Bulk action ${action} completed` });
@@ -544,7 +837,14 @@ export async function handleAdmin(
   if (method === "DELETE" && resource === "users" && id) {
     const { error } = await supabase.from("profiles").delete().eq("id", id);
     if (error) return jsonError(error.message, 400);
-    await logAudit(admin!._id, "delete_user", "users", id, {}, request.headers.get("x-forwarded-for"));
+    await logAudit(
+      admin!._id,
+      "delete_user",
+      "users",
+      id,
+      {},
+      request.headers.get("x-forwarded-for"),
+    );
     return jsonOk({ message: "User deleted" });
   }
 
@@ -563,14 +863,25 @@ export async function handleAdmin(
     const { error: authError } = await requireAdmin(request);
     if (authError) return authError;
     const body = await request.json();
-    const { data, error } = await supabase.from("profiles").insert({
+    const { data: authUser, error: signUpError } = await supabase.auth.admin.createUser({
       email: body.email,
-      first_name: body.first_name,
-      last_name: body.last_name,
-      phone: body.phone || null,
-      role: "customer",
-      status: body.status || "active",
-    }).select().single();
+      password: body.password || Math.random().toString(36).slice(-12),
+      email_confirm: true,
+    });
+    if (signUpError) return jsonError(signUpError.message, 400);
+    const { data, error } = await supabase
+      .from("profiles")
+      .insert({
+        id: authUser.id,
+        email: body.email,
+        first_name: body.first_name,
+        last_name: body.last_name,
+        phone: body.phone || null,
+        role: "customer",
+        status: body.status || "active",
+      })
+      .select()
+      .single();
     if (error) return jsonError(error.message, 400);
     return jsonOk(mapProfile(data), 201);
   }
@@ -587,7 +898,12 @@ export async function handleAdmin(
     if (body.phone !== undefined) updates.phone = body.phone;
     if (body.status !== undefined) updates.status = body.status;
     if (body.role !== undefined) updates.role = body.role;
-    const { data, error } = await supabase.from("profiles").update(updates).eq("id", id).select().single();
+    const { data, error } = await supabase
+      .from("profiles")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
     if (error) return jsonError(error.message, 400);
     return jsonOk(mapProfile(data));
   }
@@ -610,7 +926,11 @@ export async function handleAdmin(
   // POST /admin/roles
   if (method === "POST" && resource === "roles") {
     const body = await request.json();
-    const { data, error } = await supabase.from("roles").insert(body).select().single();
+    const { data, error } = await supabase
+      .from("roles")
+      .insert(body)
+      .select()
+      .single();
     if (error) return jsonError(error.message, 400);
     return jsonOk(toMongoId(data), 201);
   }
@@ -618,7 +938,12 @@ export async function handleAdmin(
   // PUT /admin/roles/:id
   if (method === "PUT" && resource === "roles" && id) {
     const body = await request.json();
-    const { data, error } = await supabase.from("roles").update(body).eq("id", id).select().single();
+    const { data, error } = await supabase
+      .from("roles")
+      .update(body)
+      .eq("id", id)
+      .select()
+      .single();
     if (error) return jsonError(error.message, 400);
     return jsonOk(toMongoId(data));
   }
@@ -632,14 +957,21 @@ export async function handleAdmin(
 
   // GET /admin/permissions
   if (method === "GET" && resource === "permissions") {
-    const { data } = await supabase.from("permissions").select("*").order("name");
+    const { data } = await supabase
+      .from("permissions")
+      .select("*")
+      .order("name");
     return jsonOk(toMongoIds(data || []));
   }
 
   // POST /admin/permissions
   if (method === "POST" && resource === "permissions") {
     const body = await request.json();
-    const { data, error } = await supabase.from("permissions").insert(body).select().single();
+    const { data, error } = await supabase
+      .from("permissions")
+      .insert(body)
+      .select()
+      .single();
     if (error) return jsonError(error.message, 400);
     return jsonOk(toMongoId(data), 201);
   }
@@ -647,7 +979,12 @@ export async function handleAdmin(
   // PUT /admin/permissions/:id
   if (method === "PUT" && resource === "permissions" && id) {
     const body = await request.json();
-    const { data, error } = await supabase.from("permissions").update(body).eq("id", id).select().single();
+    const { data, error } = await supabase
+      .from("permissions")
+      .update(body)
+      .eq("id", id)
+      .select()
+      .single();
     if (error) return jsonError(error.message, 400);
     return jsonOk(toMongoId(data));
   }
@@ -676,7 +1013,10 @@ export async function handleAdmin(
     for (const category of categories) {
       await supabase
         .from("app_settings")
-        .upsert({ category, settings: body[category] }, { onConflict: "category" });
+        .upsert(
+          { category, settings: body[category] },
+          { onConflict: "category" },
+        );
     }
     return jsonOk({ message: "Settings updated" });
   }
@@ -697,7 +1037,11 @@ export async function handleAdmin(
   // POST /admin/settings
   if (method === "POST" && resource === "settings") {
     const body = await request.json();
-    const { data, error } = await supabase.from("app_settings").insert(body).select().single();
+    const { data, error } = await supabase
+      .from("app_settings")
+      .insert(body)
+      .select()
+      .single();
     if (error) return jsonError(error.message, 400);
     return jsonOk(toMongoId(data), 201);
   }
@@ -716,7 +1060,10 @@ export async function handleAdmin(
 
     const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
     if (!validTypes.includes(file.type)) {
-      return jsonError("Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed", 400);
+      return jsonError(
+        "Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed",
+        400,
+      );
     }
 
     if (file.size > 5 * 1024 * 1024) {
@@ -751,7 +1098,9 @@ export async function handleAdmin(
       return jsonError("Failed to upload image", 500);
     }
 
-    const { data: urlData } = supabase.storage.from("images").getPublicUrl(filePath);
+    const { data: urlData } = supabase.storage
+      .from("images")
+      .getPublicUrl(filePath);
 
     return jsonOk({ url: urlData.publicUrl });
   }
@@ -763,6 +1112,38 @@ export async function handleAdmin(
       .select("*, orders(order_number)")
       .order("created_at", { ascending: false });
     return jsonOk(toMongoIds(data || []));
+  }
+
+  // PUT /admin/shipments/:id
+  if (method === "PUT" && resource === "shipments" && id) {
+    const { error: authError } = await requireAdmin(request);
+    if (authError) return authError;
+    const body = await request.json();
+    const updates: Record<string, unknown> = {};
+    if (body.status !== undefined) updates.status = body.status;
+    if (body.tracking_number !== undefined)
+      updates.tracking_number = body.tracking_number;
+    if (body.carrier !== undefined) updates.carrier = body.carrier;
+    if (body.ship_date !== undefined) updates.ship_date = body.ship_date;
+
+    const { data, error } = await supabase
+      .from("shipments")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error || !data)
+      return jsonError(error?.message || "Failed to update shipment", 400);
+
+    await logAudit(
+      admin!._id,
+      "update_shipment",
+      "shipments",
+      id,
+      updates,
+      request.headers.get("x-forwarded-for"),
+    );
+    return jsonOk(toMongoId(data));
   }
 
   // GET /admin/system/health

@@ -6,6 +6,7 @@ import Link from "next/link";
 import api from "@/lib/api";
 import { FiSearch, FiHeart } from "react-icons/fi";
 import ProductImage from "@/components/ui/ProductImage";
+import { StorefrontSkeleton } from "@/components/ui/skeleton";
 
 const NEW_PRODUCT_CUTOFF = Date.now() - 7 * 24 * 60 * 60 * 1000;
 
@@ -113,14 +114,7 @@ function ProductsContent() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-          <p className="mt-4 text-sm text-gray-500">Loading products...</p>
-        </div>
-      </div>
-    );
+    return <StorefrontSkeleton variant="grid" />;
   }
 
   return (
@@ -368,14 +362,7 @@ className={`px-3 py-1 border text-xs transition ${
 
 export default function ProductsPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-          <p className="mt-4 text-sm text-gray-500">Loading products...</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<StorefrontSkeleton variant="grid" />}>
       <ProductsContent />
     </Suspense>
   );

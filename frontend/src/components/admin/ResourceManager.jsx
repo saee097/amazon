@@ -17,6 +17,7 @@ import {
 import api from "@/lib/api";
 import { upload } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
+import { SkeletonTable } from "@/components/ui/skeleton";
 
 function getDefaults(fields) {
   const defaults = {};
@@ -315,11 +316,15 @@ export default function ResourceManager({
     e.preventDefault();
     setSaving(true);
     try {
+      const cleanForm = {};
+      fields.forEach((f) => {
+        cleanForm[f.name] = form[f.name];
+      });
       if (editing) {
-        await api.put(`${endpoint}/${editing._id}`, form);
+        await api.put(`${endpoint}/${editing._id}`, cleanForm);
         toast.success(`${title} updated successfully`);
       } else {
-        await api.post(endpoint, form);
+        await api.post(endpoint, cleanForm);
         toast.success(`${title} created successfully`);
       }
       setShowModal(false);
@@ -459,11 +464,9 @@ export default function ResourceManager({
 
       <div className="bg-white dark:bg-gray-800 rounded-xl  border border-gray-200 dark:border-gray-700 overflow-hidden">
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="text-center">
-              <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-              <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
-            </div>
+          <div className="p-6" role="status" aria-busy="true">
+            <span className="sr-only">Loading…</span>
+            <SkeletonTable rows={6} cols={visibleColumns.length + 1} className="rounded-none border-0" />
           </div>
         ) : filtered.length === 0 ? (
           customEmptyState ? (

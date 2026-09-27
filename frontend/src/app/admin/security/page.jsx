@@ -30,6 +30,7 @@ import {
   ChevronUp,
   RefreshCw,
 } from "lucide-react";
+import { AdminPageSkeleton, SkeletonList } from "@/components/ui/skeleton";
 
 const SETTING_GROUPS = [
   {
@@ -352,8 +353,9 @@ function AuditLogFeed() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="w-8 h-8 animate-spin rounded-full border-4 border-[#0F766E] border-t-transparent" />
+      <div className="p-6" role="status" aria-busy="true">
+        <span className="sr-only">Loading…</span>
+        <SkeletonList count={4} />
       </div>
     );
   }
@@ -505,12 +507,7 @@ export default function AdminSecurity() {
   if (loading) {
     return (
       <ToastProvider>
-        <div className="flex min-h-[50vh] items-center justify-center">
-          <div className="text-center">
-            <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#0F766E] border-t-transparent" />
-            <p className="mt-3 text-sm text-gray-500">Loading security settings…</p>
-          </div>
-        </div>
+        <AdminPageSkeleton variant="form" className="mx-auto max-w-7xl" />
       </ToastProvider>
     );
   }

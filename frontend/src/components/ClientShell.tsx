@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { FiSearch, FiHeart, FiShoppingBag, FiUser, FiMenu, FiX, FiLogIn, FiInstagram, FiFacebook, FiTwitter, FiMail } from "react-icons/fi";
 import { getUser, getToken, removeToken } from "@/lib/auth";
 import { ThemeToggleButton } from "@/components/ThemeProvider";
+import { ROLES } from "@/lib/rbac";
 import api from "@/lib/api";
 import { subscribeStoreUpdate } from "@/lib/storeEvents";
 
@@ -153,7 +154,9 @@ export default function ClientShell({ children }: { children: React.ReactNode })
                       <span className="text-[10px] mt-1">Sign In</span>
                     </Link>
                   )}
-                  <ThemeToggleButton className="sm:ml-2" />
+                  {(userRole === ROLES.ADMIN || userRole === ROLES.SUPERADMIN) && (
+                    <ThemeToggleButton className="sm:ml-2" />
+                  )}
                 </div>
               </div>
             </div>

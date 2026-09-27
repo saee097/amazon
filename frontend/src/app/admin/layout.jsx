@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { AdminPageSkeleton } from "@/components/ui/skeleton";
 import { getUser, getToken, removeToken } from "@/lib/auth";
 import { ROLES } from "@/lib/rbac";
 
@@ -28,11 +29,8 @@ export default function AdminLayoutWrapper({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin" />
-          <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">Loading workspace…</p>
-        </div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <AdminPageSkeleton variant="stats" className="mx-auto max-w-7xl px-6 py-10" />
       </div>
     );
   }

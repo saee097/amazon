@@ -6,6 +6,7 @@ import api from "@/lib/api";
 import { getProductImage } from "@/lib/images";
 import { Pencil } from "lucide-react";
 import { FiEye, FiExternalLink, FiLock, FiLoader, FiTrash2 } from "react-icons/fi";
+import { AdminPageSkeleton } from "@/components/ui/skeleton";
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
@@ -115,14 +116,7 @@ export default function AdminProducts() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-          <p className="mt-4 text-gray-600">Loading products...</p>
-        </div>
-      </div>
-    );
+    return <AdminPageSkeleton variant="grid" className="max-w-7xl mx-auto" />;
   }
 
   return (

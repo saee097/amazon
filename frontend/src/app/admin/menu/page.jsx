@@ -18,6 +18,7 @@ import {
   ExternalLink,
   Loader2,
 } from "lucide-react";
+import { AdminPageSkeleton } from "@/components/ui/skeleton";
 
 const PAGE_SIZE = 20;
 
@@ -42,7 +43,7 @@ function DeleteConfirmDialog({ open, onClose, onConfirm, itemName }) {
               Delete menu item?
             </h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              This action cannot be undone. The menu item <strong className="font-medium">"{itemName}"</strong> will be permanently removed.
+              This action cannot be undone. The menu item <strong className="font-medium">{itemName}</strong> will be permanently removed.
             </p>
           </div>
         </div>
@@ -288,12 +289,7 @@ export default function AdminMenu() {
   if (loading) {
     return (
       <ToastProvider>
-        <div className="flex min-h-[50vh] items-center justify-center">
-          <div className="text-center">
-            <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#0F766E] border-t-transparent" />
-            <p className="mt-3 text-sm text-gray-500">Loading menu items…</p>
-          </div>
-        </div>
+        <AdminPageSkeleton variant="table" className="mx-auto max-w-7xl" />
       </ToastProvider>
     );
   }

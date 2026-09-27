@@ -86,6 +86,14 @@ input, textarea, select {
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-bg,
+  .shimmer-shine {
+    animation: none;
+    background-position: 50% 0;
+  }
+}
+
 img {
   image-rendering: auto;
 }

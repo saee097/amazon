@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import {
   Search,
@@ -12,6 +13,7 @@ import {
   Truck,
   Download,
 } from "lucide-react";
+import { AdminPageSkeleton } from "@/components/ui/skeleton";
 
 function formatDate(v) {
   if (!v) return "—";
@@ -184,14 +186,7 @@ export default function AdminShipments() {
   ];
 
   if (loading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#0F766E] border-t-transparent" />
-          <p className="mt-3 text-sm text-gray-500">Loading shipments…</p>
-        </div>
-      </div>
-    );
+    return <AdminPageSkeleton variant="table" className="mx-auto max-w-7xl" />;
   }
 
   return (

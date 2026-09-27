@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import api from "@/lib/api";
 import { getToken } from "@/lib/auth";
+import { AdminPageSkeleton } from "@/components/ui/skeleton";
 
 export default function AdminCustomersEdit() {
   const router = useRouter();
@@ -95,14 +96,7 @@ export default function AdminCustomersEdit() {
     "w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100";
 
   if (loading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#0F766E] border-t-transparent" />
-          <p className="mt-3 text-sm text-gray-500">Loading customer…</p>
-        </div>
-      </div>
-    );
+    return <AdminPageSkeleton variant="default" className="mx-auto max-w-3xl" />;
   }
 
   return (

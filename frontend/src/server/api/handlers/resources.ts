@@ -20,6 +20,7 @@ const RESOURCE_TABLES: Record<string, string> = {
   "/admin/variants": "product_variants",
   "/admin/menu": "menu_items",
   "/admin/banners": "banners",
+  "/admin/blogs": "blogs",
   "/admin/menu-items": "menu_items",
 };
 
@@ -49,12 +50,16 @@ export async function handleResource(
       return jsonOk(toMongoIds(data || []));
     }
 
-    if (method === "POST" && !id) {
-      const body = await request.json();
-      const { data, error } = await supabase.from(table).upsert(body, { onConflict: "setting_key" }).select().single();
-      if (error) return jsonError(error.message, 400);
-      return jsonOk(toMongoId(data), 201);
+if (method === "POST" && !id) {
+    const body = await request.json();
+    console.log("[newsletter] Insert payload:", JSON.stringify(body));
+    const { data, error } = await supabase.from(table).insert(body).select().single();
+    if (error) {
+      console.error("[newsletter] Insert error:", JSON.stringify(error, null, 2));
+      return jsonError(error.message, 400);
     }
+    return jsonOk(toMongoId(data), 201);
+  }
 
     if (method === "PUT" && id) {
       const body = await request.json();

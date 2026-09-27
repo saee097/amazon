@@ -10,7 +10,6 @@ import {
   ChevronRight,
   Clock3,
   CreditCard,
-  Loader2,
   Package,
   ShoppingBag,
   Truck,
@@ -18,6 +17,7 @@ import {
 } from "lucide-react";
 import api from "@/lib/api";
 import { getToken, removeToken } from "@/lib/auth";
+import { PageHeaderSkeleton, Skeleton, SkeletonList } from "@/components/ui/skeleton";
 
 export default function OrdersPage() {
   const router = useRouter();
@@ -53,52 +53,14 @@ export default function OrdersPage() {
       <main className="min-h-screen bg-gray-50">
         <div className="border-b border-gray-200 bg-white">
           <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
-            <div className="h-4 w-32 animate-pulse rounded bg-gray-200" />
+            <Skeleton rounded="rounded" className="h-4 w-32" />
           </div>
         </div>
 
         <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-          {/* Header Skeleton */}
-          <div className="mb-8">
-            <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
-            <div className="mt-3 h-9 w-48 animate-pulse rounded-lg bg-gray-200" />
-            <div className="mt-3 h-5 w-72 max-w-full animate-pulse rounded bg-gray-200" />
-          </div>
+          <PageHeaderSkeleton />
 
-          {/* Order Skeletons */}
-          <div className="space-y-4">
-            {[1, 2, 3].map((item) => (
-              <div
-                key={item}
-                className="overflow-hidden rounded-2xl border border-gray-200 bg-white"
-              >
-                <div className="border-b border-gray-100 px-5 py-5 sm:px-6">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <div className="h-5 w-40 animate-pulse rounded bg-gray-200" />
-                      <div className="mt-2 h-4 w-24 animate-pulse rounded bg-gray-100" />
-                    </div>
-
-                    <div className="h-7 w-24 animate-pulse rounded-full bg-gray-200" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 px-5 py-5 sm:grid-cols-3 sm:px-6">
-                  {[1, 2, 3].map((column) => (
-                    <div key={column}>
-                      <div className="h-3 w-16 animate-pulse rounded bg-gray-100" />
-                      <div className="mt-2 h-5 w-24 animate-pulse rounded bg-gray-200" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 flex items-center justify-center gap-2 text-sm text-gray-500">
-            <Loader2 className="h-4 w-4 animate-spin text-[#0F766E]" />
-            Loading your orders...
-          </div>
+          <SkeletonList count={3} />
         </section>
       </main>
     );

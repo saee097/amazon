@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import api from "@/lib/api";
 import { getUser } from "@/lib/auth";
+import { AdminPageSkeleton } from "@/components/ui/skeleton";
 
 const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 const numberFmt = new Intl.NumberFormat("en-US");
@@ -136,11 +137,7 @@ export default function AdminDashboard() {
   }, [loadOverview]);
 
   if (loading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center text-gray-500">
-        <RefreshCw className="mr-2 animate-spin text-[#0F766E]" size={22} /> Loading dashboard…
-      </div>
-    );
+    return <AdminPageSkeleton variant="stats" className="mx-auto max-w-7xl" />;
   }
 
   if (error && !overview) {

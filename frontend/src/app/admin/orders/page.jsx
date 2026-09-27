@@ -20,6 +20,7 @@ import {
   Filter,
   Download,
 } from "lucide-react";
+import { AdminPageSkeleton } from "@/components/ui/skeleton";
 
 const currency = (v) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(v) || 0);
@@ -180,14 +181,7 @@ export default function AdminOrders() {
   }, {});
 
   if (loading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#0F766E] border-t-transparent" />
-          <p className="mt-3 text-sm text-gray-500">Loading orders…</p>
-        </div>
-      </div>
-    );
+    return <AdminPageSkeleton variant="table" className="mx-auto max-w-7xl" />;
   }
 
   return (

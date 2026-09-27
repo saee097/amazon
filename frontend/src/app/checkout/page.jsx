@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/api";
 import { getToken, removeToken } from "@/lib/auth";
+import { CheckoutPageSkeleton } from "@/components/ui/skeleton";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -115,21 +116,7 @@ export default function CheckoutPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 py-8 sm:py-12">
-        <div className="w-full max-w-md mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl sm:text-4xl font-light text-gray-800 dark:text-gray-200 mb-3">
-              Checkout
-            </h1>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 sm:p-8 w-full text-center">
-            <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading checkout...</p>
-          </div>
-        </div>
-      </div>
-    );
+    return <CheckoutPageSkeleton />;
   }
 
   if (cartItems.length === 0) {

@@ -16,6 +16,7 @@ import {
   FiSave,
   FiShield,
 } from "react-icons/fi";
+import { SkeletonList } from "@/components/ui/skeleton";
 
 const MODULES = [
   { id: "dashboard", label: "Dashboard", perms: ["view"] },
@@ -175,9 +176,9 @@ export default function PermissionsPage() {
             </div>
 
             {loading ? (
-              <div className="p-12 text-center">
-                <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-                <p className="mt-4 text-gray-600">Loading permissions...</p>
+              <div className="p-6" role="status" aria-busy="true">
+                <span className="sr-only">Loading…</span>
+                <SkeletonList count={3} />
               </div>
             ) : Object.keys(groupedByModule).length === 0 ? (
               <div className="p-12 text-center text-gray-500">

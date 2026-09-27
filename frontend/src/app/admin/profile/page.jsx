@@ -24,6 +24,7 @@ import {
   FiGlobe,
   FiX,
 } from "react-icons/fi";
+import { AdminPageSkeleton, SkeletonList } from "@/components/ui/skeleton";
 
 const NOTIFICATION_OPTIONS = [
   { key: "email", label: "Email Notifications", desc: "Receive notifications via email" },
@@ -260,14 +261,7 @@ export default function AdminProfilePage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-          <p className="mt-4 text-gray-600">Loading profile...</p>
-        </div>
-      </div>
-    );
+    return <AdminPageSkeleton variant="form" className="max-w-5xl" />;
   }
 
   if (!admin) return null;
@@ -512,9 +506,9 @@ export default function AdminProfilePage() {
               <div className="border-t border-gray-200 dark:border-gray-700 pt-8">
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent Sessions</h3>
                 {sessionsLoading ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <FiRefreshCw className="w-5 h-5 mx-auto animate-spin mb-2" />
-                    Loading sessions...
+                  <div className="space-y-3" role="status" aria-busy="true">
+                    <span className="sr-only">Loading…</span>
+                    <SkeletonList count={3} itemClassName="p-4" />
                   </div>
                 ) : sessions.length === 0 ? (
                   <p className="text-sm text-gray-500">No recent sessions recorded.</p>

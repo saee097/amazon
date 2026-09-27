@@ -8,6 +8,7 @@ import { FiHeart, FiSearch } from "react-icons/fi";
 import { isLoggedIn, getUserRole } from "@/lib/auth";
 import { ROLES, getRedirectPath } from "@/lib/rbac";
 import ProductImage from "@/components/ui/ProductImage";
+import { StorefrontSkeleton } from "@/components/ui/skeleton";
 
 const NEW_PRODUCT_MS = 7 * 24 * 60 * 60 * 1000;
 const NEW_PRODUCT_CUTOFF = Date.now() - NEW_PRODUCT_MS;
@@ -73,18 +74,26 @@ export default function HomePage() {
     if (redirecting) return;
     const loadData = async () => {
       try {
-        const [productsRes, categoriesRes, bannersRes, menuItemsRes] = await Promise.all([
+        const results = await Promise.allSettled([
           api.get("/store/products"),
           api.get("/store/categories"),
           api.get("/banners"),
           api.get("/menu-items"),
         ]);
 
+        const [productsRes, categoriesRes, bannersRes, menuItemsRes] = results.map((r, i) => {
+          if (r.status === "rejected") {
+            console.error(`Failed to load endpoint ${i}:`, r.reason);
+            return { data: { data: [] } };
+          }
+          return r.value;
+        });
+
         setProducts(productsRes.data.data || []);
         setCategories(categoriesRes.data.data || []);
-        setBanners((bannersRes.data.data || []).filter((b: any) => b.status === "active" || !b.status));
+        setBanners((bannersRes.data.data || []).filter((b: { status?: string }) => b.status === "active" || !b.status));
         setMenuItems((menuItemsRes.data.data || []).sort(
-          (a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0)
+          (a: { sort_order?: number }, b: { sort_order?: number }) => (a.sort_order || 0) - (b.sort_order || 0)
         ));
       } catch (error) {
         console.error("Failed to load data:", error);
@@ -121,11 +130,7 @@ export default function HomePage() {
   };
 
   if (redirecting) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-      </div>
-    );
+    return <StorefrontSkeleton variant="default" />;
   }
 
   return (

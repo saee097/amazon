@@ -17,7 +17,7 @@ export function mapCategory(cat: Row | null) {
     category_name: cat.category_name,
     slug: cat.slug,
     description: cat.description,
-    image_url: cat.image_url,
+    image_url: normalizeImageUrl(cat.image_url),
     parent_id: cat.parent_id as string | null,
     status: cat.status,
     created_at: cat.created_at,
@@ -32,7 +32,7 @@ export function mapBrand(brand: Row | null) {
     brand_name: brand.brand_name,
     slug: brand.slug,
     description: brand.description,
-    logo_url: brand.logo_url,
+    logo_url: normalizeImageUrl(brand.logo_url),
     status: brand.status,
   };
 }
@@ -50,7 +50,7 @@ export function mapVariant(v: Row) {
   };
 }
 
-function normalizeImageUrl(url: unknown): string | undefined {
+export function normalizeImageUrl(url: unknown): string | undefined {
   if (!url || typeof url !== "string") return undefined;
   return url.replace(/\.svg$/i, ".jpg");
 }

@@ -7,6 +7,7 @@ import { ROLES } from "@/lib/rbac";
 import StatusBadge from "@/components/StatusBadge";
 import RoleBadge from "@/components/RoleBadge";
 import { ToastProvider, useToast } from "@/components/ui/Toast";
+import { SkeletonTable } from "@/components/ui/skeleton";
 import {
   Plus,
   Search,
@@ -15,16 +16,13 @@ import {
   X,
   Shield,
   UserCheck,
-  MoreVertical,
   Loader2,
-  Eye,
   Mail,
   Phone,
-  Lock,
   AlertTriangle,
   CheckCircle,
-  ChevronDown,
-  ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   RefreshCw,
 } from "lucide-react";
 
@@ -62,7 +60,7 @@ function DeleteConfirmDialog({ open, onClose, onConfirm, name, loading }) {
           <div className="min-w-0 flex-1">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Delete admin?</h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              This action cannot be undone. The admin <strong className="font-medium">"{name}"</strong> will be permanently removed.
+              This action cannot be undone. The admin <strong className="font-medium">\&quot;{name}\&quot;</strong> will be permanently removed.
             </p>
           </div>
         </div>
@@ -314,12 +312,7 @@ export default function ManageAdmins() {
             </div>
 
             {loading ? (
-              <div className="flex min-h-[300px] items-center justify-center">
-                <div className="text-center">
-                  <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#0F766E] border-t-transparent" />
-                  <p className="mt-3 text-sm text-gray-500">Loading admins…</p>
-                </div>
-              </div>
+              <SkeletonTable rows={6} cols={8} />
             ) : filteredAdmins.length === 0 ? (
               <div className="py-16 text-center">
                 <UserCheck className="mx-auto text-gray-300" size={36} />
@@ -352,18 +345,18 @@ export default function ManageAdmins() {
                               <div className="w-9 h-9 rounded-full bg-[#0F766E]/10 flex items-center justify-center text-[#0F766E] font-medium text-sm">
                                 {getInitials(admin.first_name, admin.last_name)}
                               </div>
-                              <div className="min-w-0">
-                                <p className="font-medium text-gray-900 dark:text-gray-100 truncate max-w-[180px]">
-                                  {admin.first_name} {admin.last_name}
-                                </p>
-                                <p className="text-xs text-gray-500 truncate max-w-[180px]">ID: {admin._id?.slice(0, 8)}…</p>
-                              </div>
+                               <div className="min-w-0">
+                                 <p className="font-medium text-gray-900 dark:text-gray-100 truncate max-w-[120px] sm:max-w-[180px]">
+                                   {admin.first_name} {admin.last_name}
+                                 </p>
+                                 <p className="text-xs text-gray-500 truncate max-w-[120px] sm:max-w-[180px]">ID: {admin._id?.slice(0, 8)}…</p>
+                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 hidden md:table-cell">
                             <div className="flex items-center gap-1.5">
                               <Mail size={12} className="text-gray-400" />
-                              <span className="truncate max-w-[200px] block">{admin.email}</span>
+                              <span className="truncate max-w-[150px] sm:max-w-[200px] block">{admin.email}</span>
                             </div>
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 hidden lg:table-cell">
@@ -472,7 +465,7 @@ export default function ManageAdmins() {
               <div className="w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl dark:bg-gray-800">
                 <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
                   <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-                    {editingAdmin ? "Edit Admin" : "New Admin"}
+                    {editingAdmin ? "Edit Admin" : "Add New Admin"}
                   </h2>
                   <button
                     onClick={() => { setShowModal(false); setEditingAdmin(null); }}
@@ -483,7 +476,7 @@ export default function ManageAdmins() {
                   </button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4 p-6 max-h-[80vh] overflow-y-auto">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                       <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">First Name <span className="text-rose-500">*</span></label>
                       <input
@@ -563,11 +556,11 @@ export default function ManageAdmins() {
                   </div>
                   <div>
                     <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Permissions</label>
-                    <div className="max-h-64 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-4">
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 max-h-72 overflow-y-auto space-y-4">
                       {PERMISSION_GROUPS.map((group) => (
                         <div key={group.label}>
                           <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">{group.label}</p>
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                             {group.perms.map((perm) => (
                               <PermissionCheckbox
                                 key={perm}

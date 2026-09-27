@@ -2,14 +2,16 @@ import { NextRequest } from "next/server";
 import { routeRequest } from "@/server/api/router";
 import { jsonError } from "@/server/lib/response";
 
-type RouteContext = { params: Promise<{ path: string[] }> };
+type RouteContext = { params: Promise<{ path: string[] | string }> };
 
 const isDev = process.env.NODE_ENV !== "production";
 
 async function handler(request: NextRequest, context: RouteContext) {
   try {
     const { path } = await context.params;
-    return await routeRequest(request, path);
+    const pathArray = Array.isArray(path) ? path : path.split("/").filter(Boolean);
+    console.log("[API] Request:", request.method, "/api/" + pathArray.join("/"));
+    return await routeRequest(request, pathArray);
   } catch (error) {
     console.error("API Error:", error);
     if (isDev) {

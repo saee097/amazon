@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getSupabaseAdmin } from "@/server/supabase/admin";
 import { requireAdmin } from "../../lib/auth";
 import { jsonError, jsonOk } from "../../lib/response";
+import { normalizeImageUrl } from "../../lib/mapper";
 
 type OrderRow = {
   id: string;
@@ -205,7 +206,7 @@ export async function handleDashboard(method: string, path: string[], request: N
         _id: b.id,
         heading: b.heading,
         subheading: b.subheading,
-        image: b.image,
+        image: normalizeImageUrl(b.image),
         link_url: b.link_url,
         status: b.status,
         sort_order: b.sort_order,

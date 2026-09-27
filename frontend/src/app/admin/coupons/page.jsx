@@ -1,345 +1,612 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
-import { FiPlus, FiEdit2, FiTrash2 } from "react-icons/fi";
 import StatusBadge from "@/components/StatusBadge";
+import { AdminPageSkeleton } from "@/components/ui/skeleton";
+import {
+  Plus,
+  Search,
+  RefreshCw,
+  Pencil,
+  Trash2,
+  Tag,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  AlertTriangle,
+  Save,
+} from "lucide-react";
+
+const PAGE_SIZE = 20;
+
+const EMPTY_FORM = {
+  code: "",
+  discount_type: "percentage",
+  discount_value: "",
+  min_order: "",
+  max_uses: "",
+  per_user_usage_limit: "",
+  start_date: "",
+  expires_at: "",
+  status: "active",
+};
+
+function DeleteConfirmDialog({ open, onClose, onConfirm, itemName }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-800">
+        <div className="flex items-start gap-4 p-6">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
+            <AlertTriangle size={20} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Delete coupon?
+            </h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              This action cannot be undone. The coupon{" "}
+              <strong className="font-medium">&quot;{itemName}&quot;</strong> will be
+              permanently removed.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
+          <button
+            onClick={onClose}
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function formatDate(value) {
+  if (!value) return "-";
+  return new Date(value).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function formatDiscount(coupon) {
+  if (coupon.discount_type === "percentage") {
+    return `${Number(coupon.discount_value || 0).toFixed(0)}%`;
+  }
+  return `$${Number(coupon.discount_value || 0).toFixed(2)}`;
+}
 
 export default function AdminCoupons() {
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [page, setPage] = useState(1);
+
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({});
+  const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
-  const load = async () => {
+  const load = useCallback(async (isRefresh = false) => {
+    isRefresh ? setRefreshing(true) : setLoading(true);
+    setError("");
     try {
-      setLoading(true);
-      const { data } = await api.get("/coupons");
-      setCoupons(data.data || []);
-      setError("");
-    } catch {
-      setError("Failed to load coupons");
+      const res = await api.get("/coupons");
+      setCoupons(res.data?.data || []);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load coupons.");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
 
-  const filtered = coupons.filter((c) => {
-    if (!searchQuery) return true;
-    return (
-      c.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.discount_type?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  });
+  useEffect(() => {
+    if (!success) return;
+    const t = setTimeout(() => setSuccess(""), 3000);
+    return () => clearTimeout(t);
+  }, [success]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, statusFilter]);
 
   const openCreate = () => {
     setEditing(null);
-    setForm({
-      code: "",
-      discount_type: "percentage",
-      discount_value: "",
-      min_order: "",
-      max_uses: "",
-      max_discount: "",
-      per_user_usage_limit: "",
-      start_date: "",
-      expires_at: "",
-      status: "active",
-    });
+    setForm(EMPTY_FORM);
     setShowModal(true);
   };
 
   const openEdit = (coupon) => {
     setEditing(coupon);
-    setForm({ ...coupon });
+    setForm({
+      code: coupon.code || "",
+      discount_type: coupon.discount_type || "percentage",
+      discount_value: coupon.discount_value != null ? String(coupon.discount_value) : "",
+      min_order: coupon.min_order != null ? String(coupon.min_order) : "",
+      max_uses: coupon.max_uses != null ? String(coupon.max_uses) : "",
+      per_user_usage_limit: coupon.per_user_usage_limit != null ? String(coupon.per_user_usage_limit) : "",
+      start_date: coupon.start_date ? coupon.start_date.slice(0, 16) : "",
+      expires_at: coupon.expires_at ? coupon.expires_at.slice(0, 16) : "",
+      status: coupon.status || "active",
+    });
     setShowModal(true);
+  };
+
+  const confirmDelete = (coupon) => {
+    setDeletingId(coupon._id || coupon.id);
+    setDeleteConfirmOpen(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
+    setError("");
+    setSuccess("");
     try {
+      const payload = {
+        ...form,
+        discount_value: form.discount_value !== "" ? Number(form.discount_value) : 0,
+        min_order: form.min_order !== "" ? Number(form.min_order) : undefined,
+        max_uses: form.max_uses !== "" ? Number(form.max_uses) : undefined,
+        per_user_usage_limit: form.per_user_usage_limit !== "" ? Number(form.per_user_usage_limit) : undefined,
+        start_date: form.start_date || undefined,
+        expires_at: form.expires_at || undefined,
+      };
+
       if (editing) {
-        await api.put(`/coupons/${editing._id || editing.id}`, form);
+        const res = await api.put(`/coupons/${editing._id || editing.id}`, payload);
+        const updated = res.data?.data;
+        setCoupons((prev) =>
+          prev.map((c) => (c._id === (editing._id || editing.id) ? { ...updated } : c))
+        );
+        setSuccess("Coupon updated.");
       } else {
-        await api.post("/coupons", form);
+        const res = await api.post("/coupons", payload);
+        setCoupons((prev) => [res.data?.data, ...prev]);
+        setSuccess("Coupon created.");
       }
       setShowModal(false);
       setEditing(null);
-      setForm({});
-      load();
-    } catch {
-      setError("Failed to save coupon");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to save coupon.");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this coupon?")) return;
+  const handleDelete = async () => {
+    if (!deletingId) return;
     try {
-      await api.delete(`/coupons/${id}`);
-      setCoupons(coupons.filter((c) => c._id !== id && c.id !== id));
-    } catch {
-      setError("Failed to delete coupon");
+      await api.delete(`/coupons/${deletingId}`);
+      setCoupons((prev) => prev.filter((c) => (c._id || c.id) !== deletingId));
+      setSuccess("Coupon deleted.");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to delete coupon.");
+    } finally {
+      setDeleteConfirmOpen(false);
+      setDeletingId(null);
     }
   };
 
-  if (deletingId) {
-    handleDelete(deletingId);
-    setDeletingId(null);
+  const filtered = coupons.filter((c) => {
+    const q = search.toLowerCase();
+    const matchSearch =
+      !q ||
+      c.code?.toLowerCase().includes(q) ||
+      c.discount_type?.toLowerCase().includes(q);
+    const matchStatus = !statusFilter || c.status === statusFilter;
+    return matchSearch && matchStatus;
+  });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  if (loading) {
+    return <AdminPageSkeleton variant="table" className="mx-auto max-w-7xl" />;
   }
 
   return (
-    <div className="max-w-6xl">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Coupons</h1>
-        <button
-          onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[#0F766E] text-white rounded-lg hover:bg-[#0F766E]/90 transition"
-        >
-          <FiPlus className="w-4 h-4" />
-          Create Coupon
-        </button>
+    <div className="mx-auto max-w-7xl space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-700 dark:text-gray-100">
+            Coupons
+          </h1>
+          <p className="mt-1 text-sm text-gray-500">
+            {filtered.length} coupon{filtered.length === 1 ? "" : "s"}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => load(true)}
+            disabled={refreshing}
+            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+          >
+            <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
+            Refresh
+          </button>
+          <button
+            onClick={openCreate}
+            className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white hover:bg-[#0F766E]/90"
+          >
+            <Plus size={16} />
+            Add Coupon
+          </button>
+        </div>
       </div>
 
+      {/* Alerts */}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          {success}
         </div>
       )}
 
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search coupons..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full max-w-sm px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-[#0F766E] dark:bg-gray-700 dark:text-gray-100"
-        />
+      {/* Search & Filters */}
+      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800 sm:flex-row">
+        <div className="relative flex-1">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search by code or type…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 pl-9 pr-3 py-2 text-sm outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+          />
+        </div>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+        >
+          <option value="">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        {loading ? (
-          <div className="p-8 text-center">
-            <div className="w-8 h-8 mx-auto rounded-full border-2 border-[#0F766E] border-t-transparent animate-spin" />
-            <p className="mt-3 text-sm text-gray-500">Loading coupons...</p>
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="p-8 text-center">
-            <p className="text-gray-500">No coupons found.</p>
+      {/* Table */}
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+        {paginated.length === 0 ? (
+          <div className="py-20 text-center">
+            <Tag className="mx-auto text-gray-300 dark:text-gray-600" size={36} />
+            <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+              No coupons found.
+            </p>
+            <button
+              onClick={openCreate}
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#0F766E] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0F766E]/90"
+            >
+              <Plus size={15} /> Add Coupon
+            </button>
           </div>
         ) : (
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Value</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filtered.map((coupon) => (
-                <tr key={coupon._id || coupon.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{coupon.code || "-"}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
-                    {coupon.discount_type === "percentage" ? `${coupon.discount_value}%` : `$${coupon.discount_value}`}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-xs rounded-full ${coupon.status === "active" || coupon.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
-                      {coupon.status || (coupon.isActive ? "Active" : "Inactive")}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        onClick={() => openEdit(coupon)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#0F766E] bg-[#0F766E]/5 border border-[#0F766E]/20 hover:bg-[#0F766E]/10 transition"
-                        title="Edit"
-                      >
-                        <FiEdit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => setDeletingId(coupon._id || coupon.id)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-rose-600 transition hover:bg-rose-50"
-                        title="Delete"
-                      >
-                        <FiTrash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[800px] text-left text-sm sm:min-w-0">
+                <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
+                  <tr>
+                    <th className="px-6 py-3 font-semibold">Code</th>
+                    <th className="px-6 py-3 font-semibold hidden sm:table-cell">Type</th>
+                    <th className="px-6 py-3 font-semibold">Value</th>
+                    <th className="px-6 py-3 font-semibold hidden sm:table-cell">Usage</th>
+                    <th className="px-6 py-3 font-semibold">Status</th>
+                    <th className="px-6 py-3 font-semibold hidden md:table-cell">Expires</th>
+                    <th className="px-6 py-3 text-right font-semibold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                  {paginated.map((coupon) => (
+                    <tr
+                      key={coupon._id || coupon.id}
+                      className="transition hover:bg-gray-50 dark:hover:bg-gray-700/30"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2.5">
+                          <Tag size={14} className="text-gray-400" />
+                          <span className="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100">
+                            {coupon.code}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-gray-700 dark:text-gray-300 hidden sm:table-cell">
+                        <span className="capitalize">{coupon.discount_type || "—"}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="font-semibold text-gray-900 dark:text-gray-100">
+                          {formatDiscount(coupon)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-gray-700 dark:text-gray-300 hidden sm:table-cell">
+                        {coupon.used_count != null || coupon.max_uses != null ? (
+                          <span>
+                            {coupon.used_count || 0}
+                            {coupon.max_uses != null ? ` / ${coupon.max_uses}` : ""}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <StatusBadge status={coupon.status} />
+                      </td>
+                      <td className="px-6 py-4 text-gray-500 hidden md:table-cell">
+                        {formatDate(coupon.expires_at)}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => openEdit(coupon)}
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-[#0F766E] bg-[#0F766E]/5 border border-[#0F766E]/20 hover:bg-[#0F766E]/10 transition"
+                            title="Edit coupon"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            onClick={() => confirmDelete(coupon)}
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition"
+                            title="Delete coupon"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4 dark:border-gray-700">
+                <p className="text-sm text-gray-500">
+                  Showing {(page - 1) * PAGE_SIZE + 1}–
+                  {Math.min(page * PAGE_SIZE, filtered.length)} of{" "}
+                  {filtered.length}
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-300 disabled:opacity-40 hover:bg-gray-50 dark:border-gray-600"
+                    title="Previous page"
+                  >
+                    <ChevronLeft size={15} />
+                  </button>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {page} / {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-300 disabled:opacity-40 hover:bg-gray-50 dark:border-gray-600"
+                    title="Next page"
+                  >
+                    <ChevronRight size={15} />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
+      {/* Create / Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-              <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                {editing ? "Edit Coupon" : "Create Coupon"}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl dark:bg-gray-800">
+            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+              <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                {editing ? "Edit Coupon" : "New Coupon"}
               </h2>
               <button
-                onClick={() => { setShowModal(false); setEditing(null); }}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl leading-none"
+                onClick={() => setShowModal(false)}
+                className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                aria-label="Close"
               >
-                &times;
+                <X size={18} />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 p-6">
+              {error && (
+                <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                  {error}
+                </p>
+              )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Code *</label>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Code <span className="text-rose-500">*</span>
+                </label>
                 <input
                   type="text"
                   required
-                  value={form.code || ""}
-                  onChange={(e) => setForm({ ...form, code: e.target.value })}
+                  value={form.code}
+                  onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                   placeholder="e.g. SAVE20"
-                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:outline-none focus:border-[#0F766E] dark:bg-gray-700 dark:text-gray-100"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type *</label>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Type <span className="text-rose-500">*</span>
+                  </label>
                   <select
-                    value={form.discount_type || "percentage"}
-                    onChange={(e) => setForm({ ...form, discount_type: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:outline-none focus:border-[#0F766E] dark:bg-gray-700 dark:text-gray-100"
+                    value={form.discount_type}
+                    onChange={(e) => setForm((f) => ({ ...f, discount_type: e.target.value }))}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                   >
                     <option value="percentage">Percentage</option>
                     <option value="fixed">Fixed Amount</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Value *</label>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Value <span className="text-rose-500">*</span>
+                  </label>
                   <input
                     type="number"
                     required
-                    value={form.discount_value || ""}
-                    onChange={(e) => setForm({ ...form, discount_value: e.target.value })}
-                    placeholder="e.g. 20"
-                    min="0"
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:outline-none focus:border-[#0F766E] dark:bg-gray-700 dark:text-gray-100"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Min Order</label>
-                  <input
-                    type="number"
-                    value={form.min_order || ""}
-                    onChange={(e) => setForm({ ...form, min_order: e.target.value })}
-                    placeholder="e.g. 50"
-                    min="0"
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:outline-none focus:border-[#0F766E] dark:bg-gray-700 dark:text-gray-100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Uses</label>
-                  <input
-                    type="number"
-                    value={form.max_uses || ""}
-                    onChange={(e) => setForm({ ...form, max_uses: e.target.value })}
-                    placeholder="e.g. 100"
-                    min="1"
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:outline-none focus:border-[#0F766E] dark:bg-gray-700 dark:text-gray-100"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Discount</label>
-                  <input
-                    type="number"
-                    value={form.max_discount || ""}
-                    onChange={(e) => setForm({ ...form, max_discount: e.target.value })}
-                    placeholder="e.g. 50"
                     min="0"
                     step="0.01"
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:outline-none focus:border-[#0F766E] dark:bg-gray-700 dark:text-gray-100"
+                    value={form.discount_value}
+                    onChange={(e) => setForm((f) => ({ ...f, discount_value: e.target.value }))}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                    placeholder={form.discount_type === "percentage" ? "e.g. 20" : "e.g. 10.00"}
                   />
                 </div>
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Per User Limit</label>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Min Order
+                  </label>
                   <input
                     type="number"
-                    value={form.per_user_usage_limit || ""}
-                    onChange={(e) => setForm({ ...form, per_user_usage_limit: e.target.value })}
-                    placeholder="e.g. 3"
+                    min="0"
+                    step="0.01"
+                    value={form.min_order}
+                    onChange={(e) => setForm((f) => ({ ...f, min_order: e.target.value }))}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                    placeholder="e.g. 50"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Max Uses
+                  </label>
+                  <input
+                    type="number"
                     min="1"
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:outline-none focus:border-[#0F766E] dark:bg-gray-700 dark:text-gray-100"
+                    value={form.max_uses}
+                    onChange={(e) => setForm((f) => ({ ...f, max_uses: e.target.value }))}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                    placeholder="e.g. 100"
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Per User Limit
+                  </label>
                   <input
-                    type="datetime-local"
-                    value={form.start_date || ""}
-                    onChange={(e) => setForm({ ...form, start_date: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:outline-none focus:border-[#0F766E] dark:bg-gray-700 dark:text-gray-100"
+                    type="number"
+                    min="1"
+                    value={form.per_user_usage_limit}
+                    onChange={(e) => setForm((f) => ({ ...f, per_user_usage_limit: e.target.value }))}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                    placeholder="e.g. 3"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expires At</label>
-                  <input
-                    type="datetime-local"
-                    value={form.expires_at || ""}
-                    onChange={(e) => setForm({ ...form, expires_at: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:outline-none focus:border-[#0F766E] dark:bg-gray-700 dark:text-gray-100"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Status
+                  </label>
                   <select
-                    value={form.status || "active"}
-                    onChange={(e) => setForm({ ...form, status: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:outline-none focus:border-[#0F766E] dark:bg-gray-700 dark:text-gray-100"
+                    value={form.status}
+                    onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                   </select>
                 </div>
               </div>
-              <div className="flex justify-end gap-4 pt-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Start Date
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={form.start_date}
+                    onChange={(e) => setForm((f) => ({ ...f, start_date: e.target.value }))}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Expires At
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={form.expires_at}
+                    onChange={(e) => setForm((f) => ({ ...f, expires_at: e.target.value }))}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => { setShowModal(false); setEditing(null); }}
-                  className="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+                  onClick={() => setShowModal(false)}
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-6 py-2 bg-[#0F766E] text-white rounded-lg hover:bg-[#0F766E]/90 disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-5 text-sm font-semibold text-white hover:bg-[#0F766E]/90 disabled:opacity-60"
                 >
-                  {saving ? "Saving..." : editing ? "Update" : "Create"}
+                  {saving ? (
+                    <>
+                      <Save size={14} className="animate-pulse" />
+                      Saving…
+                    </>
+                  ) : editing ? (
+                    "Save Changes"
+                  ) : (
+                    "Create Coupon"
+                  )}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation */}
+      <DeleteConfirmDialog
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleDelete}
+        itemName={
+          coupons.find((c) => (c._id || c.id) === deletingId)?.code || "this coupon"
+        }
+      />
     </div>
   );
 }

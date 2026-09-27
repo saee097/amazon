@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
 import { ToastProvider, useToast } from "@/components/ui/Toast";
+import { SkeletonTable } from "@/components/ui/skeleton";
 import {
   Plus,
   Search,
@@ -328,12 +329,7 @@ export default function AdminCollections() {
           </div>
 
           {loading ? (
-            <div className="flex min-h-[300px] items-center justify-center">
-              <div className="text-center">
-                <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#0F766E] border-t-transparent" />
-                <p className="mt-3 text-sm text-gray-500">Loading collections…</p>
-              </div>
-            </div>
+            <SkeletonTable rows={6} cols={7} />
           ) : filteredCollections.length === 0 ? (
             <div className="py-16 text-center">
               <Star className="mx-auto text-gray-300" size={36} />

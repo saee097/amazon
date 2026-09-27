@@ -7,6 +7,7 @@ import api from "@/lib/api";
 import { getToken, removeToken } from "@/lib/auth";
 import { notifyStoreUpdate } from "@/lib/storeEvents";
 import ProductImage from "@/components/ui/ProductImage";
+import { StorefrontSkeleton } from "@/components/ui/skeleton";
 
 export default function WishlistPage() {
   const router = useRouter();
@@ -45,21 +46,7 @@ export default function WishlistPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col items-center justify-center px-4 py-8 sm:py-12">
-        <div className="w-full max-w-md mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl sm:text-4xl font-light text-gray-800 mb-3">
-              Wishlist
-            </h1>
-          </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-6 sm:p-8 w-full text-center">
-            <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-            <p className="mt-4 text-gray-600">Loading wishlist...</p>
-          </div>
-        </div>
-      </div>
-    );
+    return <StorefrontSkeleton variant="grid" />;
   }
 
   return (

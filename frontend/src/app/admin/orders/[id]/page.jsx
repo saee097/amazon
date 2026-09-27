@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/api";
+import { AdminPageSkeleton } from "@/components/ui/skeleton";
 
 const statusBadge = (status) => {
   const map = {
@@ -90,14 +91,7 @@ export default function AdminOrderDetail() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
-          <p className="mt-4 text-gray-600">Loading order details...</p>
-        </div>
-      </div>
-    );
+    return <AdminPageSkeleton variant="detail" className="mx-auto max-w-6xl" />;
   }
 
   if (error) {

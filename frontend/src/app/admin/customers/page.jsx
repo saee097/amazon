@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import Link from "next/link";
 import api from "@/lib/api";
 import StatusBadge from "@/components/StatusBadge";
+import { AdminPageSkeleton } from "@/components/ui/skeleton";
 import {
   Plus,
   Search,
@@ -12,10 +12,10 @@ import {
   Trash2,
   Users,
   X,
+  Mail,
   ChevronLeft,
   ChevronRight,
   AlertTriangle,
-  User,
 } from "lucide-react";
 
 const PAGE_SIZE = 20;
@@ -25,6 +25,7 @@ const EMPTY_FORM = {
   last_name: "",
   email: "",
   phone: "",
+  password: "",
   role: "customer",
   status: "active",
 };
@@ -217,14 +218,7 @@ export default function AdminCustomers() {
     `${c.first_name || ""} ${c.last_name || ""}`.trim() || "-";
 
   if (loading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#0F766E] border-t-transparent" />
-          <p className="mt-3 text-sm text-gray-500">Loading customers…</p>
-        </div>
-      </div>
-    );
+    return <AdminPageSkeleton variant="table" className="mx-auto max-w-7xl" />;
   }
 
   return (
@@ -250,7 +244,7 @@ export default function AdminCustomers() {
           </button>
           <button
             onClick={openCreate}
-            className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white  hover:bg-[#0F766E]/90"
+            className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white  hover:bg-[#0F766E]/90"
           >
             <Plus size={16} />
             Add Customer
@@ -318,20 +312,20 @@ export default function AdminCustomers() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
-                  <tr>
-                    <th className="px-6 py-3 font-semibold">Customer</th>
-                    <th className="px-6 py-3 font-semibold">Email</th>
-                    <th className="px-6 py-3 font-semibold">Phone</th>
-                    <th className="px-6 py-3 font-semibold">Role</th>
-                    <th className="px-6 py-3 font-semibold">Status</th>
-                    <th className="px-6 py-3 text-right font-semibold">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+             <table className="w-full min-w-[800px] text-left text-sm sm:min-w-0">
+                 <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
+                   <tr>
+                     <th className="px-6 py-3 font-semibold">Customer</th>
+                     <th className="px-6 py-3 font-semibold hidden sm:table-cell">Email</th>
+                     <th className="px-6 py-3 font-semibold hidden lg:table-cell">Phone</th>
+                     <th className="px-6 py-3 font-semibold hidden md:table-cell">Role</th>
+                     <th className="px-6 py-3 font-semibold">Status</th>
+                     <th className="px-6 py-3 text-right font-semibold w-32">
+                       Actions
+                     </th>
+                   </tr>
+                 </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                   {paginated.map((customer) => {
                     const initials = `${(customer.first_name || "")[0] || ""}${(customer.last_name || "")[0] || ""}`.toUpperCase() || "?";
                     return (
@@ -341,38 +335,41 @@ export default function AdminCustomers() {
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-700 dark:text-gray-300">
                               {initials}
                             </div>
-                            <span className="font-medium text-gray-900 dark:text-gray-100">
+                            <span className="font-medium text-gray-900 dark:text-gray-100 truncate max-w-[120px]">
                               {customerName(customer)}
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                          {customer.email || "—"}
+                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 hidden sm:table-cell">
+                          <div className="flex items-center gap-1.5">
+                            <Mail size={12} className="text-gray-400" />
+                            <span className="block truncate max-w-[150px]">{customer.email || "—"}</span>
+                          </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 hidden lg:table-cell">
                           {customer.phone || "—"}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 hidden md:table-cell">
                           <RoleBadge role={customer.role} />
                         </td>
                         <td className="px-6 py-4">
                           <StatusBadge status={customer.status} className="border border-gray-200"/>
                         </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => openEdit(customer)}
-                              className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-[#0F766E] bg-[#0F766E]/5 border border-[#0F766E]/20 hover:bg-[#0F766E]/10 transition"
+                              className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-[#0F766E] bg-[#0F766E]/5 border border-[#0F766E]/20 hover:bg-[#0F766E]/10 transition"
                               title="Edit customer"
                             >
                               <Pencil size={14} />
                             </button>
                             <button
                               onClick={() => confirmDelete(customer)}
-                              className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition"
+                              className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition"
                               title="Delete customer"
                             >
                               <Trash2 size={14} />
@@ -499,9 +496,25 @@ export default function AdminCustomers() {
                     setForm((f) => ({ ...f, phone: e.target.value }))
                   }
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-                  placeholder="+1 234 567 890"
-                />
-              </div>
+                   placeholder="+1 234 567 890"
+                 />
+               </div>
+              {!editing && (
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    value={form.password}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, password: e.target.value }))
+                    }
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                    placeholder="Auto-generated if blank"
+                  />
+                </div>
+              )}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
