@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
 import StatusBadge from "@/components/StatusBadge";
 import { AdminPageSkeleton } from "@/components/ui/skeleton";
+import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
 import {
   Plus,
   Search,
@@ -15,7 +16,6 @@ import {
   Mail,
   ChevronLeft,
   ChevronRight,
-  AlertTriangle,
 } from "lucide-react";
 
 const PAGE_SIZE = 20;
@@ -30,53 +30,14 @@ const EMPTY_FORM = {
   status: "active",
 };
 
-function DeleteConfirmDialog({ open, onClose, onConfirm, itemName }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-800">
-        <div className="flex items-start gap-4 p-6">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
-            <AlertTriangle size={20} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Delete customer?
-            </h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              This action cannot be undone. The customer{" "}
-              <strong className="font-medium">&quot;{itemName}&quot;</strong> will be
-              permanently removed.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
-          <button
-            onClick={onClose}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white  hover:bg-rose-700"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function RoleBadge({ role }) {
   const isAdmin = role === "admin";
   return (
     <span
       className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
         isAdmin
-          ? "bg-purple-100 text-purple-800"
-          : "bg-blue-100 text-blue-800"
+          ? "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400"
+          : "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
       }`}
     >
       {role}
@@ -103,6 +64,7 @@ export default function AdminCustomers() {
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = useCallback(async (isRefresh = false) => {
     isRefresh ? setRefreshing(true) : setLoading(true);
@@ -202,6 +164,7 @@ export default function AdminCustomers() {
 
   const handleDelete = async () => {
     if (!deletingId) return;
+    setDeleting(true);
     try {
       await api.delete(`/admin/customers/${deletingId}`);
       setCustomers((prev) => prev.filter((c) => c._id !== deletingId));
@@ -209,6 +172,7 @@ export default function AdminCustomers() {
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to delete customer.");
     } finally {
+      setDeleting(false);
       setDeleteConfirmOpen(false);
       setDeletingId(null);
     }
@@ -253,12 +217,12 @@ export default function AdminCustomers() {
       </div>
 
       {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-900/20 dark:text-rose-300">
           {error}
         </div>
       )}
       {success && (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300">
           {success}
         </div>
       )}
@@ -362,14 +326,14 @@ export default function AdminCustomers() {
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => openEdit(customer)}
-                              className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-[#0F766E] bg-[#0F766E]/5 border border-[#0F766E]/20 hover:bg-[#0F766E]/10 transition"
+                              className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-[#0F766E] bg-[#0F766E]/5 border border-[#0F766E]/20 hover:bg-[#0F766E]/10 dark:bg-[#0F766E]/10 dark:border-[#0F766E]/30 dark:hover:bg-[#0F766E]/20 transition"
                               title="Edit customer"
                             >
                               <Pencil size={14} />
                             </button>
                             <button
                               onClick={() => confirmDelete(customer)}
-                              className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition"
+                              className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 dark:bg-rose-900/20 dark:border-rose-800 dark:hover:bg-rose-900/30 dark:text-rose-400 transition"
                               title="Delete customer"
                             >
                               <Trash2 size={14} />
@@ -434,7 +398,7 @@ export default function AdminCustomers() {
             </div>
             <form onSubmit={handleSubmit} className="space-y-4 p-6">
               {error && (
-                <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-300">
                   {error}
                 </p>
               )}
@@ -581,6 +545,7 @@ export default function AdminCustomers() {
             ? customerName(customers.find((c) => c._id === deletingId))
             : "this customer"
         }
+        loading={deleting}
       />
     </div>
   );

@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
 import { ToastProvider, useToast } from "@/components/ui/Toast";
 import { SkeletonTable } from "@/components/ui/skeleton";
+import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
 import {
   Plus,
   Search,
@@ -17,7 +18,6 @@ import {
   Star,
   Eye,
   EyeOff,
-  AlertTriangle,
   Image,
   Tag,
   GripVertical,
@@ -30,37 +30,7 @@ const EMPTY_FORM = {
   slug: "",
   description: "",
   status: "active",
-  image_url: "",
 };
-
-function DeleteConfirmDialog({ open, onClose, onConfirm, name, loading }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-800">
-        <div className="flex items-start gap-4 p-6">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
-            <AlertTriangle size={20} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Delete collection?</h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              This action cannot be undone. The collection <strong className="font-medium">"{name}"</strong> will be permanently removed.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
-          <button onClick={onClose} disabled={loading} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300">
-            Cancel
-          </button>
-          <button onClick={onConfirm} disabled={loading} className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white  hover:bg-rose-700 disabled:opacity-50">
-            {loading ? <Loader2 size={14} className="animate-spin" /> : "Delete"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function SlugInput({ value, onChange, disabled }) {
   const handleChange = (e) => {
@@ -149,14 +119,13 @@ export default function AdminCollections() {
       slug: collection.slug || "",
       description: collection.description || "",
       status: collection.status || "active",
-      image_url: collection.image_url || "",
     });
     setFormErrors({});
     setShowModal(true);
   };
 
   const confirmDelete = (collection) => {
-    setDeletingId(collection.id);
+    setDeletingId(collection._id);
     setDeleteConfirmOpen(true);
   };
 
@@ -172,20 +141,20 @@ export default function AdminCollections() {
 
   const handleDrop = async (e, targetItem) => {
     e.preventDefault();
-    if (!draggedItem || draggedItem.id === targetItem.id) {
+    if (!draggedItem || draggedItem._id === targetItem._id) {
       setDraggedItem(null);
       return;
     }
 
-    const draggedIndex = collections.findIndex((i) => i.id === draggedItem.id);
-    const targetIndex = collections.findIndex((i) => i.id === targetItem.id);
+    const draggedIndex = collections.findIndex((i) => i._id === draggedItem._id);
+    const targetIndex = collections.findIndex((i) => i._id === targetItem._id);
 
     const newCollections = [...collections];
     newCollections.splice(draggedIndex, 1);
     newCollections.splice(targetIndex, 0, draggedItem);
 
     const updates = newCollections.map((item, index) => ({
-      id: item.id,
+      id: item._id,
       sort_order: index + 1,
     }));
 
@@ -214,11 +183,10 @@ export default function AdminCollections() {
         slug: form.slug.trim(),
         description: form.description.trim(),
         status: form.status,
-        image_url: form.image_url.trim() || null,
       };
 
       if (editingCollection) {
-        const res = await api.put(`/admin/collections/${editingCollection.id}`, payload);
+        const res = await api.put(`/admin/collections/${editingCollection._id}`, payload);
         toast.success("Collection updated");
       } else {
         const res = await api.post("/admin/collections", payload);
@@ -239,7 +207,7 @@ export default function AdminCollections() {
   const handleStatusToggle = async (collection) => {
     const newStatus = collection.status === "active" ? "inactive" : "active";
     try {
-      await api.put(`/admin/collections/${collection.id}`, { status: newStatus });
+      await api.put(`/admin/collections/${collection._id}`, { status: newStatus });
       toast.success(`Collection ${newStatus === "active" ? "activated" : "deactivated"}`);
       load().then(setTotalPages);
     } catch {
@@ -355,7 +323,7 @@ export default function AdminCollections() {
                   </thead>
                   <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                     {filteredCollections.map((collection) => (
-                      <tr key={collection.id} className={`hover:bg-gray-50/60 dark:hover:bg-gray-700/30 transition-colors ${draggedItem?.id === collection.id ? "opacity-50" : ""}`} draggable onDragStart={(e) => handleDragStart(e, collection)} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, collection)}>
+                      <tr key={collection._id} className={`hover:bg-gray-50/60 dark:hover:bg-gray-700/30 transition-colors ${draggedItem?._id === collection._id ? "opacity-50" : ""}`} draggable onDragStart={(e) => handleDragStart(e, collection)} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, collection)}>
                         <td className="px-6 py-4">
                           <button type="button" onDragStart={(e) => handleDragStart(e, collection)} draggable className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-grab active:cursor-grabbing transition" title="Drag to reorder" aria-label="Drag to reorder">
                             <GripVertical size={16} />
@@ -370,7 +338,7 @@ export default function AdminCollections() {
                             )}
                             <div className="min-w-0">
                               <p className="font-medium text-gray-900 dark:text-gray-100 truncate max-w-[200px]">{collection.name}</p>
-                              <p className="text-xs text-gray-500 truncate max-w-[200px]">ID: {collection.id?.slice(0, 8)}…</p>
+                              <p className="text-xs text-gray-500 truncate max-w-[200px]">ID: {collection._id?.slice(0, 8)}…</p>
                             </div>
                           </div>
                         </td>
@@ -429,10 +397,6 @@ export default function AdminCollections() {
                   <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={3} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="Brief description of this collection" />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Cover Image URL</label>
-                  <input type="url" value={form.image_url} onChange={(e) => setForm((f) => ({ ...f, image_url: e.target.value }))} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="https://example.com/image.jpg" />
-                </div>
-                <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
                   <select value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
                     <option value="active">Active</option>
@@ -449,7 +413,7 @@ export default function AdminCollections() {
           </div>
         )}
 
-        <DeleteConfirmDialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)} onConfirm={handleDelete} name={collections.find((c) => c.id === deletingId)?.name || "this collection"} loading={deleting} />
+        <DeleteConfirmDialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)} onConfirm={handleDelete} itemName={collections.find((c) => c._id === deletingId)?.name || "this collection"} loading={deleting} />
       </div>
     </ToastProvider>
   );

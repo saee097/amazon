@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
 import { AdminPageSkeleton } from "@/components/ui/skeleton";
+import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
 import {
   Search,
   RefreshCw,
@@ -10,7 +11,6 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
-  AlertTriangle,
   X,
   Save,
   CreditCard,
@@ -39,10 +39,10 @@ const EMPTY_PAYMENT_FORM = {
 };
 
 const PAYMENT_STYLES = {
-  pending:  "bg-amber-50 text-amber-800 ring-1 ring-amber-200",
-  paid:     "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200",
-  failed:   "bg-rose-50 text-rose-800 ring-1 ring-rose-200",
-  refunded: "bg-gray-100 text-gray-700 ring-1 ring-gray-200",
+  pending:  "bg-amber-50 text-amber-800 ring-1 ring-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:ring-amber-800",
+  paid:     "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:ring-emerald-800",
+  failed:   "bg-rose-50 text-rose-800 ring-1 ring-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:ring-rose-800",
+  refunded: "bg-gray-100 text-gray-700 ring-1 ring-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:ring-gray-700",
 };
 
 const PAYMENT_ICONS = {
@@ -62,45 +62,6 @@ function PaymentStatusBadge({ status }) {
       <Icon size={12} />
       {status || "unknown"}
     </span>
-  );
-}
-
-function DeleteConfirmDialog({ open, onClose, onConfirm, itemName }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-800">
-        <div className="flex items-start gap-4 p-6">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
-            <AlertTriangle size={20} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Delete payment record?
-            </h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              This action cannot be undone. The payment record for order{" "}
-              <strong className="font-medium">&quot;{itemName}&quot;</strong> will be
-              permanently removed.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
-          <button
-            onClick={onClose}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -140,6 +101,7 @@ export default function AdminPayments() {
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = useCallback(async (isRefresh = false) => {
     isRefresh ? setRefreshing(true) : setLoading(true);
@@ -204,6 +166,7 @@ export default function AdminPayments() {
 
   const handleDelete = async () => {
     if (!deletingId) return;
+    setDeleting(true);
     try {
       await api.delete(`/admin/payments/${deletingId}`);
       setPayments((prev) => prev.filter((p) => p._id !== deletingId));
@@ -211,6 +174,7 @@ export default function AdminPayments() {
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to delete payment.");
     } finally {
+      setDeleting(false);
       setDeleteConfirmOpen(false);
       setDeletingId(null);
     }
@@ -344,9 +308,9 @@ export default function AdminPayments() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
           { label: "Total", count: payments.length, cls: "text-gray-900 dark:text-gray-100", icon: CreditCard },
-          { label: "Paid", count: counts.paid, cls: "text-emerald-700", icon: CheckCircle2 },
-          { label: "Pending", count: counts.pending, cls: "text-amber-700", icon: Clock },
-          { label: "Failed / Refunded", count: counts.failed + counts.refunded, cls: "text-rose-700", icon: XCircle },
+          { label: "Paid", count: counts.paid, cls: "text-emerald-700 dark:text-emerald-400", icon: CheckCircle2 },
+          { label: "Pending", count: counts.pending, cls: "text-amber-700 dark:text-amber-400", icon: Clock },
+          { label: "Failed / Refunded", count: counts.failed + counts.refunded, cls: "text-rose-700 dark:text-rose-400", icon: XCircle },
         ].map(({ label, count, cls, icon: Icon }) => (
           <div
             key={label}
@@ -356,19 +320,19 @@ export default function AdminPayments() {
               <p className={`text-2xl font-bold ${cls}`}>{count}</p>
               <Icon size={20} className={`${cls} opacity-70`} />
             </div>
-            <p className="mt-1 text-xs font-medium text-gray-500">{label}</p>
+            <p className="mt-1 text-xs font-medium text-gray-500 dark:text-gray-400">{label}</p>
           </div>
         ))}
       </div>
 
       {/* Alerts */}
       {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-900/20 dark:text-rose-300">
           {error}
         </div>
       )}
       {success && (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300">
           {success}
         </div>
       )}
@@ -469,14 +433,14 @@ export default function AdminPayments() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => openEdit(payment)}
-                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-[#0F766E] bg-[#0F766E]/5 border border-[#0F766E]/20 hover:bg-[#0F766E]/10 transition"
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-[#0F766E] bg-[#0F766E]/5 border border-[#0F766E]/20 hover:bg-[#0F766E]/10 dark:bg-[#0F766E]/10 dark:border-[#0F766E]/30 dark:hover:bg-[#0F766E]/20 transition"
                             title="Update payment"
                           >
                             <Pencil size={14} />
                           </button>
                           <button
                             onClick={() => confirmDelete(payment)}
-                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition"
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 dark:bg-rose-900/20 dark:border-rose-800 dark:hover:bg-rose-900/30 dark:text-rose-400 transition"
                             title="Delete payment"
                           >
                             <Trash2 size={14} />
@@ -553,7 +517,7 @@ export default function AdminPayments() {
               className="space-y-4 p-6"
             >
               {error && (
-                <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-300">
                   {error}
                 </p>
               )}
@@ -643,7 +607,7 @@ export default function AdminPayments() {
               className="space-y-4 p-6"
             >
               {error && (
-                <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-300">
                   {error}
                 </p>
               )}
@@ -806,6 +770,7 @@ export default function AdminPayments() {
         onClose={() => setDeleteConfirmOpen(false)}
         onConfirm={handleDelete}
         itemName={payments.find((p) => p._id === deletingId)?.order_number || "this payment"}
+        loading={deleting}
       />
     </div>
   );

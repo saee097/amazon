@@ -29,19 +29,19 @@ const ORDER_STATUSES = ["pending", "processing", "shipped", "delivered", "cancel
 const PAYMENT_STATUSES = ["pending", "paid", "failed", "refunded"];
 
 const STATUS_STYLES = {
-  pending:    "bg-amber-50 text-amber-800 ring-1 ring-amber-200",
-  processing: "bg-sky-50 text-sky-800 ring-1 ring-sky-200",
-  shipped:    "bg-violet-50 text-violet-800 ring-1 ring-violet-200",
-  delivered:  "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200",
-  cancelled:  "bg-rose-50 text-rose-800 ring-1 ring-rose-200",
-  returned:   "bg-gray-100 text-gray-700 ring-1 ring-gray-200",
+  pending:    "bg-amber-50 text-amber-800 ring-1 ring-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:ring-amber-800",
+  processing: "bg-sky-50 text-sky-800 ring-1 ring-sky-200 dark:bg-sky-900/20 dark:text-sky-400 dark:ring-sky-800",
+  shipped:    "bg-violet-50 text-violet-800 ring-1 ring-violet-200 dark:bg-violet-900/20 dark:text-violet-400 dark:ring-violet-800",
+  delivered:  "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:ring-emerald-800",
+  cancelled:  "bg-rose-50 text-rose-800 ring-1 ring-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:ring-rose-800",
+  returned:   "bg-gray-100 text-gray-700 ring-1 ring-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:ring-gray-700",
 };
 
 const PAYMENT_STYLES = {
-  pending:  "bg-amber-50 text-amber-700 border border-amber-200",
-  paid:     "bg-emerald-50 text-emerald-700 border border-emerald-200",
-  failed:   "bg-rose-50 text-rose-700 border border-rose-200",
-  refunded: "bg-gray-100 text-gray-600 border border-gray-200",
+  pending:  "bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800",
+  paid:     "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800",
+  failed:   "bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800",
+  refunded: "bg-gray-100 text-gray-600 border border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-700",
 };
 
 function StatusBadge({ status, styles }) {
@@ -224,19 +224,19 @@ export default function AdminOrders() {
             }`}
           >
             <p className="text-xl font-bold text-gray-700 dark:text-gray-100">{summaryCounts[s] || 0}</p>
-            <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-500 capitalize">{s}</p>
+            <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 capitalize">{s}</p>
           </button>
         ))}
       </div>
 
       {/* Alerts */}
       {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-900/20 dark:text-rose-300">
           {error}
         </div>
       )}
       {success && (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300">
           {success}
         </div>
       )}
@@ -325,21 +325,21 @@ export default function AdminOrders() {
                         <Link
                           href={`/admin/orders/${order._id}`}
                           title="View order"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#0F766E] transition hover:bg-[#0F766E]/10"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#0F766E] transition hover:bg-[#0F766E]/10 dark:hover:bg-[#0F766E]/20"
                         >
                           <Eye size={16} />
                         </Link>
                         <button
                           onClick={() => openEdit(order)}
                           title="Edit order"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-sky-600 transition hover:bg-sky-50"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-sky-600 transition hover:bg-sky-50 dark:hover:bg-sky-900/20 dark:text-sky-400"
                         >
                           <Pencil size={16} />
                         </button>
                         <button
                           onClick={() => handleDelete(order._id)}
                           title="Delete order"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-rose-600 transition hover:bg-rose-50"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-rose-600 transition hover:bg-rose-50 dark:hover:bg-rose-900/20 dark:text-rose-400"
                         >
                           <Trash2 size={16} />
                         </button>

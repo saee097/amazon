@@ -8,6 +8,7 @@ import StatusBadge from "@/components/StatusBadge";
 import RoleBadge from "@/components/RoleBadge";
 import { ToastProvider, useToast } from "@/components/ui/Toast";
 import { SkeletonTable } from "@/components/ui/skeleton";
+import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
 import {
   Plus,
   Search,
@@ -19,7 +20,6 @@ import {
   Loader2,
   Mail,
   Phone,
-  AlertTriangle,
   CheckCircle,
   ChevronLeft,
   ChevronRight,
@@ -47,35 +47,6 @@ const PERMISSION_GROUPS = [
   { label: "Settings", perms: ["settings:view", "settings:edit"] },
   { label: "Logs", perms: ["logs:view", "logs:export"] },
 ];
-
-function DeleteConfirmDialog({ open, onClose, onConfirm, name, loading }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-800">
-        <div className="flex items-start gap-4 p-6">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
-            <AlertTriangle size={20} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Delete admin?</h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              This action cannot be undone. The admin <strong className="font-medium">\&quot;{name}\&quot;</strong> will be permanently removed.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
-          <button onClick={onClose} disabled={loading} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300">
-            Cancel
-          </button>
-          <button onClick={onConfirm} disabled={loading} className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-50">
-            {loading ? <Loader2 size={14} className="animate-spin" /> : "Delete"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function PermissionCheckbox({ label, checked, onChange, disabled }) {
   return (
@@ -613,7 +584,7 @@ export default function ManageAdmins() {
             open={deleteConfirmOpen}
             onClose={() => setDeleteConfirmOpen(false)}
             onConfirm={handleDelete}
-            name={admins.find((a) => a._id === deletingId)?.first_name || "this admin"}
+            itemName={admins.find((a) => a._id === deletingId)?.first_name || "this admin"}
             loading={deleting}
           />
         </div>

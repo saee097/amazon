@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import api from "@/lib/api";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { AdminPageSkeleton } from "@/components/ui/skeleton";
+import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
 import {
   Search,
   RefreshCw,
@@ -18,6 +19,7 @@ import {
   Star,
   ChevronLeft,
   ChevronRight,
+  Plus,
 } from "lucide-react";
 
 const PAGE_SIZE = 15;
@@ -25,15 +27,23 @@ const PAGE_SIZE = 15;
 const REVIEW_STATUSES = ["approved", "pending", "rejected"];
 
 const REVIEW_STYLES = {
-  approved: "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200",
-  pending:  "bg-amber-50 text-amber-800 ring-1 ring-amber-200",
-  rejected: "bg-rose-50 text-rose-800 ring-1 ring-rose-200",
+  approved: "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:ring-emerald-800",
+  pending:  "bg-amber-50 text-amber-800 ring-1 ring-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:ring-amber-800",
+  rejected: "bg-rose-50 text-rose-800 ring-1 ring-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:ring-rose-800",
 };
 
 const REVIEW_ICONS = {
   approved: CheckCircle2,
   pending:  Clock,
   rejected: XCircle,
+};
+
+const EMPTY_REVIEW_FORM = {
+  product_id: "",
+  user_id: "",
+  rating: "5",
+  comment: "",
+  status: "pending",
 };
 
 function StatusBadge({ status }) {
@@ -64,44 +74,6 @@ function RatingDisplay({ rating }) {
   );
 }
 
-function DeleteConfirmDialog({ open, onClose, onConfirm, itemName }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-800">
-        <div className="flex items-start gap-4 p-6">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
-            <AlertTriangle size={20} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Delete review?
-            </h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              This action cannot be undone. The review by {itemName} will be
-              permanently removed.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
-          <button
-            onClick={onClose}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function formatDate(value) {
   if (!value) return "-";
   return new Date(value).toLocaleDateString("en-US", {
@@ -127,8 +99,13 @@ export default function AdminReviews() {
   const [editForm, setEditForm] = useState({ status: "" });
   const [saving, setSaving] = useState(false);
 
+  const [creating, setCreating] = useState(false);
+  const [createForm, setCreateForm] = useState(EMPTY_REVIEW_FORM);
+  const [createErrors, setCreateErrors] = useState({});
+
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = useCallback(async (isRefresh = false) => {
     isRefresh ? setRefreshing(true) : setLoading(true);
@@ -190,6 +167,7 @@ export default function AdminReviews() {
 
   const handleDelete = async () => {
     if (!deletingId) return;
+    setDeleting(true);
     try {
       await api.delete(`/admin/reviews/${deletingId}`);
       setReviews((prev) => prev.filter((r) => r._id !== deletingId));
@@ -197,8 +175,46 @@ export default function AdminReviews() {
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to delete review.");
     } finally {
+      setDeleting(false);
       setDeleteConfirmOpen(false);
       setDeletingId(null);
+    }
+  };
+
+  const validateCreateForm = () => {
+    const errors = {};
+    if (!createForm.product_id) errors.product_id = "Product ID is required";
+    if (!createForm.user_id) errors.user_id = "User ID is required";
+    if (!createForm.rating) errors.rating = "Rating is required";
+    setCreateErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    if (!validateCreateForm()) return;
+
+    setSaving(true);
+    setError("");
+    setSuccess("");
+    try {
+      const payload = {
+        product_id: createForm.product_id.trim(),
+        user_id: createForm.user_id.trim(),
+        rating: parseInt(createForm.rating, 10),
+        comment: createForm.comment.trim() || null,
+        status: createForm.status,
+      };
+      const res = await api.post("/admin/reviews", payload);
+      setReviews((prev) => [res.data?.data, ...prev]);
+      setSuccess("Review created.");
+      setCreating(false);
+      setCreateForm(EMPTY_REVIEW_FORM);
+      setCreateErrors({});
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to create review.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -248,38 +264,45 @@ export default function AdminReviews() {
                 <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
                 <span className="hidden sm:ml-1 sm:inline">Refresh</span>
               </button>
+              <button
+                onClick={() => setCreating(true)}
+                className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white hover:bg-[#0F766E]/90"
+              >
+                <Plus size={14} />
+                Add Review
+              </button>
             </div>
           </div>
 
           {/* Summary cards */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
-              { label: "Total Reviews", count: reviews.length, cls: "text-gray-900", icon: Star },
-              { label: "Approved", count: counts.approved, cls: "text-emerald-700", icon: CheckCircle2 },
-              { label: "Pending", count: counts.pending, cls: "text-amber-700", icon: Clock },
-              { label: "Rejected", count: counts.rejected, cls: "text-rose-700", icon: XCircle },
+              { label: "Total Reviews", count: reviews.length, cls: "text-gray-900 dark:text-gray-100", icon: Star },
+              { label: "Approved", count: counts.approved, cls: "text-emerald-700 dark:text-emerald-400", icon: CheckCircle2 },
+              { label: "Pending", count: counts.pending, cls: "text-amber-700 dark:text-amber-400", icon: Clock },
+              { label: "Rejected", count: counts.rejected, cls: "text-rose-700 dark:text-rose-400", icon: XCircle },
             ].map(({ label, count, cls, icon: Icon }) => (
               <div
                 key={label}
                 className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
               >
                 <div className="flex items-center justify-between">
-                  <p className={`text-2xl font-bold ${cls} dark:text-gray-100`}>{count}</p>
+                  <p className={`text-2xl font-bold ${cls}`}>{count}</p>
                   <Icon size={20} className={`${cls} opacity-70`} />
                 </div>
-                <p className="mt-1 text-xs font-medium text-gray-500">{label}</p>
+                <p className="mt-1 text-xs font-medium text-gray-500 dark:text-gray-400">{label}</p>
               </div>
             ))}
           </div>
 
           {/* Alerts */}
           {error && (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-900/20 dark:text-rose-300">
               {error}
             </div>
           )}
           {success && (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300">
               {success}
             </div>
           )}
@@ -387,14 +410,14 @@ export default function AdminReviews() {
                                 <div className="flex items-center justify-end gap-1.5">
                                   <button
                                     onClick={() => openEdit(review)}
-                                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-[#0F766E] bg-[#0F766E]/5 border border-[#0F766E]/20 hover:bg-[#0F766E]/10 transition"
+                                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-[#0F766E] bg-[#0F766E]/5 border border-[#0F766E]/20 hover:bg-[#0F766E]/10 dark:bg-[#0F766E]/10 dark:border-[#0F766E]/30 dark:hover:bg-[#0F766E]/20 transition"
                                     title="Update review status"
                                   >
                                     <Pencil size={14} />
                                   </button>
                                   <button
                                     onClick={() => confirmDelete(review)}
-                                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition"
+                                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 dark:bg-rose-900/20 dark:border-rose-800 dark:hover:bg-rose-900/30 dark:text-rose-400 transition"
                                     title="Delete review"
                                   >
                                     <Trash2 size={14} />
@@ -473,7 +496,7 @@ export default function AdminReviews() {
                   className="space-y-4 p-6"
                 >
                   {error && (
-                    <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                    <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-300">
                       {error}
                     </p>
                   )}
@@ -513,6 +536,153 @@ export default function AdminReviews() {
                         </>
                       ) : (
                         "Save Changes"
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Create Review Modal */}
+          {creating && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+              <div className="w-full max-w-md overflow-hidden rounded-xl bg-white shadow-2xl dark:bg-gray-800">
+                <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                  <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                    Add Review
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setCreating(false);
+                      setCreateForm(EMPTY_REVIEW_FORM);
+                      setCreateErrors({});
+                    }}
+                    className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    aria-label="Close"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+                <form
+                  onSubmit={handleCreate}
+                  className="space-y-4 p-6"
+                >
+                  {error && (
+                    <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-300">
+                      {error}
+                    </p>
+                  )}
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Product ID <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={createForm.product_id}
+                      onChange={(e) => setCreateForm((f) => ({ ...f, product_id: e.target.value }))}
+                      className={`w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 ${
+                        createErrors.product_id ? "border-rose-500" : "border-gray-300"
+                      }`}
+                      placeholder="Product UUID"
+                    />
+                    {createErrors.product_id && (
+                      <p className="mt-1 text-sm text-rose-600">{createErrors.product_id}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      User ID <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={createForm.user_id}
+                      onChange={(e) => setCreateForm((f) => ({ ...f, user_id: e.target.value }))}
+                      className={`w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 ${
+                        createErrors.user_id ? "border-rose-500" : "border-gray-300"
+                      }`}
+                      placeholder="User UUID"
+                    />
+                    {createErrors.user_id && (
+                      <p className="mt-1 text-sm text-rose-600">{createErrors.user_id}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Rating <span className="text-rose-500">*</span>
+                    </label>
+                    <select
+                      required
+                      value={createForm.rating}
+                      onChange={(e) => setCreateForm((f) => ({ ...f, rating: e.target.value }))}
+                      className={`w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 ${
+                        createErrors.rating ? "border-rose-500" : "border-gray-300"
+                      }`}
+                    >
+                      <option value="5">5 ★</option>
+                      <option value="4">4 ★</option>
+                      <option value="3">3 ★</option>
+                      <option value="2">2 ★</option>
+                      <option value="1">1 ★</option>
+                    </select>
+                    {createErrors.rating && (
+                      <p className="mt-1 text-sm text-rose-600">{createErrors.rating}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Comment
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={createForm.comment}
+                      onChange={(e) => setCreateForm((f) => ({ ...f, comment: e.target.value }))}
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                      placeholder="Review comment..."
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Status
+                    </label>
+                    <select
+                      value={createForm.status}
+                      onChange={(e) => setCreateForm((f) => ({ ...f, status: e.target.value }))}
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                    >
+                      {REVIEW_STATUSES.map((s) => (
+                        <option key={s} value={s} className="capitalize">
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex justify-end gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCreating(false);
+                        setCreateForm(EMPTY_REVIEW_FORM);
+                        setCreateErrors({});
+                      }}
+                      className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#0F766E] px-5 text-sm font-semibold text-white hover:bg-[#0F766E]/90 disabled:opacity-60"
+                    >
+                      {saving ? (
+                        <>
+                          <Save size={14} className="animate-pulse" />
+                          Creatingâ€¦
+                        </>
+                      ) : (
+                        "Create Review"
                       )}
                     </button>
                   </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
 import { AdminPageSkeleton } from "@/components/ui/skeleton";
+import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
 import {
   Search,
   RefreshCw,
@@ -12,7 +13,6 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  AlertTriangle,
   Save,
   Clock,
   CheckCircle2,
@@ -26,10 +26,10 @@ const PAGE_SIZE = 15;
 const REFUND_STATUSES = ["pending", "approved", "rejected", "processed"];
 
 const REFUND_STYLES = {
-  pending:  "bg-amber-50 text-amber-800 ring-1 ring-amber-200",
-  approved: "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200",
-  rejected: "bg-rose-50 text-rose-800 ring-1 ring-rose-200",
-  processed: "bg-blue-50 text-blue-800 ring-1 ring-blue-200",
+  pending:  "bg-amber-50 text-amber-800 ring-1 ring-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:ring-amber-800",
+  approved: "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:ring-emerald-800",
+  rejected: "bg-rose-50 text-rose-800 ring-1 ring-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:ring-rose-800",
+  processed: "bg-blue-50 text-blue-800 ring-1 ring-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:ring-blue-800",
 };
 
 const REFUND_ICONS = {
@@ -60,56 +60,18 @@ function RefundStatusBadge({ status }) {
   );
 }
 
-function DeleteConfirmDialog({ open, onClose, onConfirm, itemName }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-800">
-        <div className="flex items-start gap-4 p-6">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
-            <AlertTriangle size={20} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Delete refund record?
-            </h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              This action cannot be undone. The refund for order{" "}
-              <strong className="font-medium">{itemName}</strong> will be
-              permanently removed.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
-          <button
-            onClick={onClose}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 const currency = (v) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(v) || 0);
 
-function formatDate(value) {
-  if (!value) return "-";
-  return new Date(value).toLocaleDateString("en-US", {
+const formatDate = (dateString) => {
+  if (!dateString) return "—";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
     month: "short",
     day: "numeric",
-    year: "numeric",
   });
-}
+};
 
 export default function AdminRefunds() {
   const [refunds, setRefunds] = useState([]);
@@ -132,6 +94,7 @@ export default function AdminRefunds() {
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = useCallback(async (isRefresh = false) => {
     isRefresh ? setRefreshing(true) : setLoading(true);
@@ -193,6 +156,7 @@ export default function AdminRefunds() {
 
   const handleDelete = async () => {
     if (!deletingId) return;
+    setDeleting(true);
     try {
       await api.delete(`/admin/refunds/${deletingId}`);
       setRefunds((prev) => prev.filter((r) => r._id !== deletingId));
@@ -200,6 +164,7 @@ export default function AdminRefunds() {
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to delete refund.");
     } finally {
+      setDeleting(false);
       setDeleteConfirmOpen(false);
       setDeletingId(null);
     }
@@ -299,32 +264,32 @@ export default function AdminRefunds() {
       {/* Summary cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: "Total Refunds", count: refunds.length, cls: "text-gray-900", icon: Receipt },
-          { label: "Pending", count: counts.pending, cls: "text-amber-700", icon: Clock },
-          { label: "Approved", count: counts.approved, cls: "text-emerald-700", icon: CheckCircle2 },
-          { label: "Rejected", count: counts.rejected + counts.processed, cls: "text-rose-700", icon: XCircle },
+          { label: "Total Refunds", count: refunds.length, cls: "text-gray-900 dark:text-gray-100", icon: Receipt },
+          { label: "Pending", count: counts.pending, cls: "text-amber-700 dark:text-amber-400", icon: Clock },
+          { label: "Approved", count: counts.approved, cls: "text-emerald-700 dark:text-emerald-400", icon: CheckCircle2 },
+          { label: "Rejected", count: counts.rejected + counts.processed, cls: "text-rose-700 dark:text-rose-400", icon: XCircle },
         ].map(({ label, count, cls, icon: Icon }) => (
           <div
             key={label}
             className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
           >
             <div className="flex items-center justify-between">
-              <p className={`text-2xl font-bold ${cls} dark:text-gray-100`}>{count}</p>
+              <p className={`text-2xl font-bold ${cls}`}>{count}</p>
               <Icon size={20} className={`${cls} opacity-70`} />
             </div>
-            <p className="mt-1 text-xs font-medium text-gray-500">{label}</p>
+            <p className="mt-1 text-xs font-medium text-gray-500 dark:text-gray-400">{label}</p>
           </div>
         ))}
       </div>
 
       {/* Alerts */}
       {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-900/20 dark:text-rose-300">
           {error}
         </div>
       )}
       {success && (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300">
           {success}
         </div>
       )}
@@ -407,14 +372,14 @@ export default function AdminRefunds() {
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => openEdit(refund)}
-                            className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-[#0F766E] bg-[#0F766E]/5 border border-[#0F766E]/20 hover:bg-[#0F766E]/10 transition"
+                            className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-[#0F766E] bg-[#0F766E]/5 border border-[#0F766E]/20 hover:bg-[#0F766E]/10 dark:bg-[#0F766E]/10 dark:border-[#0F766E]/30 dark:hover:bg-[#0F766E]/20 transition"
                             title="Update refund status"
                           >
                             <Pencil size={14} />
                           </button>
                           <button
                             onClick={() => confirmDelete(refund)}
-                            className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition"
+                            className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 dark:bg-rose-900/20 dark:border-rose-800 dark:hover:bg-rose-900/30 dark:text-rose-400 transition"
                             title="Delete refund"
                           >
                             <Trash2 size={14} />
@@ -491,7 +456,7 @@ export default function AdminRefunds() {
               className="space-y-4 p-6"
             >
               {error && (
-                <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-300">
                   {error}
                 </p>
               )}
@@ -564,7 +529,7 @@ export default function AdminRefunds() {
             className="space-y-4 p-6"
           >
             {error && (
-              <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+              <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-300">
                 {error}
               </p>
             )}
@@ -696,6 +661,7 @@ export default function AdminRefunds() {
             ?.slice(-6)
             .toUpperCase() || "this refund"
         }
+        loading={deleting}
       />
     </div>
   );

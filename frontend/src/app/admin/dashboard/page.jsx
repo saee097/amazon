@@ -31,11 +31,11 @@ import { AdminPageSkeleton } from "@/components/ui/skeleton";
 const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 const numberFmt = new Intl.NumberFormat("en-US");
 const statusStyles = {
-  pending: "bg-amber-50 text-amber-800 ring-amber-200",
-  processing: "bg-sky-50 text-sky-800 ring-sky-200",
-  shipped: "bg-violet-50 text-violet-800 ring-violet-200",
-  delivered: "bg-emerald-50 text-emerald-800 ring-emerald-200",
-  cancelled: "bg-rose-50 text-rose-800 ring-rose-200",
+  pending: "bg-amber-50 text-amber-800 ring-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:ring-amber-800",
+  processing: "bg-sky-50 text-sky-800 ring-sky-200 dark:bg-sky-900/20 dark:text-sky-400 dark:ring-sky-800",
+  shipped: "bg-violet-50 text-violet-800 ring-violet-200 dark:bg-violet-900/20 dark:text-violet-400 dark:ring-violet-800",
+  delivered: "bg-emerald-50 text-emerald-800 ring-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:ring-emerald-800",
+  cancelled: "bg-rose-50 text-rose-800 ring-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:ring-rose-800",
 };
 const statusBars = {
   pending: "bg-amber-500",
@@ -61,7 +61,7 @@ function DeltaPill({ value }) {
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
-        positive ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
+        positive ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400" : "bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400"
       }`}
     >
       <Icon size={11} />
@@ -72,22 +72,23 @@ function DeltaPill({ value }) {
 }
 
 function StatCard({ label, value, detail, href, icon: Icon, tone, delta }) {
+  const [toneBg, toneText, toneBgDark, toneTextDark] = tone.split(" ");
   return (
     <Link
       href={href}
-      className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5  transition  hover:border-gray-300 "
+      className={`group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 transition hover:border-gray-300 dark:bg-gray-800 dark:border-gray-700 ${toneBg} ${toneText} ${toneBgDark} ${toneTextDark}`}
     >
-      <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-gradient-to-br from-transparent to-gray-50 opacity-60 transition group-hover:scale-110" />
+      <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-gradient-to-br from-transparent to-gray-50 opacity-60 transition group-hover:scale-110 dark:from-transparent dark:to-gray-800" />
       <div className="relative flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">{label}</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{label}</p>
             {typeof delta === "number" && <DeltaPill value={delta} />}
           </div>
-          <p className="mt-2 text-2xl font-bold tracking-tight text-gray-700">{value}</p>
-          <p className="mt-1 text-xs text-gray-500">{detail}</p>
+          <p className="mt-2 text-2xl font-bold tracking-tight text-gray-700 dark:text-gray-100">{value}</p>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{detail}</p>
         </div>
-        <span className={`flex h-11 w-11 shrink-0 border border-gray-200 items-center justify-center rounded-xl ${tone} `}>
+        <span className={`flex h-11 w-11 shrink-0 border border-gray-200 items-center justify-center rounded-xl ${toneBg} ${toneText} ${toneBgDark} ${toneTextDark}`}>
           <Icon size={20} aria-hidden="true" />
         </span>
       </div>
@@ -142,9 +143,9 @@ export default function AdminDashboard() {
 
   if (error && !overview) {
     return (
-      <div className="mx-auto max-w-xl rounded-xl border border-rose-200 bg-rose-50 p-6">
-        <h1 className="text-lg font-semibold text-rose-950">Dashboard unavailable</h1>
-        <p className="mt-2 text-sm text-rose-800">{error}</p>
+      <div className="mx-auto max-w-xl rounded-xl border border-rose-200 bg-rose-50 p-6 dark:border-rose-800 dark:bg-rose-900/20">
+        <h1 className="text-lg font-semibold text-rose-950 dark:text-rose-100">Dashboard unavailable</h1>
+        <p className="mt-2 text-sm text-rose-800 dark:text-rose-300">{error}</p>
         <button
           onClick={() => loadOverview()}
           className="mt-4 inline-flex items-center gap-2 rounded-xl bg-rose-700 px-4 py-2 text-sm font-medium text-white hover:bg-rose-800"
@@ -166,7 +167,7 @@ export default function AdminDashboard() {
       detail: "Last 7 days · excl. cancelled",
       href: "/admin/analytics",
       icon: BadgeDollarSign,
-      tone: "bg-emerald-50 text-emerald-700",
+      tone: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400",
       delta: stats.deltas?.grossSales ?? 0,
     },
     {
@@ -175,7 +176,7 @@ export default function AdminDashboard() {
       detail: "Created in the last 7 days",
       href: "/admin/orders",
       icon: ShoppingBag,
-      tone: "bg-sky-50 text-sky-700",
+      tone: "bg-sky-50 text-sky-700 dark:bg-sky-900/20 dark:text-sky-400",
       delta: stats.deltas?.totalOrders ?? 0,
     },
     {
@@ -184,7 +185,7 @@ export default function AdminDashboard() {
       detail: "Active customer profiles",
       href: "/admin/customers",
       icon: Users,
-      tone: "bg-indigo-50 text-indigo-700",
+      tone: "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400",
       delta: stats.deltas?.totalCustomers ?? 0,
     },
     {
@@ -193,7 +194,7 @@ export default function AdminDashboard() {
       detail: "Variants below 10 units",
       href: "/admin/inventory",
       icon: AlertTriangle,
-      tone: "bg-amber-50 text-amber-700",
+      tone: "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400",
       delta: stats.deltas?.lowStockCount ?? 0,
     },
   ];
@@ -205,7 +206,7 @@ export default function AdminDashboard() {
       detail: "Revenue per order · 7d",
       href: "/admin/analytics",
       icon: DollarSign,
-      tone: "bg-emerald-50 text-emerald-700",
+      tone: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400",
       delta: stats.deltas?.averageOrderValue ?? 0,
     },
     {
@@ -214,7 +215,7 @@ export default function AdminDashboard() {
       detail: "Awaiting approval",
       href: "/admin/returns",
       icon: RotateCcw,
-      tone: "bg-rose-50 text-rose-700",
+      tone: "bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400",
       delta: stats.deltas?.pendingReturns ?? 0,
     },
     {
@@ -223,7 +224,7 @@ export default function AdminDashboard() {
       detail: "To be processed",
       href: "/admin/refunds",
       icon: CreditCard,
-      tone: "bg-violet-50 text-violet-700",
+      tone: "bg-violet-50 text-violet-700 dark:bg-violet-900/20 dark:text-violet-400",
       delta: stats.deltas?.pendingRefunds ?? 0,
     },
     {
@@ -232,7 +233,7 @@ export default function AdminDashboard() {
       detail: "Listed on storefront",
       href: "/admin/products",
       icon: Package,
-      tone: "bg-amber-50 text-amber-700",
+      tone: "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400",
       delta: stats.deltas?.totalProducts ?? 0,
     },
   ];
@@ -246,34 +247,34 @@ export default function AdminDashboard() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <div className="flex flex-col gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-end sm:justify-between dark:border-gray-700">
         <div>
           <p className="flex items-center gap-2 text-sm font-medium text-[#0F766E]">
             <Activity size={14} /> Operations overview
           </p>
-          <h1 className="mt-1 text-2xl font-bold text-gray-700 sm:text-3xl">
+          <h1 className="mt-1 text-2xl font-bold text-gray-700 dark:text-gray-100 sm:text-3xl">
             Good day, {user?.first_name || "Admin"}
           </h1>
-          <p className="mt-1 flex items-center gap-2 text-sm text-gray-500">
+          <p className="mt-1 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <Calendar size={13} /> {todayLabel} · Live store performance for the last 7 days.
           </p>
         </div>
         <div className="flex items-center gap-3">
           {error && (
-            <span className="inline-flex items-center gap-1 text-sm text-rose-700">
+            <span className="inline-flex items-center gap-1 text-sm text-rose-700 dark:text-rose-400">
               <AlertTriangle size={14} /> {error}
             </span>
           )}
           <button
             onClick={() => loadOverview(true)}
             disabled={refreshing}
-            className="inline-flex h-9 items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700  hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-9 items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
           >
             <RefreshCw size={15} className={refreshing ? "animate-spin" : ""} /> Refresh
           </button>
           <Link
             href="/admin/analytics"
-            className="inline-flex h-9 items-center gap-2 rounded-xl bg-[#0F766E] px-3 text-sm font-semibold text-white  hover:bg-[#0F766E]/90"
+            className="inline-flex h-9 items-center gap-2 rounded-xl bg-[#0F766E] px-3 text-sm font-semibold text-white hover:bg-[#0F766E]/90"
           >
             <Eye size={15} /> Full report
           </Link>
@@ -293,11 +294,11 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-5">
-        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white  lg:col-span-3">
-          <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white lg:col-span-3 dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
-              <h2 className="text-base font-semibold text-gray-700">Revenue trend</h2>
-              <p className="mt-1 text-sm text-gray-500">Daily sales excluding cancelled orders.</p>
+              <h2 className="text-base font-semibold text-gray-700 dark:text-gray-100">Revenue trend</h2>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Daily sales excluding cancelled orders.</p>
             </div>
             <Link
               href="/admin/analytics"
@@ -307,7 +308,7 @@ export default function AdminDashboard() {
             </Link>
           </div>
           <div className="px-6 py-6">
-            <div className="grid h-56 grid-cols-7 items-end gap-3 border-b border-gray-200">
+            <div className="grid h-56 grid-cols-7 items-end gap-3 border-b border-gray-200 dark:border-gray-700">
               {dailyRevenue.map((point) => (
                 <div key={point.date} className="group flex h-full min-w-0 flex-col justify-end">
                   <div
@@ -332,11 +333,11 @@ export default function AdminDashboard() {
           </div>
         </section>
 
-        <section className="rounded-xl border border-gray-200 bg-white  lg:col-span-2">
-          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+        <section className="rounded-xl border border-gray-200 bg-white lg:col-span-2 dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
-              <h2 className="text-base font-semibold text-gray-700">Order pipeline</h2>
-              <p className="mt-1 text-sm text-gray-500">Orders created this week.</p>
+              <h2 className="text-base font-semibold text-gray-700 dark:text-gray-100">Order pipeline</h2>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Orders created this week.</p>
             </div>
             <ClipboardList size={18} className="text-gray-400" />
           </div>
@@ -344,10 +345,10 @@ export default function AdminDashboard() {
             {statusCounts.map((item) => (
               <div key={item.status}>
                 <div className="mb-1.5 flex justify-between text-sm">
-                  <span className="capitalize text-gray-700">{item.status}</span>
-                  <span className="font-semibold text-gray-700">{numberFmt.format(item.count)}</span>
+                  <span className="capitalize text-gray-700 dark:text-gray-300">{item.status}</span>
+                  <span className="font-semibold text-gray-700 dark:text-gray-300">{numberFmt.format(item.count)}</span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+                <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
                   <div
                     className={`h-full rounded-full ${statusBars[item.status]}`}
                     style={{ width: `${(item.count / totalStatuses) * 100}%` }}
@@ -355,11 +356,11 @@ export default function AdminDashboard() {
                 </div>
               </div>
             ))}
-            <div className="mt-4 grid grid-cols-3 gap-3 border-t border-gray-200 pt-4">
+            <div className="mt-4 grid grid-cols-3 gap-3 border-t border-gray-200 pt-4 dark:border-gray-700">
               {statusCounts.slice(0, 3).map((item) => (
                 <div key={item.status} className="text-center">
-                  <p className="text-lg font-bold text-gray-700">{item.count}</p>
-                  <p className="text-[10px] uppercase tracking-wider text-gray-500">{item.status}</p>
+                  <p className="text-lg font-bold text-gray-700 dark:text-gray-300">{item.count}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400">{item.status}</p>
                 </div>
               ))}
             </div>
@@ -368,11 +369,11 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white ">
-          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
-              <h2 className="text-base font-semibold text-gray-700">Recent orders</h2>
-              <p className="mt-1 text-sm text-gray-500">Newest orders across the store.</p>
+              <h2 className="text-base font-semibold text-gray-700 dark:text-gray-100">Recent orders</h2>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Newest orders across the store.</p>
             </div>
             <Link href="/admin/orders" className="text-sm font-medium text-[#0F766E] hover:underline">
               View all
@@ -380,13 +381,13 @@ export default function AdminDashboard() {
           </div>
           {recentOrders.length === 0 ? (
             <div className="px-6 py-12 text-center">
-              <ShoppingBag className="mx-auto text-gray-300" size={28} />
-              <p className="mt-3 text-sm text-gray-500">No orders have been created in this period.</p>
+              <ShoppingBag className="mx-auto text-gray-300 dark:text-gray-600" size={28} />
+              <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">No orders have been created in this period.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
+                <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                   <tr>
                     <th className="px-6 py-3 font-semibold">Order</th>
                     <th className="px-6 py-3 font-semibold">Customer</th>
@@ -394,22 +395,22 @@ export default function AdminDashboard() {
                     <th className="px-6 py-3 font-semibold">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                   {recentOrders.map((order) => (
-                    <tr key={order._id} className="hover:bg-gray-50/60">
+                    <tr key={order._id} className="hover:bg-gray-50/60 dark:hover:bg-gray-700/30">
                       <td className="px-6 py-3">
                         <Link
                           href={`/admin/orders/${order._id}`}
-                          className="font-semibold text-gray-700 hover:text-[#0F766E]"
+                          className="font-semibold text-gray-700 dark:text-gray-300 hover:text-[#0F766E]"
                         >
                           {order.order_number}
                         </Link>
-                        <p className="mt-0.5 text-xs text-gray-500">{formatDate(order.created_at)}</p>
+                        <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{formatDate(order.created_at)}</p>
                       </td>
-                      <td className="px-6 py-3 text-gray-700">
+                      <td className="px-6 py-3 text-gray-700 dark:text-gray-300">
                         {order.customer?.name || order.customer?.email || "Guest"}
                       </td>
-                      <td className="px-6 py-3 font-semibold text-gray-700">{currency.format(order.total)}</td>
+                      <td className="px-6 py-3 font-semibold text-gray-700 dark:text-gray-300">{currency.format(order.total)}</td>
                       <td className="px-6 py-3">
                         <span
                           className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${
@@ -428,11 +429,11 @@ export default function AdminDashboard() {
           )}
         </section>
 
-        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white ">
-          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
-              <h2 className="text-base font-semibold text-gray-700">Inventory attention</h2>
-              <p className="mt-1 text-sm text-gray-500">Variants with fewer than 10 units.</p>
+              <h2 className="text-base font-semibold text-gray-700 dark:text-gray-100">Inventory attention</h2>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Variants with fewer than 10 units.</p>
             </div>
             <Link href="/admin/inventory" className="text-sm font-medium text-[#0F766E] hover:underline">
               Open inventory
@@ -441,35 +442,35 @@ export default function AdminDashboard() {
           {lowStock.length === 0 ? (
             <div className="px-6 py-12 text-center">
               <Boxes className="mx-auto text-emerald-500" size={28} />
-              <p className="mt-3 text-sm text-gray-500">No low-stock variants need attention.</p>
+              <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">No low-stock variants need attention.</p>
             </div>
           ) : (
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-gray-100 dark:divide-gray-700">
               {lowStock.map((variant) => (
                 <li
                   key={variant._id}
-                  className="flex items-center justify-between gap-4 px-6 py-3 hover:bg-gray-50/60"
+                  className="flex items-center justify-between gap-4 px-6 py-3 hover:bg-gray-50/60 dark:hover:bg-gray-700/30"
                 >
                   <div className="min-w-0 flex items-center gap-3">
                     <span
                       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-                        variant.inventory_quantity <= 0 ? "bg-rose-50 text-rose-600" : "bg-amber-50 text-amber-600"
+                        variant.inventory_quantity <= 0 ? "bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400" : "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400"
                       }`}
                     >
                       <Boxes size={16} />
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-gray-700">
+                      <p className="truncate text-sm font-semibold text-gray-700 dark:text-gray-300">
                         {variant.product?.title || "Deleted product"}
                       </p>
-                      <p className="mt-0.5 truncate text-xs text-gray-500">
+                      <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
                         {[variant.size, variant.color, variant.sku].filter(Boolean).join(" · ")}
                       </p>
                     </div>
                   </div>
                   <span
                     className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                      variant.inventory_quantity <= 0 ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-700"
+                      variant.inventory_quantity <= 0 ? "bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400" : "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"
                     }`}
                   >
                     {variant.inventory_quantity} units
@@ -482,11 +483,11 @@ export default function AdminDashboard() {
       </div>
 
       {recentCustomers && recentCustomers.length > 0 && (
-        <section className="rounded-xl border border-gray-200 bg-white ">
-          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+        <section className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
-              <h2 className="text-base font-semibold text-gray-700">New Customers</h2>
-              <p className="mt-1 text-sm text-gray-500">Recently registered customers.</p>
+              <h2 className="text-base font-semibold text-gray-700 dark:text-gray-100">New Customers</h2>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Recently registered customers.</p>
             </div>
             <Link href="/admin/customers" className="text-sm font-medium text-[#0F766E] hover:underline">
               View all
@@ -494,7 +495,7 @@ export default function AdminDashboard() {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
+              <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                 <tr>
                   <th className="px-6 py-3 font-semibold">Name</th>
                   <th className="px-6 py-3 font-semibold">Email</th>
@@ -502,12 +503,12 @@ export default function AdminDashboard() {
                   <th className="px-6 py-3 font-semibold">Joined</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                 {recentCustomers.map((customer) => (
-                  <tr key={customer._id} className="hover:bg-gray-50/60">
+                  <tr key={customer._id} className="hover:bg-gray-50/60 dark:hover:bg-gray-700/30">
                   <td className="px-6 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-gray-100 flex items-center justify-center">
+                      <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-gray-100 flex items-center justify-center dark:bg-gray-700">
                         {customer.avatarUrl ? (
                           <img
                             src={customer.avatarUrl}
@@ -522,19 +523,19 @@ export default function AdminDashboard() {
                           />
                         ) : null}
                         {!customer.avatarUrl && (
-                          <span className="text-xs font-bold text-gray-500">
+                          <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
                             {(customer.firstName || customer.email || "?").charAt(0).toUpperCase()}
                           </span>
                         )}
                       </div>
-                      <span className="font-medium text-gray-700">
+                      <span className="font-medium text-gray-700 dark:text-gray-300">
                         {`${customer.firstName || ""} ${customer.lastName || ""}`.trim() || customer.email}
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-3 text-gray-700">{customer.email}</td>
-                  <td className="px-6 py-3 text-gray-700">{customer.phone || "-"}</td>
-                  <td className="px-6 py-3 text-gray-500">{formatDate(customer.created_at)}</td>
+                  <td className="px-6 py-3 text-gray-700 dark:text-gray-300">{customer.email}</td>
+                  <td className="px-6 py-3 text-gray-700 dark:text-gray-300">{customer.phone || "-"}</td>
+                  <td className="px-6 py-3 text-gray-500 dark:text-gray-400">{formatDate(customer.created_at)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -544,11 +545,11 @@ export default function AdminDashboard() {
       )}
 
       {recentBanners && recentBanners.length > 0 && (
-        <section className="rounded-xl border border-gray-200 bg-white ">
-          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+        <section className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
-              <h2 className="text-base font-semibold text-gray-700">Recent Banners</h2>
-              <p className="mt-1 text-sm text-gray-500">Latest banners shown on the storefront.</p>
+              <h2 className="text-base font-semibold text-gray-700 dark:text-gray-100">Recent Banners</h2>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Latest banners shown on the storefront.</p>
             </div>
             <Link href="/admin/banners" className="text-sm font-medium text-[#0F766E] hover:underline">
               Manage banners
@@ -556,7 +557,7 @@ export default function AdminDashboard() {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
+              <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">
                 <tr>
                   <th className="px-6 py-3 font-semibold">Image</th>
                   <th className="px-6 py-3 font-semibold">Heading</th>
@@ -565,32 +566,32 @@ export default function AdminDashboard() {
                   <th className="px-6 py-3 font-semibold">Created</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                 {recentBanners.map((banner) => (
-                  <tr key={banner._id} className="hover:bg-gray-50/60">
+                  <tr key={banner._id} className="hover:bg-gray-50/60 dark:hover:bg-gray-700/30">
                     <td className="px-6 py-3">
                       {banner.image ? (
                         <img
                           src={banner.image}
                           alt={banner.heading || "Banner"}
-                          className="h-10 w-16 object-cover rounded border border-gray-200"
+                          className="h-10 w-16 object-cover rounded border border-gray-200 dark:border-gray-600"
                         />
                       ) : (
-                        <span className="text-gray-300">—</span>
+                        <span className="text-gray-300 dark:text-gray-600">—</span>
                       )}
                     </td>
-                    <td className="px-6 py-3 font-medium text-gray-700">{banner.heading || "—"}</td>
-                    <td className="px-6 py-3 text-gray-500">{banner.subheading || "—"}</td>
+                    <td className="px-6 py-3 font-medium text-gray-700 dark:text-gray-300">{banner.heading || "—"}</td>
+                    <td className="px-6 py-3 text-gray-500 dark:text-gray-400">{banner.subheading || "—"}</td>
                     <td className="px-6 py-3">
                       <span
                         className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                          banner.status === "active" ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-600"
+                          banner.status === "active" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400" : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
                         }`}
                       >
                         {banner.status || "Inactive"}
                       </span>
                     </td>
-                    <td className="px-6 py-3 text-gray-500">{formatDate(banner.created_at)}</td>
+                    <td className="px-6 py-3 text-gray-500 dark:text-gray-400">{formatDate(banner.created_at)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -600,44 +601,44 @@ export default function AdminDashboard() {
       )}
 
       <div className="grid gap-6 lg:grid-cols-5">
-        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white  lg:col-span-3">
-          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white lg:col-span-3 dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
-              <h2 className="text-base font-semibold text-gray-700">Top products</h2>
-              <p className="mt-1 text-sm text-gray-500">Ranked by all-time order-item revenue.</p>
+              <h2 className="text-base font-semibold text-gray-700 dark:text-gray-100">Top products</h2>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Ranked by all-time order-item revenue.</p>
             </div>
             <Package size={18} className="text-gray-400" />
           </div>
           {topProducts.length === 0 ? (
-            <div className="px-6 py-12 text-center text-sm text-gray-500">
+            <div className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
               Product performance will appear after orders are placed.
             </div>
           ) : (
-            <ol className="divide-y divide-gray-100">
+            <ol className="divide-y divide-gray-100 dark:divide-gray-700">
               {topProducts.map((product, index) => (
-                <li key={product._id} className="flex items-center justify-between gap-3 px-6 py-3 hover:bg-gray-50/60">
+                <li key={product._id} className="flex items-center justify-between gap-3 px-6 py-3 hover:bg-gray-50/60 dark:hover:bg-gray-700/30">
                   <div className="flex min-w-0 items-center gap-3">
                     <span
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${
                         index === 0
-                          ? "bg-amber-100 text-amber-700"
+                          ? "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"
                           : index === 1
-                          ? "bg-slate-100 text-slate-700"
+                          ? "bg-slate-100 text-slate-700 dark:bg-slate-900/20 dark:text-slate-400"
                           : index === 2
-                          ? "bg-orange-100 text-orange-700"
-                          : "bg-gray-100 text-gray-700"
+                          ? "bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400"
+                          : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
                       }`}
                     >
                       {index === 0 ? <Star size={13} /> : index + 1}
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-gray-700">{product.title}</p>
-                      <p className="text-xs text-gray-500">{numberFmt.format(product.units)} units sold</p>
+                      <p className="truncate text-sm font-semibold text-gray-700 dark:text-gray-300">{product.title}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{numberFmt.format(product.units)} units sold</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <MiniSpark value={(product.revenue / 1000) % 30} />
-                    <span className="text-sm font-bold text-gray-700">{currency.format(product.revenue)}</span>
+                    <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{currency.format(product.revenue)}</span>
                   </div>
                 </li>
               ))}
@@ -645,30 +646,30 @@ export default function AdminDashboard() {
           )}
         </section>
 
-        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white  lg:col-span-2">
-          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white lg:col-span-2 dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
-              <h2 className="text-base font-semibold text-gray-700">Activity</h2>
-              <p className="mt-1 text-sm text-gray-500">Recent audited actions.</p>
+              <h2 className="text-base font-semibold text-gray-700 dark:text-gray-100">Activity</h2>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Recent audited actions.</p>
             </div>
             <Link href="/admin/logs" className="text-sm font-medium text-[#0F766E] hover:underline">
               Logs
             </Link>
           </div>
           {activity.length === 0 ? (
-            <div className="px-6 py-12 text-center text-sm text-gray-500">No activity has been recorded yet.</div>
+            <div className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">No activity has been recorded yet.</div>
           ) : (
-            <ol className="divide-y divide-gray-100">
+            <ol className="divide-y divide-gray-100 dark:divide-gray-700">
               {activity.map((entry) => (
-                <li key={entry._id} className="flex gap-3 px-6 py-3 hover:bg-gray-50/60">
+                <li key={entry._id} className="flex gap-3 px-6 py-3 hover:bg-gray-50/60 dark:hover:bg-gray-700/30">
                   <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#0F766E]" />
                   <div className="min-w-0">
-                    <p className="text-sm text-gray-800">
+                    <p className="text-sm text-gray-800 dark:text-gray-200">
                       <span className="font-semibold">{entry.actor}</span>{" "}
                       {entry.action.replaceAll("_", " ")}
                       {entry.resource ? ` in ${entry.resource}` : ""}
                     </p>
-                    <p className="mt-0.5 text-xs text-gray-500">{formatDate(entry.created_at)}</p>
+                    <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{formatDate(entry.created_at)}</p>
                   </div>
                 </li>
               ))}
@@ -677,53 +678,53 @@ export default function AdminDashboard() {
         </section>
       </div>
 
-      <section className="grid gap-4 rounded-xl border border-gray-200 bg-white p-6  sm:grid-cols-4">
+      <section className="grid gap-4 rounded-xl border border-gray-200 bg-white p-6 sm:grid-cols-4 dark:border-gray-700 dark:bg-gray-800">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">
             <DollarSign size={18} />
           </span>
           <div>
-            <p className="text-xs uppercase text-gray-500">Avg. order value</p>
-            <p className="text-lg font-bold text-gray-700">{currency.format(stats.averageOrderValue)}</p>
+            <p className="text-xs uppercase text-gray-500 dark:text-gray-400">Avg. order value</p>
+            <p className="text-lg font-bold text-gray-700 dark:text-gray-300">{currency.format(stats.averageOrderValue)}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-700">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400">
             <RotateCcw size={18} />
           </span>
           <div>
-            <p className="text-xs uppercase text-gray-500">Pending returns</p>
+            <p className="text-xs uppercase text-gray-500 dark:text-gray-400">Pending returns</p>
             <Link
               href="/admin/returns"
-              className="text-lg font-bold text-gray-700 hover:text-[#0F766E]"
+              className="text-lg font-bold text-gray-700 dark:text-gray-300 hover:text-[#0F766E]"
             >
               {numberFmt.format(stats.pendingReturns)}
             </Link>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-700">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-700 dark:bg-violet-900/20 dark:text-violet-400">
             <CreditCard size={18} />
           </span>
           <div>
-            <p className="text-xs uppercase text-gray-500">Pending refunds</p>
+            <p className="text-xs uppercase text-gray-500 dark:text-gray-400">Pending refunds</p>
             <Link
               href="/admin/refunds"
-              className="text-lg font-bold text-gray-700 hover:text-[#0F766E]"
+              className="text-lg font-bold text-gray-700 dark:text-gray-300 hover:text-[#0F766E]"
             >
               {numberFmt.format(stats.pendingRefunds)}
             </Link>
           </div>
         </div>
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-700 dark:bg-sky-900/20 dark:text-sky-400">
               <Truck size={18} />
             </span>
             <div>
-              <p className="text-xs uppercase text-gray-500">Orders this week</p>
+              <p className="text-xs uppercase text-gray-500 dark:text-gray-400">Orders this week</p>
               <Link
                 href="/admin/orders"
-                className="text-lg font-bold text-gray-700 hover:text-[#0F766E]"
+                className="text-lg font-bold text-gray-700 dark:text-gray-300 hover:text-[#0F766E]"
               >
                 {numberFmt.format(stats.totalOrders ?? 0)}
               </Link>

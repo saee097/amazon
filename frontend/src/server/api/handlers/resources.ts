@@ -85,8 +85,12 @@ if (method === "POST" && !id) {
 
   if (method === "POST" && !id) {
     const body = await request.json();
+    console.log("[brands] Insert payload:", JSON.stringify(body));
     const { data, error } = await supabase.from(table).insert(body).select().single();
-    if (error) return jsonError(error.message, 400);
+    if (error) {
+      console.error("[brands] Insert error:", JSON.stringify(error, null, 2));
+      return jsonError(error.message, 400);
+    }
     return jsonOk(toMongoId(data), 201);
   }
 

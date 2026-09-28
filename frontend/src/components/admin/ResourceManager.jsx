@@ -18,6 +18,7 @@ import api from "@/lib/api";
 import { upload } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
 import { SkeletonTable } from "@/components/ui/skeleton";
+import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
 
 function getDefaults(fields) {
   const defaults = {};
@@ -259,6 +260,8 @@ export default function ResourceManager({
   const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteItemName, setDeleteItemName] = useState("");
   const [draggedId, setDraggedId] = useState(null);
   const [dragOverId, setDragOverId] = useState(null);
 
@@ -338,11 +341,16 @@ export default function ResourceManager({
     }
   };
 
-  const remove = async (id) => {
-    if (!confirm("Are you sure you want to delete this record?")) return;
+  const remove = (id, itemName) => {
     setDeletingId(id);
+    setDeleteItemName(itemName || "this record");
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingId) return;
     try {
-      await api.delete(`${endpoint}/${id}`);
+      await api.delete(`${endpoint}/${deletingId}`);
       toast.success(`${title} deleted successfully`);
       await load();
     } catch (err) {
@@ -350,6 +358,8 @@ export default function ResourceManager({
       toast.error("Failed to delete.");
     } finally {
       setDeletingId(null);
+      setDeleteConfirmOpen(false);
+      setDeleteItemName("");
     }
   };
 
@@ -571,7 +581,7 @@ export default function ResourceManager({
                           </button>
                         )}
                         <button
-                          onClick={() => remove(item._id)}
+                          onClick={() => remove(item._id, item.heading || item.title || item.name || item.code || "this record")}
                           disabled={deletingId === item._id}
                           title="Delete"
                           className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition disabled:opacity-50"
@@ -727,6 +737,19 @@ export default function ResourceManager({
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        open={deleteConfirmOpen}
+        onClose={() => {
+          setDeleteConfirmOpen(false);
+          setDeletingId(null);
+          setDeleteItemName("");
+        }}
+        onConfirm={handleDeleteConfirm}
+        itemName={deleteItemName}
+        loading={!!deletingId}
+      />
 
       <style jsx>{`
         @keyframes scale-in {

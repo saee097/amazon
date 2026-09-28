@@ -109,13 +109,13 @@ export default function AdminLogsPage() {
 
   const getActionBadgeColor = (action) => {
     switch (action?.toLowerCase()) {
-      case "create": return "bg-green-100 text-green-800";
+      case "create": return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
       case "update":
-      case "edit": return "bg-blue-100 text-blue-800";
-      case "delete": return "bg-red-100 text-red-800";
-      case "login": return "bg-purple-100 text-purple-800";
-      case "logout": return "bg-gray-100 text-gray-800";
-      default: return "bg-yellow-100 text-yellow-800";
+      case "edit": return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
+      case "delete": return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
+      case "login": return "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400";
+      case "logout": return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+      default: return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400";
     }
   };
 
@@ -205,7 +205,7 @@ export default function AdminLogsPage() {
           </div>
 
           {error && (
-            <div className="bg-red-50 text-red-700 border border-red-200 rounded-lg px-4 py-3">
+            <div className="bg-red-50 text-red-700 border border-red-200 rounded-lg px-4 py-3 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800">
               {error}
             </div>
           )}

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
 import { AdminPageSkeleton } from "@/components/ui/skeleton";
+import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
 import {
   Search,
   RefreshCw,
@@ -12,7 +13,6 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  AlertTriangle,
   Save,
   Clock,
   CheckCircle2,
@@ -60,54 +60,6 @@ function ReturnStatusBadge({ status }) {
   );
 }
 
-function DeleteConfirmDialog({ open, onClose, onConfirm, itemName }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-800">
-        <div className="flex items-start gap-4 p-6">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
-            <AlertTriangle size={20} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Delete return request?
-            </h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              This action cannot be undone. The return for order{" "}
-              <strong className="font-medium">{itemName}</strong> will be
-              permanently removed.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
-          <button
-            onClick={onClose}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function formatDate(value) {
-  if (!value) return "-";
-  return new Date(value).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
 export default function AdminReturns() {
   const [returns, setReturns] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -125,6 +77,7 @@ export default function AdminReturns() {
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = useCallback(async (isRefresh = false) => {
     isRefresh ? setRefreshing(true) : setLoading(true);
@@ -186,6 +139,7 @@ export default function AdminReturns() {
 
   const handleDelete = async () => {
     if (!deletingId) return;
+    setDeleting(true);
     try {
       await api.delete(`/admin/returns/${deletingId}`);
       setReturns((prev) => prev.filter((r) => r._id !== deletingId));
@@ -193,6 +147,7 @@ export default function AdminReturns() {
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to delete return.");
     } finally {
+      setDeleting(false);
       setDeleteConfirmOpen(false);
       setDeletingId(null);
     }
@@ -496,6 +451,7 @@ export default function AdminReturns() {
             ?.slice(-6)
             .toUpperCase() || "this return request"
         }
+        loading={deleting}
       />
     </div>
   );

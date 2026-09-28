@@ -41,7 +41,7 @@ function DeltaBadge({ value }) {
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
-        pos ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
+        pos ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400" : "bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400"
       }`}
     >
       <Icon size={11} />
@@ -52,21 +52,22 @@ function DeltaBadge({ value }) {
 }
 
 function KpiCard({ label, value, detail, href, icon: Icon, tone, delta }) {
+  const [toneBg, toneText, toneBgDark, toneTextDark] = tone.split(" ");
   return (
     <Link
       href={href}
-      className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5  transition  hover:border-gray-300 dark:bg-gray-800"
+      className={`group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 transition hover:border-gray-300 dark:bg-gray-800 dark:border-gray-700 ${toneBg} ${toneText} ${toneBgDark} ${toneTextDark}`}
     >
       <div className="relative flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">{label}</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{label}</p>
             {typeof delta === "number" && <DeltaBadge value={delta} />}
           </div>
           <p className="mt-2 text-2xl font-bold text-gray-700 dark:text-gray-100">{value}</p>
-          <p className="mt-1 text-xs text-gray-400">{detail}</p>
+          <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">{detail}</p>
         </div>
-        <span className={`flex h-11 w-11 shrink-0 items-center border-gray-200 border justify-center rounded-xl ${tone} `}>
+        <span className={`flex h-11 w-11 shrink-0 items-center border-gray-200 border justify-center rounded-xl ${toneBg} ${toneText} ${toneBgDark} ${toneTextDark}`}>
           <Icon size={20} aria-hidden="true" />
         </span>
       </div>
@@ -102,9 +103,9 @@ export default function AdminAnalytics() {
 
   if (error && !overview) {
     return (
-      <div className="mx-auto max-w-xl rounded-xl border border-rose-200 bg-rose-50 p-6">
-        <h1 className="text-lg font-semibold text-rose-950">Analytics unavailable</h1>
-        <p className="mt-2 text-sm text-rose-800">{error}</p>
+      <div className="mx-auto max-w-xl rounded-xl border border-rose-200 bg-rose-50 p-6 dark:border-rose-800 dark:bg-rose-900/20">
+        <h1 className="text-lg font-semibold text-rose-950 dark:text-rose-100">Analytics unavailable</h1>
+        <p className="mt-2 text-sm text-rose-800 dark:text-rose-300">{error}</p>
         <button
           onClick={() => load()}
           className="mt-4 inline-flex items-center gap-2 rounded-lg bg-rose-700 px-4 py-2 text-sm font-medium text-white hover:bg-rose-800"
@@ -141,7 +142,7 @@ export default function AdminAnalytics() {
       detail: "Last 7 days · excl. cancelled",
       href: "/admin/orders",
       icon: DollarSign,
-      tone: "bg-emerald-50 text-emerald-700",
+      tone: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400",
       delta: 12.4,
     },
     {
@@ -150,7 +151,7 @@ export default function AdminAnalytics() {
       detail: "Orders in the last 7 days",
       href: "/admin/orders",
       icon: ShoppingBag,
-      tone: "bg-sky-50 text-sky-700",
+      tone: "bg-sky-50 text-sky-700 dark:bg-sky-900/20 dark:text-sky-400",
       delta: 8.1,
     },
     {
@@ -159,7 +160,7 @@ export default function AdminAnalytics() {
       detail: "Active customer accounts",
       href: "/admin/customers",
       icon: Users,
-      tone: "bg-indigo-50 text-indigo-700",
+      tone: "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400",
       delta: 3.2,
     },
     {
@@ -168,7 +169,7 @@ export default function AdminAnalytics() {
       detail: "Published on storefront",
       href: "/admin/products",
       icon: Package,
-      tone: "bg-amber-50 text-amber-700",
+      tone: "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400",
       delta: 5.8,
     },
     {
@@ -177,7 +178,7 @@ export default function AdminAnalytics() {
       detail: "Revenue per completed order",
       href: "/admin/orders",
       icon: CreditCard,
-      tone: "bg-violet-50 text-violet-700",
+      tone: "bg-violet-50 text-violet-700 dark:bg-violet-900/20 dark:text-violet-400",
       delta: 4.6,
     },
     {
@@ -186,7 +187,7 @@ export default function AdminAnalytics() {
       detail: "Awaiting approval",
       href: "/admin/returns",
       icon: RotateCcw,
-      tone: "bg-rose-50 text-rose-700",
+      tone: "bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400",
       delta: -1.5,
     },
     {
@@ -195,7 +196,7 @@ export default function AdminAnalytics() {
       detail: "To be processed",
       href: "/admin/refunds",
       icon: CreditCard,
-      tone: "bg-orange-50 text-orange-700",
+      tone: "bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400",
       delta: 0,
     },
     {
@@ -204,7 +205,7 @@ export default function AdminAnalytics() {
       detail: "Variants below 10 units",
       href: "/admin/inventory",
       icon: AlertTriangle,
-      tone: "bg-yellow-50 text-yellow-700",
+      tone: "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400",
       delta: -2.1,
     },
   ];
@@ -423,7 +424,7 @@ export default function AdminAnalytics() {
                   dailyRevenue.map((d) => (
                     <tr key={d.date} className="hover:bg-gray-50 dark:hover:bg-gray-700/30">
                       <td className="px-6 py-3 font-medium text-gray-800 dark:text-gray-200">{d.label}</td>
-                      <td className="px-6 py-3 text-gray-500">{d.date}</td>
+                      <td className="px-6 py-3 text-gray-500 dark:text-gray-400">{d.date}</td>
                       <td className="px-6 py-3 text-right text-gray-700 dark:text-gray-300">{d.orders}</td>
                       <td className="px-6 py-3 text-right font-semibold text-[#0F766E]">
                         {currency(d.revenue)}
@@ -457,15 +458,15 @@ export default function AdminAnalytics() {
         <h2 className="mb-4 text-base font-semibold text-gray-700 dark:text-gray-100">Fulfillment Metrics</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 ">
           {[
-            { label: "Paid Revenue", value: currency(stats?.paidRevenue), sub: "Confirmed payments", tone: "text-emerald-600" },
-            { label: "Avg. Order Value", value: currency(avgOrderValue), sub: "This week", tone: "text-sky-600" },
-            { label: "Pending Returns", value: num(stats?.pendingReturns), sub: "Awaiting action", tone: "text-amber-600" },
-            { label: "Pending Refunds", value: num(stats?.pendingRefunds), sub: "To be processed", tone: "text-rose-600" },
+            { label: "Paid Revenue", value: currency(stats?.paidRevenue), sub: "Confirmed payments", tone: "text-emerald-600 dark:text-emerald-400" },
+            { label: "Avg. Order Value", value: currency(avgOrderValue), sub: "This week", tone: "text-sky-600 dark:text-sky-400" },
+            { label: "Pending Returns", value: num(stats?.pendingReturns), sub: "Awaiting action", tone: "text-amber-600 dark:text-amber-400" },
+            { label: "Pending Refunds", value: num(stats?.pendingRefunds), sub: "To be processed", tone: "text-rose-600 dark:text-rose-400" },
           ].map(({ label, value, sub, tone }) => (
             <div key={label} className="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
-              <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">{label}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">{label}</p>
               <p className={`mt-2 text-2xl font-bold ${tone}`}>{value}</p>
-              <p className="mt-1 text-xs text-gray-400">{sub}</p>
+              <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">{sub}</p>
             </div>
           ))}
         </div>

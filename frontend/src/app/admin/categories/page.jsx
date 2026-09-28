@@ -5,6 +5,7 @@ import Link from "next/link";
 import api from "@/lib/api";
 import StatusBadge from "@/components/StatusBadge";
 import { AdminPageSkeleton } from "@/components/ui/skeleton";
+import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
 import {
   Plus,
   Search,
@@ -15,7 +16,6 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  AlertTriangle,
 } from "lucide-react";
 
 const PAGE_SIZE = 20;
@@ -54,43 +54,6 @@ function CategoryIcon({ image_url, name }) {
   );
 }
 
-function DeleteConfirmDialog({ open, onClose, onConfirm, itemName }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-800">
-        <div className="flex items-start gap-4 p-6">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
-            <AlertTriangle size={20} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Delete category?
-            </h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              This action cannot be undone. The category <strong className="font-medium">"{itemName}"</strong> will be permanently removed, along with any child categories that reference it.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
-          <button
-            onClick={onClose}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white  hover:bg-rose-700"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -109,6 +72,7 @@ export default function AdminCategories() {
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = useCallback(async (isRefresh = false) => {
     isRefresh ? setRefreshing(true) : setLoading(true);
@@ -213,6 +177,7 @@ export default function AdminCategories() {
 
   const handleDelete = async () => {
     if (!deletingId) return;
+    setDeleting(true);
     try {
       await api.delete(`/admin/categories/${deletingId}`);
       setCategories((prev) => prev.filter((c) => c._id !== deletingId));
@@ -220,6 +185,7 @@ export default function AdminCategories() {
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to delete category.");
     } finally {
+      setDeleting(false);
       setDeleteConfirmOpen(false);
       setDeletingId(null);
     }
@@ -524,6 +490,7 @@ export default function AdminCategories() {
         onClose={() => setDeleteConfirmOpen(false)}
         onConfirm={handleDelete}
         itemName={categories.find((c) => c._id === deletingId)?.category_name || "this category"}
+        loading={deleting}
       />
     </div>
   );

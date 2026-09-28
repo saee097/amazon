@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
 import StatusBadge from "@/components/StatusBadge";
 import { ToastProvider, useToast } from "@/components/ui/Toast";
+import { AdminPageSkeleton } from "@/components/ui/skeleton";
+import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
 import {
   Plus,
   Search,
@@ -13,11 +15,9 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  AlertTriangle,
   Loader2,
   HelpCircle,
 } from "lucide-react";
-import { AdminPageSkeleton } from "@/components/ui/skeleton";
 
 const PAGE_SIZE = 20;
 
@@ -28,43 +28,6 @@ const EMPTY_FORM = {
   sort_order: 0,
   status: "active",
 };
-
-function DeleteConfirmDialog({ open, onClose, onConfirm, itemName }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-800">
-        <div className="flex items-start gap-4 p-6">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
-            <AlertTriangle size={20} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Delete FAQ?
-            </h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              This action cannot be undone. The FAQ <strong className="font-medium">\&quot;{itemName}\&quot;</strong> will be permanently removed.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
-          <button
-            onClick={onClose}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function AdminFaqsPage() {
   const toast = useToast();
@@ -87,6 +50,7 @@ export default function AdminFaqsPage() {
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = useCallback(async (isRefresh = false) => {
     isRefresh ? setRefreshing(true) : setLoading(true);
@@ -205,6 +169,7 @@ export default function AdminFaqsPage() {
 
   const handleDelete = async () => {
     if (!deletingId) return;
+    setDeleting(true);
     try {
       await api.delete(`/admin/faqs/${deletingId}`);
       setItems((prev) => prev.filter((i) => i._id !== deletingId));
@@ -213,6 +178,7 @@ export default function AdminFaqsPage() {
       const msg = err?.response?.data?.message || "Failed to delete FAQ.";
       toast.error(msg);
     } finally {
+      setDeleting(false);
       setDeleteConfirmOpen(false);
       setDeletingId(null);
     }
@@ -254,12 +220,12 @@ export default function AdminFaqsPage() {
         </div>
 
         {error && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-900/20 dark:text-rose-300">
             {error}
           </div>
         )}
         {success && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300">
             {success}
           </div>
         )}
@@ -335,14 +301,14 @@ export default function AdminFaqsPage() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => openEdit(item)}
-                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-[#0F766E] bg-[#0F766E]/5 border border-[#0F766E]/20 hover:bg-[#0F766E]/10 transition"
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-[#0F766E] bg-[#0F766E]/5 border border-[#0F766E]/20 hover:bg-[#0F766E]/10 dark:bg-[#0F766E]/10 dark:border-[#0F766E]/30 dark:hover:bg-[#0F766E]/20 transition"
                             title="Edit FAQ"
                           >
                             <Pencil size={14} />
                           </button>
                           <button
                             onClick={() => confirmDelete(item)}
-                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition"
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 dark:bg-rose-900/20 dark:border-rose-800 dark:hover:bg-rose-900/30 dark:text-rose-400 transition"
                             title="Delete FAQ"
                           >
                             <Trash2 size={14} />
@@ -403,7 +369,7 @@ export default function AdminFaqsPage() {
               </div>
               <form onSubmit={handleSubmit} className="space-y-4 p-6">
                 {error && (
-                  <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>
+                  <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-300">{error}</p>
                 )}
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -530,6 +496,7 @@ export default function AdminFaqsPage() {
           onClose={() => setDeleteConfirmOpen(false)}
           onConfirm={handleDelete}
           itemName={items.find((i) => i._id === deletingId)?.question || "this FAQ"}
+          loading={deleting}
         />
       </div>
     </ToastProvider>
