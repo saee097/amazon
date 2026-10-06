@@ -24,7 +24,7 @@ function ToastItem({ toast, onClose }) {
   return (
     <div
       className={`
-        flex items-start gap-3 p-4 rounded-xl border shadow-lg animate-slide-in
+        flex items-start gap-3 p-4 rounded-xl border animate-slide-in
         ${colors[toast.type] || colors.info}
         min-w-[300px] max-w-md
       `}

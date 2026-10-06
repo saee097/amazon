@@ -73,7 +73,7 @@ export default function AboutPage() {
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/products"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0F766E] px-6 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#0F766E]/90  focus:outline-none focus:ring-4 focus:ring-[#0F766E]/15"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0F766E] px-6 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#0F766E]/90 focus:outline-none focus:ring-4 focus:ring-[#0F766E]/15"
                 >
                   Explore Products
                   <ArrowRight className="h-4 w-4" />
@@ -92,7 +92,7 @@ export default function AboutPage() {
 
             {/* Hero image */}
             <div className="relative lg:pl-4">
-              <div className="relative overflow-hidden rounded-[28px] border border-gray-200 bg-gray-100 ">
+              <div className="relative overflow-hidden rounded-[28px] border border-gray-200 bg-gray-100">
                 <img
                   src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1400&q=85"
                   alt="Customer shopping online"
@@ -103,7 +103,7 @@ export default function AboutPage() {
 
                 {/* Image bottom card */}
                 <div className="absolute bottom-2 left-5 right-5">
-                  <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white/95 p-4  backdrop-blur-md sm:p-5">
+                  <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white/95 p-4 backdrop-blur-md sm:p-5">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0F766E] text-white">
                       <ShoppingBag className="h-5 w-5" />
                     </div>
@@ -229,7 +229,7 @@ export default function AboutPage() {
 
                 {/* Story overlay */}
                 <div className="absolute bottom-5 left-5 right-5">
-                  <div className="rounded-lg border border-white/30 bg-white/95 p-5  backdrop-blur-md">
+                  <div className="rounded-lg border border-white/30 bg-white/95 p-5 backdrop-blur-md">
                     <div className="flex items-start gap-4">
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#0F766E] text-white">
                         <Heart className="h-5 w-5" />
@@ -250,7 +250,7 @@ export default function AboutPage() {
               </div>
 
               {/* Founded card */}
-              <div className="absolute -bottom-6 -right-3 hidden rounded-lg border border-gray-200 bg-white px-3.5 py-2.5  sm:block lg:-right-7">
+              <div className="absolute -bottom-6 -right-3 hidden rounded-lg border border-gray-200 bg-white px-3.5 py-2.5 sm:block lg:-right-7">
                 <p className="text-xl font-semibold text-[#0F766E]">2020</p>
                 <p className="mt-0.5 text-xs font-medium text-gray-500">
                   Founded
@@ -266,7 +266,7 @@ export default function AboutPage() {
       ========================================================== */}
       <section className="border-y border-gray-200 bg-white py-12 sm:py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className=" mb-6 max-w-2xl ">
+          <div className="mb-6 max-w-2xl">
             <SectionEyebrow>What We Stand For</SectionEyebrow>
 
             <h2 className="mt-3 max-w-xl text-2xl font-semibold tracking-tight text-gray-700 sm:text-3xl">
@@ -279,7 +279,7 @@ export default function AboutPage() {
           
           </div>
 
-          <div className="grid grid-cols-1  gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             <ValueCard
               icon={<ShieldCheck />}
               title="Quality You Can Trust"
@@ -458,7 +458,7 @@ function Feature({ text }) {
 ========================================================= */
 function ValueCard({ icon, title, description }) {
   return (
-    <div className="group rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#0F766E]/25 ">
+    <div className="group rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#0F766E]/25">
       <div className="flex items-start justify-between">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#0F766E]/10 text-[#0F766E] transition-all duration-300 group-hover:bg-[#0F766E] group-hover:text-white">
           <div className="h-5 w-5">{icon}</div>
@@ -481,7 +481,7 @@ function ValueCard({ icon, title, description }) {
 ========================================================= */
 function BenefitCard({ number, icon, title, description }) {
   return (
-    <div className="group rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:-translate-y-0.5 ">
+    <div className="group rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:-translate-y-0.5">
       <div className="flex items-start justify-between gap-4">
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0F766E]/10 text-[#0F766E] transition-colors duration-300 group-hover:bg-[#0F766E] group-hover:text-white">
           <div className="h-5 w-5">{icon}</div>

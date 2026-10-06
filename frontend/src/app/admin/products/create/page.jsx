@@ -45,7 +45,7 @@ function readFileAsDataURL(file) {
 
 function Section({ icon: Icon, title, description, children }) {
   return (
-    <section className="overflow-hidden rounded-xl border border-gray-200 bg-white ">
+    <section className="overflow-hidden rounded-xl border border-gray-200 bg-white">
       <header className="flex items-start gap-4 border-b border-gray-200 bg-gray-50/60 px-6 py-4">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#0F766E]/10 text-[#0F766E]">
           <Icon size={19} aria-hidden="true" />
@@ -264,7 +264,7 @@ export default function AdminProductsCreate() {
         </div>
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => router.back()} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"><ArrowLeft size={15} /> Back</button>
-          <button type="submit" form="product-create-form" disabled={submitting} className="inline-flex items-center gap-2 rounded-lg bg-[#0F766E] px-4 py-2 text-sm font-semibold text-white  hover:bg-[#0F766E]/90 disabled:opacity-60">
+          <button type="submit" form="product-create-form" disabled={submitting} className="inline-flex items-center gap-2 rounded-lg bg-[#0F766E] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0F766E]/90 disabled:opacity-60">
             {submitting ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
             {submitting ? "Creating..." : "Create product"}
           </button>
@@ -292,7 +292,7 @@ export default function AdminProductsCreate() {
 
           <Section icon={ImagePlus} title="Media" description="Upload product images. First image is used as the cover.">
             <div onClick={() => fileInputRef.current?.click()} className="group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center transition hover:border-[#0F766E] hover:bg-[#0F766E]/5">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#0F766E]  ring-1 ring-gray-200"><Upload size={20} /></span>
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#0F766E] ring-1 ring-gray-200"><Upload size={20} /></span>
               <p className="text-sm font-medium text-gray-800">Click to upload product images</p>
               <p className="text-xs text-gray-500">PNG, JPG, WEBP up to 5MB. Multiple files supported.</p>
               {uploading && <p className="flex items-center gap-2 text-xs text-[#0F766E]"><Loader2 size={12} className="animate-spin" /> Uploading...</p>}
@@ -301,9 +301,9 @@ export default function AdminProductsCreate() {
             {form.images.length > 0 && (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {form.images.map((img, idx) => (
-                  <div key={img._id} className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white ">
+                  <div key={img._id} className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white">
                     <img src={img.image_url} alt={img.alt_text || "Product"} className="aspect-square w-full object-cover" />
-                    <button type="button" onClick={() => removeImage(img._id)} className="absolute right-2 top-2 rounded-md bg-white/90 p-1 text-rose-600 opacity-0  transition group-hover:opacity-100 hover:bg-white"><Trash2 size={13} /></button>
+                    <button type="button" onClick={() => removeImage(img._id)} className="absolute right-2 top-2 rounded-md bg-white/90 p-1 text-rose-600 opacity-0 transition group-hover:opacity-100 hover:bg-white"><Trash2 size={13} /></button>
                     {idx === 0 && <span className="absolute left-2 top-2 rounded-md bg-[#0F766E] px-2 py-0.5 text-[10px] font-semibold text-white">Cover</span>}
                   </div>
                 ))}
@@ -415,7 +415,7 @@ export default function AdminProductsCreate() {
             <Field label="Meta description"><textarea name="meta_description" value={form.meta_description} onChange={handleChange} rows={3} className={inputClass} /></Field>
           </Section>
 
-          <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-5 text-sm text-amber-900 ">
+          <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-5 text-sm text-amber-900">
             <p className="font-semibold">Inventory summary</p>
             <ul className="mt-2 space-y-1 text-xs">
               <li>Variants defined: <strong>{form.variants.length}</strong></li>

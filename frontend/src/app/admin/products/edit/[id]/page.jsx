@@ -46,7 +46,7 @@ function readFileAsDataURL(file) {
 
 function Section({ icon: Icon, title, description, children }) {
   return (
-    <section className="overflow-hidden rounded-xl border border-gray-200 bg-white ">
+    <section className="overflow-hidden rounded-xl border border-gray-200 bg-white">
       <header className="flex items-start gap-4 border-b border-gray-200 bg-gray-50/60 px-6 py-4">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#0F766E]/10 text-[#0F766E]">
           <Icon size={19} aria-hidden="true" />
@@ -361,7 +361,7 @@ export default function AdminProductsEdit() {
             type="submit"
             form="product-edit-form"
             disabled={submitting}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#0F766E] px-4 py-2 text-sm font-semibold text-white  hover:bg-[#0F766E]/90 disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#0F766E] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0F766E]/90 disabled:opacity-60"
           >
             {submitting ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
             {submitting ? "Saving..." : "Save changes"}
@@ -422,7 +422,7 @@ export default function AdminProductsEdit() {
                 onClick={() => fileInputRef.current?.click()}
                 className="group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center transition hover:border-[#0F766E] hover:bg-[#0F766E]/5"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#0F766E]  ring-1 ring-gray-200">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#0F766E] ring-1 ring-gray-200">
                   <Upload size={20} />
                 </span>
                 <p className="text-sm font-medium text-gray-800">Click to upload product images</p>
@@ -447,7 +447,7 @@ export default function AdminProductsEdit() {
                   {form.images.map((img, idx) => (
                     <div
                       key={img._id}
-                      className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white "
+                      className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white"
                     >
                       <img src={img.image_url} alt={img.alt_text || "Product"} className="aspect-square w-full object-cover" />
                       <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 bg-gradient-to-t from-black/70 to-transparent px-2 py-2 opacity-0 transition group-hover:opacity-100">
@@ -618,7 +618,7 @@ export default function AdminProductsEdit() {
             </Field>
           </Section>
 
-          <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-5 text-sm text-amber-900 ">
+          <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-5 text-sm text-amber-900">
             <p className="font-semibold">Inventory summary</p>
             <ul className="mt-2 space-y-1 text-xs">
               <li>Variants defined: <strong>{form.variants.length}</strong></li>

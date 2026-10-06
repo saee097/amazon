@@ -234,14 +234,14 @@ export default function AdminAnalytics() {
           <button
             onClick={() => load(true)}
             disabled={refreshing}
-            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700  hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
           >
             <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
             Refresh
           </button>
           <Link
             href="/admin/dashboard"
-            className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-3 text-sm font-semibold text-white  hover:bg-[#0F766E]/90"
+            className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-3 text-sm font-semibold text-white hover:bg-[#0F766E]/90"
           >
             <Eye size={14} /> Dashboard
           </Link>
@@ -258,7 +258,7 @@ export default function AdminAnalytics() {
       {/* Revenue Chart + Order Pipeline */}
       <div className="grid gap-6 lg:grid-cols-5">
         {/* Revenue Bar Chart */}
-        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white  dark:border-gray-700 dark:bg-gray-800 lg:col-span-3">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 lg:col-span-3">
           <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
               <h2 className="text-base font-semibold text-gray-700 dark:text-gray-100">Revenue Trend</h2>
@@ -285,7 +285,7 @@ export default function AdminAnalytics() {
                         className="relative rounded-t-md bg-gradient-to-t from-[#0F766E] to-[#14b8a6] transition-all group-hover:from-[#0d5e58] group-hover:to-[#0d9488]"
                         style={{ height: `${Math.max(4, (point.revenue / maxRevenue) * 100)}%` }}
                       >
-                        <span className="pointer-events-none absolute -top-8 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-2 py-1 text-xs text-white shadow-lg group-hover:block">
+                        <span className="pointer-events-none absolute -top-8 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-2 py-1 text-xs text-white group-hover:block">
                           {currency(point.revenue)}
                         </span>
                       </div>
@@ -309,7 +309,7 @@ export default function AdminAnalytics() {
         </section>
 
         {/* Order Pipeline */}
-        <section className="rounded-xl border border-gray-200 bg-white  dark:border-gray-700 dark:bg-gray-800 lg:col-span-2">
+        <section className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 lg:col-span-2">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
               <h2 className="text-base font-semibold text-gray-700 dark:text-gray-100">Order Pipeline</h2>
@@ -346,7 +346,7 @@ export default function AdminAnalytics() {
       {/* Top Products + Daily Orders table */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Top Products */}
-        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white  dark:border-gray-700 dark:bg-gray-800">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
               <h2 className="text-base font-semibold text-gray-700 dark:text-gray-100">Top Products</h2>
@@ -395,7 +395,7 @@ export default function AdminAnalytics() {
         </section>
 
         {/* Daily Revenue Table */}
-        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white  dark:border-gray-700 dark:bg-gray-800">
+        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <div>
               <h2 className="text-base font-semibold text-gray-700 dark:text-gray-100">Daily Breakdown</h2>
@@ -454,9 +454,9 @@ export default function AdminAnalytics() {
       </div>
 
       {/* Fulfillment metrics */}
-      <section className="rounded-xl border border-gray-200 bg-white p-6  dark:border-gray-700 dark:bg-gray-800">
+      <section className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
         <h2 className="mb-4 text-base font-semibold text-gray-700 dark:text-gray-100">Fulfillment Metrics</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 ">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { label: "Paid Revenue", value: currency(stats?.paidRevenue), sub: "Confirmed payments", tone: "text-emerald-600 dark:text-emerald-400" },
             { label: "Avg. Order Value", value: currency(avgOrderValue), sub: "This week", tone: "text-sky-600 dark:text-sky-400" },

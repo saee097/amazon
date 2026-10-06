@@ -97,7 +97,7 @@ export default function ShippingPage() {
             {/* Main Column */}
             <div className="space-y-8">
               {/* Shipping Policy */}
-              <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white ">
+              <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
                 <div className="border-b border-gray-200 bg-gray-50/70 px-5 py-5 sm:px-8">
                   <div className="flex items-start gap-4">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0F766E]/10 text-[#0F766E]">
@@ -125,7 +125,7 @@ export default function ShippingPage() {
                   {/* Free Shipping Highlight */}
                   <div className="mt-6 rounded-2xl border border-[#0F766E]/15 bg-[#0F766E]/5 p-5">
                     <div className="flex items-start gap-4">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#0F766E] ">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#0F766E]">
                         <Package className="h-5 w-5" />
                       </div>
 
@@ -201,7 +201,7 @@ export default function ShippingPage() {
               </section>
 
               {/* Returns */}
-              <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white ">
+              <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
                 <div className="border-b border-gray-200 bg-gray-50/70 px-5 py-5 sm:px-8">
                   <div className="flex items-start gap-4">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0F766E]/10 text-[#0F766E]">
@@ -288,7 +288,7 @@ export default function ShippingPage() {
                   <div className="mt-8 border-t border-gray-100 pt-7">
                     <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
                       <div className="flex items-start gap-4">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#0F766E]  ring-1 ring-gray-200">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#0F766E] ring-1 ring-gray-200">
                           <RefreshCcw className="h-5 w-5" />
                         </div>
 
@@ -332,7 +332,7 @@ export default function ShippingPage() {
 </div>
 
               {/* Trust Card */}
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 ">
+              <div className="rounded-2xl border border-gray-200 bg-white p-6">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F766E]/10 text-[#0F766E]">
                   <ShieldCheck className="h-5 w-5" />
                 </div>
@@ -431,7 +431,7 @@ function QuickLink({ href, label }) {
   return (
     <Link
       href={href}
-      className="group flex items-center justify-between rounded-xl px-3 py-3 text-sm font-medium text-gray-600 transition-all hover:bg-[#0F766E]/5 hover:text-[#0F766E] "
+      className="group flex items-center justify-between rounded-xl px-3 py-3 text-sm font-medium text-gray-600 transition-all hover:bg-[#0F766E]/5 hover:text-[#0F766E]"
     >
       <span>{label}</span>
 

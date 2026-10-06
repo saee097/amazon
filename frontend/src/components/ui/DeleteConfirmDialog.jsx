@@ -6,7 +6,7 @@ function DeleteConfirmDialog({ open, onClose, onConfirm, itemName, loading }) {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-800">
+      <div className="w-full max-w-md rounded-xl bg-white dark:bg-gray-800">
         <div className="flex items-start gap-4 p-6">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400">
             <AlertTriangle size={20} />

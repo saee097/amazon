@@ -77,7 +77,7 @@ export default function TermsPage() {
                 TERMS DOCUMENT
             ====================================================== */}
             <article className="min-w-0">
-              <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white ">
+              <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
                 {/* Document Header */}
                 <div className="border-b border-gray-200 bg-gray-50/80 px-5 py-5 sm:px-8 sm:py-6">
                   <div className="flex items-start gap-4">
@@ -178,7 +178,7 @@ export default function TermsPage() {
                     >
                       <div className="rounded-xl border border-[#0F766E]/15 bg-[#0F766E]/5 p-4 sm:p-5">
                         <div className="flex items-start gap-3">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-[#0F766E]  ring-1 ring-[#0F766E]/10">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-[#0F766E] ring-1 ring-[#0F766E]/10">
                             <ShieldCheck className="h-4.5 w-4.5" />
                           </div>
 
@@ -214,7 +214,7 @@ export default function TermsPage() {
                       <div className="rounded-2xl border border-gray-200 bg-gray-50/70 p-5 sm:p-6">
                         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                           <div className="flex min-w-0 items-start gap-4">
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-[#0F766E] ">
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-[#0F766E]">
                               <Mail className="h-5 w-5" />
                             </div>
 
@@ -239,7 +239,7 @@ export default function TermsPage() {
 
                           <Link
                             href="mailto:legal@store.com"
-                            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#0F766E] px-4 py-2.5 text-sm font-semibold text-white  transition-all duration-200 hover:bg-[#0a5c4f] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#0F766E]/30 focus:ring-offset-2"
+                            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#0F766E] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-[#0a5c4f] focus:outline-none focus:ring-2 focus:ring-[#0F766E]/30 focus:ring-offset-2"
                           >
                             Contact Legal Team
                             <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -268,7 +268,7 @@ export default function TermsPage() {
                   MOBILE QUICK NAVIGATION
               ==================================================== */}
               <div className="mt-6 lg:hidden">
-                <div className="rounded-2xl border border-gray-200 bg-white p-5  sm:p-6">
+                <div className="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6">
                   <div className="mb-4">
                     <p className="text-sm font-semibold text-gray-700">
                       On this page
@@ -286,7 +286,7 @@ export default function TermsPage() {
                         href={`#section-${index + 1}`}
                         className="group flex items-center gap-3 rounded-xl border border-transparent bg-gray-50 px-3 py-3 text-sm font-medium text-gray-600 transition-all duration-200 hover:border-[#0F766E]/20 hover:bg-[#0F766E]/5 hover:text-[#0F766E]"
                       >
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-[10px] font-bold text-gray-500  ring-1 ring-gray-200 transition-colors duration-200 group-hover:bg-[#0F766E] group-hover:text-white group-hover:ring-[#0F766E]">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-[10px] font-bold text-gray-500 ring-1 ring-gray-200 transition-colors duration-200 group-hover:bg-[#0F766E] group-hover:text-white group-hover:ring-[#0F766E]">
                           {String(index + 1).padStart(2, "0")}
                         </span>
 
@@ -308,7 +308,7 @@ export default function TermsPage() {
             <aside className="order-2 hidden lg:block">
               <div className="sticky top-24 space-y-5">
                 {/* On This Page */}
-                <div className="rounded-2xl border border-gray-200 bg-white p-5 ">
+                <div className="rounded-2xl border border-gray-200 bg-white p-5">
                   <div className="mb-4">
                     <p className="text-sm font-semibold text-gray-700">
                       On this page

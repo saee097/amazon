@@ -63,7 +63,7 @@ export default function PrivacyPage() {
             {/* Sidebar */}
             <aside className="hidden lg:block lg:order-2">
               <div className="sticky top-24">
-                <div className="rounded-2xl border border-gray-200 bg-white p-5 ">
+                <div className="rounded-2xl border border-gray-200 bg-white p-5">
                   <p className="mb-4 text-xs font-bold uppercase tracking-wider text-gray-400">
                     On this page
                   </p>
@@ -81,31 +81,10 @@ export default function PrivacyPage() {
 <a
   key={item}
   href={`#section-${index + 1}`}
-  className="
-    group flex items-center gap-2
-    rounded-lg
-    border border-transparent
-    px-3 py-2.5
-    text-sm text-gray-600
-    transition-all duration-200
-    hover:border-[#0F766E]/50
-    hover:bg-[#0F766E]/5
-    hover:text-[#0F766E]
-  "
+  className="group flex items-center gap-2 rounded-lg border border-transparent px-3 py-2.5 text-sm text-gray-600 transition-all duration-200 hover:border-[#0F766E]/50 hover:bg-[#0F766E]/5 hover:text-[#0F766E]"
 >
   <span
-    className="
-      flex h-5 w-5 shrink-0
-      items-center justify-center
-      rounded-full
-      bg-gray-100
-      text-[10px]
-      font-semibold
-      text-gray-500
-      transition-all duration-200
-      group-hover:bg-[#0F766E]
-      group-hover:text-white
-    "
+    className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-100 text-[10px] font-semibold text-gray-500 transition-all duration-200 group-hover:bg-[#0F766E] group-hover:text-white"
   >
     {index + 1}
   </span>
@@ -126,7 +105,7 @@ export default function PrivacyPage() {
 
             {/* Policy Content */}
             <article className="min-w-0 lg:order-1">
-              <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white ">
+              <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
                 {/* Document Header */}
                 <div className="border-b border-gray-200 bg-gray-50/70 px-5 py-5 sm:px-8">
                   <div className="flex items-start gap-4">
@@ -262,7 +241,7 @@ export default function PrivacyPage() {
                       <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 sm:p-6">
                         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                           <div className="flex items-start gap-4">
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-[#0F766E]  ring-1 ring-gray-200">
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-[#0F766E] ring-1 ring-gray-200">
                               <Mail className="h-5 w-5" />
                             </div>
 
@@ -280,7 +259,7 @@ export default function PrivacyPage() {
 
                           <Link
                             href="mailto:privacy@store.com"
-                            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#0F766E] px-4 py-2.5 text-sm font-semibold text-white  transition-all hover:bg-[#0a5c4f] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#0F766E]/30 focus:ring-offset-2"
+                            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#0F766E] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#0a5c4f] focus:outline-none focus:ring-2 focus:ring-[#0F766E]/30 focus:ring-offset-2"
                           >
                             Contact Privacy Team
                             <ArrowRight className="h-4 w-4" />
@@ -306,7 +285,7 @@ export default function PrivacyPage() {
 
               {/* Mobile Quick Links */}
               <div className="mt-6 lg:hidden">
-                <div className="rounded-2xl border border-gray-200 bg-white p-5 ">
+                <div className="rounded-2xl border border-gray-200 bg-white p-5">
                   <p className="mb-4 text-xs font-bold uppercase tracking-wider text-gray-400">
                     Quick navigation
                   </p>
@@ -325,7 +304,7 @@ export default function PrivacyPage() {
                         href={`#section-${index + 1}`}
                         className="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-[#0F766E]/5 hover:text-[#0F766E]"
                       >
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-[10px] font-semibold text-gray-500  ring-1 ring-gray-200">
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-[10px] font-semibold text-gray-500 ring-1 ring-gray-200">
                           {index + 1}
                         </span>
 

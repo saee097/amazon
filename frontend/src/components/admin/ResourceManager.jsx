@@ -452,7 +452,7 @@ export default function ResourceManager({
       {renderFilters && <div className="mb-6">{renderFilters()}</div>}
 
       {searchKeys.length > 0 && !renderFilters && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl  border border-gray-200 dark:border-gray-700 mb-6 p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 mb-6 p-4">
           <div className="relative">
             <SearchIcon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -472,7 +472,7 @@ export default function ResourceManager({
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl  border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         {loading ? (
           <div className="p-6" role="status" aria-busy="true">
             <span className="sr-only">Loading…</span>
@@ -612,7 +612,7 @@ export default function ResourceManager({
           aria-labelledby="modal-title"
         >
           <div
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-hidden flex flex-col animate-scale-in"
+            className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-2xl max-h-[92vh] overflow-hidden flex flex-col animate-scale-in"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">

@@ -294,7 +294,7 @@ export default function AdminProfilePage() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl  border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="flex border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
           {[
             { id: "profile", label: "Profile", icon: FiUser },

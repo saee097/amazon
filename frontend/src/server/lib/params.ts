@@ -108,6 +108,7 @@ export interface ProductFilters {
   inStock?: string;
   sizes?: string;
   colors?: string;
+  genders?: string;
   page: number;
   limit: number;
   skip: number;
@@ -135,6 +136,7 @@ export function parseProductFilters(
     inStock: searchParams.get("in_stock") || undefined,
     sizes: searchParams.get("sizes") || undefined,
     colors: searchParams.get("colors") || undefined,
+    genders: searchParams.get("gender") || undefined,
     page: pagination.page,
     limit: pagination.limit,
     skip: pagination.skip,

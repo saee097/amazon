@@ -161,7 +161,7 @@ export default function UserSettingsPage() {
 
         <div className="bg-white rounded-lg border border-gray-200 p-6 sm:p-8">
           <div className="flex items-center gap-4 mb-8">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-[#0F766E] to-teal-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-[#0F766E] to-teal-600 flex items-center justify-center text-white text-2xl font-bold">
               {fullName?.charAt(0)?.toUpperCase()}
             </div>
             <div>

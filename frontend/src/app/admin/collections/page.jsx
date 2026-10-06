@@ -262,12 +262,12 @@ export default function AdminCollections() {
             </h1>
             <p className="mt-1 text-sm text-gray-500">Curated product collections for featured displays</p>
           </div>
-          <button onClick={openCreate} className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white  hover:bg-[#0F766E]/90 transition">
+          <button onClick={openCreate} className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white hover:bg-[#0F766E]/90 transition">
             <Plus size={16} /> Add Collection
           </button>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white  dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
+        <div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
@@ -290,7 +290,7 @@ export default function AdminCollections() {
                 <option value="inactive">Inactive</option>
                 <option value="draft">Draft</option>
               </select>
-              <button onClick={() => load(true)} disabled={refreshing} className="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700  hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200">
+              <button onClick={() => load(true)} disabled={refreshing} className="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200">
                 <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} /> Refresh
               </button>
             </div>
@@ -375,7 +375,7 @@ export default function AdminCollections() {
 
         {showModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl dark:bg-gray-800">
+            <div className="w-full max-w-lg overflow-hidden rounded-xl bg-white dark:bg-gray-800">
               <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
                 <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">{editingCollection ? "Edit Collection" : "New Collection"}</h2>
                 <button onClick={() => { setShowModal(false); setEditingCollection(null); }} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Close"><X size={18} /></button>

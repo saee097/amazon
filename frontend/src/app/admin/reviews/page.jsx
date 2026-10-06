@@ -389,11 +389,11 @@ export default function AdminReviews() {
                                     Verified purchase
                                   </span>
                                 )}
-                                {review.admin_approved && (
-                                  <span className="mt-1 block text-xs text-blue-600">
-                                    Admin approved
-                                  </span>
-                                )}
+                {review.status === "approved" && (
+                                   <span className="mt-1 block text-xs text-blue-600">
+                                     Admin approved
+                                   </span>
+                                 )}
                               </td>
                               <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 hidden sm:table-cell">
                                 <span className="truncate max-w-[150px] block">
@@ -470,7 +470,7 @@ export default function AdminReviews() {
           {/* Edit Modal */}
           {editing && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-              <div className="w-full max-w-md overflow-hidden rounded-xl bg-white shadow-2xl dark:bg-gray-800">
+              <div className="w-full max-w-md overflow-hidden rounded-xl bg-white dark:bg-gray-800">
                 <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
                   <div>
                     <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
@@ -547,7 +547,7 @@ export default function AdminReviews() {
           {/* Create Review Modal */}
           {creating && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-              <div className="w-full max-w-md overflow-hidden rounded-xl bg-white shadow-2xl dark:bg-gray-800">
+              <div className="w-full max-w-md overflow-hidden rounded-xl bg-white dark:bg-gray-800">
                 <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
                   <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
                     Add Review

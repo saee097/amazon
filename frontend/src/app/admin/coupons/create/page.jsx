@@ -92,7 +92,7 @@ export default function AdminCouponsCreate() {
           <button
             type="button"
             onClick={() => router.push("/admin/coupons")}
-            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-700  hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
           >
             <ArrowLeft size={15} /> Back
           </button>
@@ -100,7 +100,7 @@ export default function AdminCouponsCreate() {
             type="submit"
             form="coupon-create-form"
             disabled={submitting}
-            className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white  hover:bg-[#0F766E]/90 disabled:opacity-60"
+            className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white hover:bg-[#0F766E]/90 disabled:opacity-60"
           >
             {submitting ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
             {submitting ? "Saving&hellip;" : "Save"}
@@ -120,7 +120,7 @@ export default function AdminCouponsCreate() {
       )}
 
       <form id="coupon-create-form" onSubmit={handleSubmit} className="space-y-6">
-        <div className="rounded-xl border border-gray-200 bg-white p-6  dark:border-gray-700 dark:bg-gray-800">
+        <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
           <h2 className="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100">Coupon details</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -251,7 +251,7 @@ export default function AdminCouponsCreate() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6  dark:border-gray-700 dark:bg-gray-800">
+        <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
           <h2 className="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100">Status</h2>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">

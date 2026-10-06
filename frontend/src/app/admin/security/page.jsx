@@ -289,7 +289,7 @@ function SettingsSection({ group, settings, onChange, saving, errors }) {
   const Icon = group.icon;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white  dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
+    <div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
@@ -361,7 +361,7 @@ function AuditLogFeed() {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white  dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
+    <div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
       <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
           <Bell size={20} className="text-[#0F766E]" />
@@ -524,11 +524,11 @@ export default function AdminSecurity() {
             <p className="mt-1 text-sm text-gray-500">Configure authentication, sessions, rate limiting, and compliance</p>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={handleReset} disabled={saving} className="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700  hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200">
+            <button onClick={handleReset} disabled={saving} className="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200">
               <RefreshCw size={14} />
               Reset Defaults
             </button>
-            <button onClick={handleSave} disabled={saving} className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white  hover:bg-[#0F766E]/90 disabled:opacity-60">
+            <button onClick={handleSave} disabled={saving} className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white hover:bg-[#0F766E]/90 disabled:opacity-60">
               <Save size={16} />
               {saving ? <Loader2 size={14} className="animate-spin" /> : "Save All"}
             </button>

@@ -76,7 +76,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 py-8 sm:py-12">
-        <div className="bg-white rounded-lg border border-gray-200 p-6 sm:p-8 w-full max-w-sm text-center ">
+        <div className="bg-white rounded-lg border border-gray-200 p-6 sm:p-8 w-full max-w-sm text-center">
           <div className="w-16 h-16 mx-auto rounded-full border-4 border-[#0F766E] border-t-transparent animate-spin"></div>
 
           <h2 className="mt-6 text-2xl font-bold text-gray-800">
@@ -143,12 +143,12 @@ export default function ProfilePage() {
         </div>
 
         {/* Profile Header */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 sm:p-8 mb-8 ">
+        <div className="bg-white rounded-lg border border-gray-200 p-6 sm:p-8 mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
 
             {/* User Info */}
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 shrink-0 rounded-full bg-gradient-to-r from-[#0F766E] to-teal-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+              <div className="w-16 h-16 shrink-0 rounded-full bg-gradient-to-r from-[#0F766E] to-teal-600 flex items-center justify-center text-white text-2xl font-bold">
                 {fullName?.charAt(0)?.toUpperCase() || "U"}
               </div>
 
@@ -178,7 +178,7 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
 
           {/* Account Status */}
-          <div className="bg-white rounded-lg border border-gray-200 p-5 ">
+          <div className="bg-white rounded-lg border border-gray-200 p-5">
             <div className="flex items-center justify-between gap-4">
 
               <div>
@@ -198,7 +198,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Member Since */}
-          <div className="bg-white rounded-lg border border-gray-200 p-5 ">
+          <div className="bg-white rounded-lg border border-gray-200 p-5">
             <div className="flex items-center justify-between gap-4">
 
               <div>
@@ -230,7 +230,7 @@ export default function ProfilePage() {
 
             {/* Personal Information */}
           
-<div className="bg-white rounded-xl border border-gray-200 p-5 sm:p-6 ">
+<div className="bg-white rounded-xl border border-gray-200 p-5 sm:p-6">
   {/* Header */}
   <div className="flex items-center gap-3 mb-6">
     <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center shrink-0">
@@ -300,7 +300,7 @@ export default function ProfilePage() {
 
 
             {/* Quick Actions */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6 ">
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
 
               <h2 className="text-xl font-semibold text-gray-800 mb-5">
                 Quick Actions
@@ -337,7 +337,7 @@ export default function ProfilePage() {
 
             {/* Account Menu */}
         
-<div className="bg-white rounded-xl border border-gray-200 p-5 ">
+<div className="bg-white rounded-xl border border-gray-200 p-5">
   {/* Header */}
   <div className="flex items-center gap-3 mb-5">
     <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center">
@@ -445,7 +445,7 @@ export default function ProfilePage() {
 
             {/* Help */}
          
-<div className="bg-white rounded-xl border border-gray-200 p-5 ">
+<div className="bg-white rounded-xl border border-gray-200 p-5">
   {/* Header */}
   <div className="flex items-center gap-3 mb-4">
     <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center">
@@ -472,7 +472,7 @@ export default function ProfilePage() {
   {/* Support Button */}
   <Link
     href="/contact"
-    className="group w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-[#0F766E] text-white rounded-lg text-sm font-semibold hover:bg-[#0F766E]/90 hover:shadow-md transition-all duration-200"
+    className="group w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-[#0F766E] text-white rounded-lg text-sm font-semibold hover:bg-[#0F766E]/90 transition-all duration-200"
   >
     
 

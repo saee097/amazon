@@ -278,10 +278,10 @@ CREATE TABLE reviews (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
-  comment TEXT,
-  status TEXT NOT NULL DEFAULT 'active',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+   rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+   comment TEXT,
+   status TEXT NOT NULL DEFAULT 'pending',
+   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ─── ADMIN RESOURCES ─────────────────────────────────────────────────────────
@@ -467,7 +467,7 @@ CREATE POLICY "Users read own order items" ON order_items FOR SELECT
   USING (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.user_id = auth.uid()));
 CREATE POLICY "Users manage own returns" ON returns FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY "Users read own refunds" ON refunds FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Public read reviews" ON reviews FOR SELECT USING (status = 'active');
+CREATE POLICY "Public read reviews" ON reviews FOR SELECT USING (status IN ('approved', 'active'));
 CREATE POLICY "Users create reviews" ON reviews FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- Service role bypasses RLS (used by API routes)

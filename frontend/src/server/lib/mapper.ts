@@ -91,6 +91,7 @@ export function mapProduct(
     tags: product.tags,
     low_stock_threshold: product.low_stock_threshold,
     category: mapCategory(extras?.category || null),
+    gender: product.gender as string | undefined,
     brand: mapBrand(extras?.brand || null),
     variants: (extras?.variants || []).map(mapVariant),
     images: images.map((img) => ({
@@ -107,6 +108,7 @@ export function mapProduct(
       _id: r.id as string,
       rating: r.rating,
       comment: r.comment,
+      status: r.status,
       customer: r.profiles
         ? { name: `${(r.profiles as Row).first_name || ""} ${(r.profiles as Row).last_name || ""}`.trim() }
         : undefined,

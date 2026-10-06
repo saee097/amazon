@@ -10,7 +10,7 @@ import {
   toMongoIds,
 } from "../../lib/mapper";
 import { jsonError, jsonOk, jsonData } from "../../lib/response";
-import { cartItemSchema, checkoutSchema } from "../../lib/validation";
+import { cartItemSchema, checkoutSchema, wishlistItemSchema } from "../../lib/validation";
 import { validateJson } from "../../lib/validate";
 import { parseProductFilters } from "../../lib/params";
 
@@ -79,6 +79,12 @@ async function loadProductsWithRelations(filters: {
     const colorArr = filters.colors.split(",").filter(Boolean);
     if (colorArr.length > 0) {
       query = query.or(colorArr.map((c) => `product_variants!inner.color.eq.${c}`).join(","));
+    }
+  }
+  if (filters.genders) {
+    const genderArr = filters.genders.split(",").filter(Boolean);
+    if (genderArr.length > 0) {
+      query = query.in("gender", genderArr);
     }
   }
 
@@ -176,7 +182,9 @@ export async function handleStore(
         images: (product.product_images || []).sort(
           (a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order
         ),
-        reviews: product.reviews || [],
+        reviews: (product.reviews || []).filter(
+          (r: { status?: string }) => r.status === "approved" || r.status === "active"
+        ),
       })
     );
   }
@@ -330,6 +338,71 @@ export async function handleStore(
     );
 
     return jsonOk(items);
+  }
+
+  // POST /store/wishlist (toggle add/remove)
+  if (method === "POST" && resource === "wishlist") {
+    const { user, error } = await requireAuth(request);
+    if (error) return error;
+
+    const { data: body, error: validationError } = await validateJson(request, wishlistItemSchema);
+    if (validationError) return validationError;
+
+    const { productId } = body;
+
+    const { data: product } = await supabase
+      .from("products")
+      .select("id")
+      .eq("id", productId)
+      .eq("status", "active")
+      .single();
+
+    if (!product) return jsonError("Product not found", 404);
+
+    const { data: existing } = await supabase
+      .from("wishlists")
+      .select("id")
+      .eq("user_id", user!._id)
+      .eq("product_id", productId)
+      .maybeSingle();
+
+    if (existing) {
+      const { error: deleteError } = await supabase
+        .from("wishlists")
+        .delete()
+        .eq("id", existing.id);
+      if (deleteError) return jsonError("Failed to remove from wishlist", 400);
+      return jsonOk({ message: "Removed from wishlist", inWishlist: false });
+    }
+
+    const { error: insertError } = await supabase
+      .from("wishlists")
+      .insert({ user_id: user!._id, product_id: productId });
+    if (insertError) {
+      if (insertError.code === "23505") return jsonOk({ message: "Already in wishlist", inWishlist: true });
+      return jsonError("Failed to add to wishlist", 400);
+    }
+    return jsonOk({ message: "Added to wishlist", inWishlist: true });
+  }
+
+  // DELETE /store/wishlist
+  if (method === "DELETE" && resource === "wishlist") {
+    const { user, error } = await requireAuth(request);
+    if (error) return error;
+
+    const { data: body, error: validationError } = await validateJson(request, wishlistItemSchema);
+    if (validationError) return validationError;
+
+    const { productId } = body;
+
+    const { error: deleteError } = await supabase
+      .from("wishlists")
+      .delete()
+      .eq("user_id", user!._id)
+      .eq("product_id", productId);
+
+    if (deleteError) return jsonError("Failed to remove from wishlist", 400);
+    return jsonOk({ message: "Removed from wishlist" });
   }
 
   // GET /store/orders
@@ -708,6 +781,97 @@ export async function handleStore(
       .order("created_at", { ascending: false });
 
     return jsonOk(toMongoIds(data || []));
+  }
+
+  // GET /store/reviews — public list of approved reviews (e.g. homepage testimonials)
+  if (method === "GET" && resource === "reviews") {
+    const limit = Math.min(Number(request.nextUrl.searchParams.get("limit")) || 10, 50);
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("id, rating, comment, status, created_at, profiles(first_name, last_name), products(id, title, slug, product_images(image_url, alt_text))")
+      .in("status", ["approved", "active"])
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) return jsonError(error.message, 500);
+
+    const formatted = (data || []).map((r) => ({
+      _id: r.id,
+      rating: r.rating,
+      comment: r.comment,
+      status: r.status,
+      created_at: r.created_at,
+      customer: r.profiles
+        ? { name: `${r.profiles.first_name || ""} ${r.profiles.last_name || ""}`.trim() || undefined }
+        : undefined,
+      product: r.products
+        ? {
+            _id: r.products.id,
+            title: r.products.title,
+            slug: r.products.slug,
+            images: (r.products.product_images || []).map((img: { image_url: string; alt_text?: string }) => ({
+              image_url: img.image_url,
+              alt_text: img.alt_text,
+            })),
+          }
+        : undefined,
+    }));
+
+    return jsonOk(formatted);
+  }
+
+  // POST /store/products/:id/reviews
+  if (method === "POST" && resource === "products" && path[2] && path[3] === "reviews") {
+    const { user, error } = await requireAuth(request);
+    if (error) return error;
+
+    const idOrSlug = path[2];
+    const body = await request.json();
+    const { rating, comment } = body;
+
+    if (!rating || rating < 1 || rating > 5) {
+      return jsonError("Rating must be between 1 and 5", 400);
+    }
+
+    // Resolve product ID from slug or UUID
+    const isUuid = /^[0-9a-f-]{36}$/i.test(idOrSlug);
+    let query = supabase.from("products").select("id").eq("status", "active");
+    query = isUuid ? query.eq("id", idOrSlug) : query.eq("slug", idOrSlug);
+
+    const { data: product, error: productError } = await query.single();
+    if (productError || !product) return jsonError("Product not found", 404);
+
+    const productId = product.id;
+
+    const { data: existingReview } = await supabase
+      .from("reviews")
+      .select("id")
+      .eq("product_id", productId)
+      .eq("user_id", user!._id)
+      .maybeSingle();
+
+    if (existingReview) {
+      return jsonError("You have already reviewed this product", 400);
+    }
+
+    const { data: review, error: reviewError } = await supabase
+      .from("reviews")
+      .insert({
+        product_id: productId,
+        user_id: user!._id,
+        rating,
+        comment: comment || null,
+        status: "pending",
+      })
+      .select("id, rating, comment, status, created_at")
+      .single();
+
+    if (reviewError) {
+      console.error("[Review POST] insert failed:", reviewError);
+      return jsonError(reviewError.message, 400);
+    }
+
+    return jsonOk(review, 201);
   }
 
   return jsonError("Not found", 404);

@@ -54,13 +54,13 @@ export default function ReturnPage() {
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Return Requests</h1>
 
         {returns.length === 0 ? (
-          <div className="bg-white rounded-xl  border border-gray-200 p-8 text-center">
+          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
             <p className="text-gray-500">You have no return requests.</p>
           </div>
         ) : (
           <div className="space-y-4">
             {returns.map((ret) => (
-              <div key={ret._id} className="bg-white rounded-xl  border border-gray-200 p-6">
+              <div key={ret._id} className="bg-white rounded-xl border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold text-gray-800">
                     Return #{ret._id?.toString().slice(-6).toUpperCase()}

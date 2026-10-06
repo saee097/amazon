@@ -109,7 +109,7 @@ export default function TrackOrderPage() {
             ================================================== */}
             <div className="lg:col-span-2 space-y-6">
               {/* Tracking Form */}
-              <div className="bg-white rounded-2xl border border-gray-200  overflow-hidden">
+              <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                 {/* Card Header */}
                 <div className="px-5 sm:px-7 py-5 border-b border-gray-200 bg-gray-50/70">
                   <div className="flex items-center gap-3">
@@ -201,7 +201,7 @@ export default function TrackOrderPage() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="inline-flex items-center justify-center gap-2 h-12 px-6 bg-[#0F766E] text-white text-sm font-semibold rounded-lg hover:bg-[#0F766E]/90 transition-all disabled:opacity-60 disabled:cursor-not-allowed "
+                      className="inline-flex items-center justify-center gap-2 h-12 px-6 bg-[#0F766E] text-white text-sm font-semibold rounded-lg hover:bg-[#0F766E]/90 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {loading ? (
                         <>
@@ -228,7 +228,7 @@ export default function TrackOrderPage() {
                   RESULT
               ================================================== */}
               {result && (
-                <div className="bg-white rounded-2xl border border-gray-200  overflow-hidden">
+                <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                   {/* Status Header */}
                   <div className="p-5 sm:p-7 border-b border-gray-200">
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5">
@@ -463,7 +463,7 @@ export default function TrackOrderPage() {
             
 
             {/* Secure Shopping / Trust Panel */}
-<div className="rounded-2xl border border-gray-200 bg-white p-5  sm:p-6">
+<div className="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6">
   {/* Header */}
   <div className="flex items-start gap-3.5">
     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-green-100 bg-green-50 text-green-600">
@@ -513,7 +513,7 @@ export default function TrackOrderPage() {
         className="group flex items-center gap-3 px-3.5 py-3 transition-colors duration-200 hover:bg-white"
       >
         {/* Check Icon */}
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-green-600  ring-1 ring-gray-100 transition-all duration-200 group-hover:bg-green-50 group-hover:ring-green-100">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-green-600 ring-1 ring-gray-100 transition-all duration-200 group-hover:bg-green-50 group-hover:ring-green-100">
           <svg
             className="h-3.5 w-3.5"
             viewBox="0 0 20 20"
@@ -546,7 +546,7 @@ export default function TrackOrderPage() {
 </div>
 
               {/* Contact Support */}
-              <div className="overflow-hidden rounded-2xl bg-[#0F766E] text-white ">
+              <div className="overflow-hidden rounded-2xl bg-[#0F766E] text-white">
                 <div className="p-6">
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10">
                     <MessageIcon />

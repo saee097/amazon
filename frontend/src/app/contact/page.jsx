@@ -114,15 +114,13 @@ export default function ContactPage() {
       {/* =========================================================
           MAIN CONTENT
       ========================================================== */}
-      <section className="mx-auto max-w-7xl px-4  sm:px-6  lg:px-8 py-5 sm:py-6 lg:py-8Have a question about your order, products, shipping, returns, payments, or something else? Send us a message and our support team will get back to you as soon as possible.
-
-">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-5 sm:py-6 lg:py-8Have a question about your order, products, shipping, returns, payments, or something else? Send us a message and our support team will get back to you as soon as possible.">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* =====================================================
               CONTACT FORM
           ====================================================== */}
           <div className="lg:col-span-2">
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white ">
+            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
               {/* Form Header */}
               <div className="border-b border-gray-100 px-5 py-5 sm:px-8">
                 <div className="flex items-start gap-4">
@@ -294,7 +292,7 @@ export default function ContactPage() {
                         <button
                           type="submit"
                           disabled={isSubmitting}
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F766E] px-6 py-3.5 text-sm font-semibold text-white  transition hover:bg-[#0F766E]/90 focus:outline-none focus:ring-4 focus:ring-[#0F766E]/15 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F766E] px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-[#0F766E]/90 focus:outline-none focus:ring-4 focus:ring-[#0F766E]/15 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                         >
                           {isSubmitting ? (
                             <>
@@ -323,7 +321,7 @@ export default function ContactPage() {
             {/* =================================================
                 CONTACT INFORMATION
             ================================================== */}
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white   duration-300 ">
+            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white duration-300">
               {/* Header */}
               <div className="border-b border-gray-100 px-5 py-5 sm:px-6">
                 <div className="flex items-start justify-between gap-4">
@@ -428,7 +426,7 @@ export default function ContactPage() {
             {/* =================================================
                 BUSINESS HOURS
             ================================================== */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5   duration-300  sm:p-6">
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 duration-300 sm:p-6">
               <div className="mb-5 flex items-center gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0F766E]/10 text-[#0F766E]">
                   <FiClock size={18} />

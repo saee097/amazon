@@ -272,14 +272,14 @@ export default function AdminMenu() {
             <button
               onClick={() => load(true)}
               disabled={refreshing}
-              className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700  hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+              className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
             >
               <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
               Refresh
             </button>
             <button
               onClick={openCreate}
-              className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white  hover:bg-[#0F766E]/90"
+              className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#0F766E] px-4 text-sm font-semibold text-white hover:bg-[#0F766E]/90"
             >
               <Plus size={16} />
               Add Menu Item
@@ -298,7 +298,7 @@ export default function AdminMenu() {
           </div>
         )}
 
-        <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4  dark:border-gray-700 dark:bg-gray-800 sm:flex-row">
+        <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800 sm:flex-row">
           <div className="relative flex-1">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -320,7 +320,7 @@ export default function AdminMenu() {
           </select>
         </div>
 
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white  dark:border-gray-700 dark:bg-gray-800">
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
           {paginated.length === 0 ? (
             <div className="py-20 text-center">
               <GripVertical className="mx-auto text-gray-300" size={36} />
@@ -460,7 +460,7 @@ export default function AdminMenu() {
         {/* Create / Edit Modal */}
         {showModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl dark:bg-gray-800">
+            <div className="w-full max-w-lg overflow-hidden rounded-xl bg-white dark:bg-gray-800">
               <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
                 <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
                   {editing ? "Edit Menu Item" : "New Menu Item"}

@@ -50,6 +50,7 @@ export const productSchema = z.object({
   compare_price: z.coerce.number().nonnegative().optional(),
   cost_price: z.coerce.number().nonnegative().optional(),
   category: z.string().uuid().optional().nullable(),
+  gender: z.string().optional().nullable(),
   brand: z.string().uuid().optional().nullable(),
   sku: z.string().max(100).optional().nullable(),
   barcode: z.string().max(100).optional().nullable(),
@@ -130,6 +131,10 @@ export const cartItemSchema = z.object({
   productId: z.string().uuid("Invalid product ID"),
   quantity: z.coerce.number().int().positive("Quantity must be at least 1"),
   variantId: z.string().uuid().optional().nullable(),
+});
+
+export const wishlistItemSchema = z.object({
+  productId: z.string().uuid("Invalid product ID"),
 });
 
 export const checkoutSchema = z.object({

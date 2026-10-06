@@ -335,7 +335,7 @@ export default function AdminBanners() {
         aria-labelledby="preview-title"
       >
         <div
-          className="relative max-w-4xl w-full overflow-hidden rounded-xl bg-white shadow-2xl animate-scale-in"
+          className="relative max-w-4xl w-full overflow-hidden rounded-xl bg-white animate-scale-in"
           onClick={(e) => e.stopPropagation()}
         >
           <button

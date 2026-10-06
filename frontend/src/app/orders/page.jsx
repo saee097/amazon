@@ -110,7 +110,7 @@ export default function OrdersPage() {
           </div>
 
           {orders.length > 0 && (
-            <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 ">
+            <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0F766E]/10 text-[#0F766E]">
                 <ShoppingBag className="h-4.5 w-4.5" />
               </div>
@@ -127,7 +127,7 @@ export default function OrdersPage() {
 
         {/* Empty State */}
         {orders.length === 0 ? (
-          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white ">
+          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
             <div className="flex flex-col items-center px-5 py-14 text-center sm:px-8 sm:py-20">
               <div className="relative mb-6">
                 <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-[#0F766E]/10 text-[#0F766E]">
@@ -150,7 +150,7 @@ export default function OrdersPage() {
 
               <Link
                 href="/products"
-                className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#0F766E] px-5 py-3 text-sm font-semibold text-white  transition-all hover:bg-[#0a5c4f] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#0F766E]/30 focus:ring-offset-2"
+                className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#0F766E] px-5 py-3 text-sm font-semibold text-white transition-all hover:bg-[#0a5c4f] focus:outline-none focus:ring-2 focus:ring-[#0F766E]/30 focus:ring-offset-2"
               >
                 Start Shopping
                 <ArrowRight className="h-4 w-4" />
@@ -220,7 +220,7 @@ function OrderCard({ order }) {
   const StatusIcon = statusConfig.icon;
 
   return (
-    <article className="group overflow-hidden rounded-2xl border border-gray-200 bg-white  transition-all duration-200 ">
+    <article className="group overflow-hidden rounded-2xl border border-gray-200 bg-white transition-all duration-200">
       {/* Card Header */}
       <div className="border-b border-gray-100 px-5 py-5 sm:px-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

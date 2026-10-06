@@ -233,7 +233,7 @@ export default function FAQPage() {
                 }}
                 placeholder="Search for answers..."
                 aria-label="Search frequently asked questions"
-                className="w-full h-14 pl-12 pr-12 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 placeholder:text-gray-400 outline-none transition-all focus:border-[#0F766E] focus:ring-4 focus:ring-[#0F766E]/10 "
+                className="w-full h-14 pl-12 pr-12 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 placeholder:text-gray-400 outline-none transition-all focus:border-[#0F766E] focus:ring-4 focus:ring-[#0F766E]/10"
               />
 
               {searchQuery && (
@@ -387,7 +387,7 @@ export default function FAQPage() {
                   return (
                     <div
                       key={category.category}
-                      className="overflow-hidden rounded-2xl border border-gray-200 bg-white "
+                      className="overflow-hidden rounded-2xl border border-gray-200 bg-white"
                     >
                       {/* Category Header */}
                       <div className="flex items-center gap-4 px-5 sm:px-6 py-5 bg-gray-50/80 border-b border-gray-200">
@@ -485,7 +485,7 @@ export default function FAQPage() {
                 SIDEBAR
             ================================================== */}
             <aside className="space-y-5 lg:sticky lg:top-20 lg:self-start">   {/* Popular Topics */}
-              <div className="rounded-2xl border border-gray-200 bg-white p-5 ">
+              <div className="rounded-2xl border border-gray-200 bg-white p-5">
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-semibold text-gray-700">
                     Popular topics
@@ -527,7 +527,7 @@ export default function FAQPage() {
                 </div>
               </div>
               {/* Contact Support */}
-              <div className="overflow-hidden rounded-2xl bg-[#0F766E] text-white ">
+              <div className="overflow-hidden rounded-2xl bg-[#0F766E] text-white">
                 <div className="p-6">
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10">
                     <MessageCircle className="w-5 h-5" />

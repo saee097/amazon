@@ -200,7 +200,7 @@ function SidebarContent({ collapsed, pathname, isSuperAdmin, currentUser, filter
         }`}
       >
         <Link href="/admin/dashboard" className={`flex items-center gap-2.5 min-w-0 ${collapsed ? "justify-center" : ""}`}>
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F766E] to-[#0d5e58] text-white ">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F766E] to-[#0d5e58] text-white">
             <Activity size={18} />
           </span>
           {!collapsed && (
@@ -478,7 +478,7 @@ export default function AdminLayout({ children }) {
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="relative h-full w-72 shadow-2xl">
+          <aside className="relative h-full w-72">
             <SidebarContent
               collapsed={false}
               pathname={pathname}
@@ -500,7 +500,7 @@ export default function AdminLayout({ children }) {
         {/* Collapse toggle */}
         <button
           onClick={toggleCollapsed}
-          className="absolute -right-3 top-20 z-10 hidden h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500  transition hover:border-[#0F766E] hover:text-[#0F766E] dark:border-gray-700 dark:bg-gray-900 lg:flex"
+          className="absolute -right-3 top-20 z-10 hidden h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition hover:border-[#0F766E] hover:text-[#0F766E] dark:border-gray-700 dark:bg-gray-900 lg:flex"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? <ChevronsRight size={13} /> : <ChevronsLeft size={13} />}
@@ -566,7 +566,7 @@ export default function AdminLayout({ children }) {
                 <Search size={18} />
               </button>
               {searchOpen && (
-                <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
+                <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                   <div className="border-b border-gray-200 p-3 dark:border-gray-700">
                     <div className="relative">
                       <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -625,13 +625,13 @@ export default function AdminLayout({ children }) {
               >
                 <Bell size={18} />
                 {unreadCount > 0 && (
-                  <span className="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow">
+                  <span className="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
               </button>
               {notifOpen && (
-                <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
+                <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                   <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-700">
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Notifications</p>
                     <Link
@@ -696,7 +696,7 @@ export default function AdminLayout({ children }) {
               </button>
 
               {userMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
+                <div className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                   <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
                     <p className="text-xs font-bold text-gray-900 dark:text-gray-100">
                       {currentUser?.first_name} {currentUser?.last_name}

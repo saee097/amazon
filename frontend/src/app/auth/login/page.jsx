@@ -137,7 +137,7 @@ function LoginForm() {
 
         {/* Brand */}
         <div className="text-center mb-8">
-          <div className="mx-auto mb-4 flex h-13 w-13 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F766E] to-[#0d5e58] text-white shadow-lg" style={{height:52,width:52}}>
+          <div className="mx-auto mb-4 flex h-13 w-13 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F766E] to-[#0d5e58] text-white" style={{height:52,width:52}}>
             <svg className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
               <path d="M3 3h2l.4 2M7 13h10l4-8H5.4" />
               <circle cx="9" cy="20" r="1.5" /><circle cx="18" cy="20" r="1.5" />
@@ -148,7 +148,7 @@ function LoginForm() {
         </div>
 
         {/* Card */}
-        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 ">
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8">
 
           {/* Alerts */}
           {success && (
@@ -252,7 +252,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loading || !isValid}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F766E] py-3.5 text-sm font-semibold text-white  transition hover:bg-[#0d5e58] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F766E] py-3.5 text-sm font-semibold text-white transition hover:bg-[#0d5e58] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading && (
                 <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">

@@ -78,7 +78,7 @@ export default function SuperAdminUsers() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl  border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">

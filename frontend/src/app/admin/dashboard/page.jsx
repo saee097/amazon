@@ -315,7 +315,7 @@ export default function AdminDashboard() {
                     className="relative rounded-t-md bg-gradient-to-t from-[#0F766E] to-[#14b8a6] transition-colors group-hover:from-[#0d5e58] group-hover:to-[#0d9488]"
                     style={{ height: `${Math.max(4, (point.revenue / maxRevenue) * 100)}%` }}
                   >
-                    <span className="pointer-events-none absolute -top-7 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-950 px-2 py-1 text-xs text-white shadow-lg group-hover:block">
+                    <span className="pointer-events-none absolute -top-7 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-950 px-2 py-1 text-xs text-white group-hover:block">
                       {currency.format(point.revenue)}
                     </span>
                   </div>

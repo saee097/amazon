@@ -49,7 +49,7 @@ function SearchResults() {
               <Link
                 key={product._id}
                 href={`/products/${product.slug}`}
-                className="bg-white rounded-lg border border-gray-200 overflow-hidden group hover:shadow-md transition-shadow"
+                className="bg-white rounded-lg border border-gray-200 overflow-hidden group"
               >
                 <ProductImage
                   product={product}
