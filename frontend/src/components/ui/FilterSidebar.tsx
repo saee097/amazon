@@ -484,7 +484,7 @@ export default function FilterSidebar({
   if (typeof window === "undefined") return null;
 
   return (
-    <aside className={`fixed inset-0 z-50 lg:static lg:relative lg:z-auto lg:inset-auto w-full lg:w-72 flex-shrink-0 transition-transform duration-300 ease-in-out bg-white dark:bg-gray-800 ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
+    <aside className={`fixed inset-0 z-50 lg:sticky lg:top-28 lg:z-auto lg:inset-auto lg:h-[calc(100vh-8rem)] w-full lg:w-72 flex-shrink-0 transition-transform duration-300 ease-in-out bg-white dark:bg-gray-800 ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
       {/* Mobile backdrop */}
       <div className="lg:hidden fixed inset-0 bg-black/50 z-40" onClick={onClose} aria-hidden="true" />
       
@@ -515,7 +515,7 @@ export default function FilterSidebar({
           )}
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-1">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 lg:p-6 space-y-1">
           {/* Availability */}
           <FilterSection
             title="Availability"

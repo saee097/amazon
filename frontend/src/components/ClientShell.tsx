@@ -75,48 +75,44 @@ export default function ClientShell({ children }: { children: React.ReactNode })
           <div className="bg-[#0F766E] text-white text-xs">
             <div className="container mx-auto px-4 py-2 flex justify-between items-center">
               <div className="flex items-center gap-4">
-                <span>Need Help? +92 300 1234567</span>
+                <span>Need Help? +92 3178964091</span>
                 <span className="hidden sm:inline">|</span>
                 <span className="hidden sm:inline">Free Shipping on orders over $50</span>
               </div>
               <div className="flex items-center gap-4">
-                {isLoggedIn ? (
+                {isLoggedIn && (
                   <>
                     <Link href={getProfileLink()} className="hover:text-teal-100">Account</Link>
                     <span>|</span>
                     <button onClick={handleLogout} className="hover:text-teal-100">Sign Out</button>
                   </>
-                ) : (
-                  <>
-                    <Link href="/auth/login" className="hover:text-teal-100">Sign In</Link>
-                    <span>|</span>
-                    <Link href="/auth/register" className="hover:text-teal-100">Register</Link>
-                  </>
-                )}
-              </div>
+                )}</div>
             </div>
           </div>
 
           {/* Header */}
-          <header className="sticky top-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
+          <header className="sticky top-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 [padding-top:env(safe-area-inset-top)]">
             <div className="container mx-auto px-4">
-              <div className="flex items-center justify-between h-16">
+              <div className="flex min-w-0 items-center justify-between gap-2 h-16">
 
                 {/* Mobile menu toggle */}
                 <button
                   onClick={() => setMobileOpen(!mobileOpen)}
                   className="lg:hidden p-2 -ml-2 text-gray-700 hover:text-[#0F766E] dark:text-gray-300 dark:hover:text-[#0F766E]"
+                  aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+                  aria-expanded={mobileOpen}
+                  aria-controls="store-mobile-sidebar"
                 >
                   {mobileOpen ? <FiX size={20} /> : <FiMenu size={20} />}
                 </button>
 
                 {/* Logo */}
                 <Link href="/" className="flex-shrink-0">
-                  <span className="text-xl font-bold tracking-wider text-gray-900 dark:text-gray-100">STORE</span>
+                  <span className="text-lg font-bold tracking-wider text-gray-900 dark:text-gray-100 sm:text-xl">STORE</span>
                 </Link>
 
                 {/* Desktop Search */}
-                <div className="hidden md:flex flex-1 max-w-xl mx-8">
+                <div className="hidden min-w-0 flex-1 md:flex md:max-w-xl md:mx-3 lg:mx-8">
                   <div className="relative w-full">
                     <input
                       type="text"
@@ -128,7 +124,7 @@ export default function ClientShell({ children }: { children: React.ReactNode })
                 </div>
 
                 {/* Icons */}
-                <div className="flex items-center gap-6">
+                <div className="flex shrink-0 items-center gap-3 sm:gap-4 lg:gap-6">
                   <Link href="/wishlist" className="hidden sm:flex flex-col items-center text-gray-600 hover:text-[#0F766E] dark:text-gray-400 dark:hover:text-[#0F766E] relative">
                     <FiHeart size={20} />
                     {wishlistCount > 0 && (
@@ -162,25 +158,48 @@ export default function ClientShell({ children }: { children: React.ReactNode })
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:block border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+            <nav className="hidden border-t border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 lg:block">
               <div className="container mx-auto px-4">
-                <div className="flex items-center gap-8 h-10 text-sm font-medium text-gray-700 dark:text-gray-300">
-                  <Link href="/" className="hover:text-[#0F766E] dark:hover:text-[#0F766E]">Home</Link>
-                  <Link href="/products" className="hover:text-[#0F766E] dark:hover:text-[#0F766E]">Shop All</Link>
-                  <Link href="/products?category=new" className="hover:text-[#0F766E] dark:hover:text-[#0F766E]">New Arrivals</Link>
-                  <Link href="/products?category=sale" className="hover:text-[#0F766E] dark:hover:text-red-500">Sale</Link>
-                  <Link href="/products?category=women" className="hover:text-[#0F766E] dark:hover:text-[#0F766E]">Women</Link>
-                  <Link href="/products?category=men" className="hover:text-[#0F766E] dark:hover:text-[#0F766E]">Men</Link>
-                  <Link href="/products?category=accessories" className="hover:text-[#0F766E] dark:hover:text-[#0F766E]">Accessories</Link>
+                <div className="flex h-10 min-w-max items-center gap-6 whitespace-nowrap text-sm font-medium text-gray-700 dark:text-gray-300 sm:gap-8">
+                  <Link href="/" className="shrink-0 hover:text-[#0F766E] dark:hover:text-[#0F766E]">Home</Link>
+                  <Link href="/products" className="shrink-0 hover:text-[#0F766E] dark:hover:text-[#0F766E]">Shop All</Link>
+                  <Link href="/products?category=new" className="shrink-0 hover:text-[#0F766E] dark:hover:text-[#0F766E]">New Arrivals</Link>
+                  <Link href="/products?category=sale" className="shrink-0 hover:text-[#0F766E] dark:hover:text-red-500">Sale</Link>
+                  <Link href="/products?category=women" className="shrink-0 hover:text-[#0F766E] dark:hover:text-[#0F766E]">Women</Link>
+                  <Link href="/products?category=men" className="shrink-0 hover:text-[#0F766E] dark:hover:text-[#0F766E]">Men</Link>
+                  <Link href="/products?category=accessories" className="shrink-0 hover:text-[#0F766E] dark:hover:text-[#0F766E]">Accessories</Link>
                 </div>
               </div>
             </nav>
           </header>
 
-          {/* Mobile Menu */}
+          {/* Small and medium screen sidebar */}
           {mobileOpen && (
-            <div className="lg:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-              <div className="container mx-auto px-4 py-4 space-y-4">
+            <div className="fixed inset-0 z-[60] lg:hidden">
+              <button
+                type="button"
+                aria-label="Close navigation menu"
+                onClick={() => setMobileOpen(false)}
+                className="absolute inset-0 h-full w-full bg-black/50"
+              />
+              <aside
+                id="store-mobile-sidebar"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Store navigation"
+                className="relative flex h-full w-[min(20rem,85vw)] flex-col overflow-y-auto bg-white px-5 pt-[calc(env(safe-area-inset-top)+1rem)] pb-[calc(env(safe-area-inset-bottom)+1rem)] shadow-xl dark:bg-gray-900"
+              >
+                <div className="mb-5 flex items-center justify-between">
+                  <Link href="/" onClick={() => setMobileOpen(false)} className="text-lg font-bold tracking-wider text-gray-900 dark:text-gray-100">STORE</Link>
+                  <button
+                    type="button"
+                    onClick={() => setMobileOpen(false)}
+                    aria-label="Close navigation menu"
+                    className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                  >
+                    <FiX size={20} />
+                  </button>
+                </div>
                 <div className="relative">
                   <input
                     type="text"
@@ -190,13 +209,13 @@ export default function ClientShell({ children }: { children: React.ReactNode })
                   <FiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={16} />
                 </div>
                 <div className="space-y-3 text-sm font-medium">
-                  <Link href="/" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Home</Link>
-                  <Link href="/products" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Shop All</Link>
-                  <Link href="/products?category=new" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>New Arrivals</Link>
-                  <Link href="/products?category=sale" className="block py-2 border-b border-gray-200 dark:border-gray-800 text-red-600" onClick={() => setMobileOpen(false)}>Sale</Link>
-                  <Link href="/products?category=women" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Women</Link>
-                  <Link href="/products?category=men" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Men</Link>
-                  <Link href="/products?category=accessories" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Accessories</Link>
+                  <Link href="/" className="block border-b border-gray-200 py-2 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Home</Link>
+                  <Link href="/products" className="block border-b border-gray-200 py-2 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Shop All</Link>
+                  <Link href="/products?category=new" className="block border-b border-gray-200 py-2 dark:border-gray-800" onClick={() => setMobileOpen(false)}>New Arrivals</Link>
+                  <Link href="/products?category=sale" className="block border-b border-gray-200 py-2 text-red-600 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Sale</Link>
+                  <Link href="/products?category=women" className="block border-b border-gray-200 py-2 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Women</Link>
+                  <Link href="/products?category=men" className="block border-b border-gray-200 py-2 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Men</Link>
+                  <Link href="/products?category=accessories" className="block border-b border-gray-200 py-2 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Accessories</Link>
                   <Link href="/wishlist" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Wishlist</Link>
                   <Link href="/cart" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Cart</Link>
                   {isLoggedIn ? (
@@ -205,7 +224,7 @@ export default function ClientShell({ children }: { children: React.ReactNode })
                     <Link href="/auth/login" className="block py-2 border-b border-gray-200 dark:border-gray-800" onClick={() => setMobileOpen(false)}>Sign In</Link>
                   )}
                 </div>
-              </div>
+              </aside>
             </div>
           )}
         </>

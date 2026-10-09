@@ -165,7 +165,7 @@ export default function HomePage() {
 
         {menuItems.length > 0 && (
           <motion.div
-            className="mb-8 flex flex-wrap justify-center gap-3"
+            className="-mx-4 mb-8 flex flex-nowrap justify-start gap-3 overflow-x-auto overscroll-x-contain touch-pan-x px-4 pb-2 snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:mx-0 lg:flex-wrap lg:justify-center lg:overflow-visible lg:px-0 lg:pb-0"
             variants={containerStagger}
             initial="initial"
             animate="animate"
@@ -176,7 +176,7 @@ export default function HomePage() {
                 href={item.url || "/"}
                 variants={scaleIn}
                 whileHover={{ scale: 1.05 }}
-                className="rounded-full border border-gray-200 bg-white dark:bg-gray-800 px-4 py-2 text-xs font-medium uppercase tracking-wide text-gray-700 dark:text-gray-300 hover:border-[#0F766E] hover:text-[#0F766E] transition"
+                className="shrink-0 snap-start rounded-full border border-gray-200 bg-white px-4 py-2 text-xs font-medium uppercase tracking-wide text-gray-700 transition hover:border-[#0F766E] hover:text-[#0F766E] dark:bg-gray-800 dark:text-gray-300"
               >
                 {item.title}
               </motion.a>
@@ -191,16 +191,17 @@ export default function HomePage() {
             animate="animate"
             variants={containerStagger}
           >
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-4 pb-2 touch-pan-x [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 lg:pb-0">
               {banners.slice(0, 3).map((banner) => (
                 <motion.div
                   key={banner._id}
                   variants={fadeUp}
                   whileHover={{ scale: 1.02 }}
+                  className="w-[85vw] min-w-[85vw] snap-start sm:w-[min(70vw,32rem)] sm:min-w-[min(70vw,32rem)] lg:w-auto lg:min-w-0"
                 >
                   <Link
                     href={banner.link_url || "/products"}
-                    className="group relative overflow-hidden rounded-3xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition"
+                    className="group relative block overflow-hidden rounded-3xl border border-gray-200 bg-white transition dark:border-gray-700 dark:bg-gray-800"
                   >
                     <div className="relative h-56 overflow-hidden">
                       <img
@@ -231,42 +232,44 @@ export default function HomePage() {
             animate="animate"
             variants={containerStagger}
           >
-            <div className="flex items-center justify-between mb-6">
-              <div>
+            <div className="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-end sm:justify-between">
+              <div className="min-w-0">
                 <motion.h2
                   variants={fadeUp}
-                  className="text-2xl font-medium text-gray-800 dark:text-gray-200 tracking-wide uppercase"
+                  className="text-xl font-medium tracking-wide text-gray-800 dark:text-gray-200 sm:text-2xl uppercase"
                 >
                   Shop by Category
                 </motion.h2>
-                <motion.p variants={fadeUp} className="text-sm text-gray-500 mt-1">
+                <motion.p variants={fadeUp} className="mt-1 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
                   Browse real categories loaded from the backend.
                 </motion.p>
               </div>
               <Link
                 href="/products"
-                className="text-sm font-medium text-[#0F766E] underline underline-offset-4 hover:text-[#0F766E]/80"
+                className="w-fit text-xs font-medium text-[#0F766E] underline underline-offset-4 hover:text-[#0F766E]/80 sm:text-sm"
               >
                 View all categories
               </Link>
             </div>
 
             <motion.div
-              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4"
+              className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-4 pb-4 sm:mx-0 sm:gap-4 sm:px-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+              role="list"
+              aria-label="Product categories"
               variants={containerStagger}
             >
               {categories.map((category) => (
                 <motion.div
                   key={category._id}
                   variants={scaleIn}
-                  whileHover={{ scale: 1.05 }}
-                  className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 p-4 text-center"
+                  className="w-[min(72vw,12rem)] min-w-[min(72vw,12rem)] snap-start rounded-2xl border border-gray-200 bg-white p-3 text-center transition-colors hover:border-[#0F766E]/50 dark:border-gray-700 dark:bg-gray-800 sm:w-48 sm:min-w-48 sm:rounded-3xl sm:p-4"
+                  role="listitem"
                 >
                   <Link
                     href={`/products?category=${category.slug}`}
                     className="group block"
                   >
-                    <p className="text-sm font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300 group-hover:text-[#0F766E] transition-colors">
+                    <p className="break-words text-xs font-semibold uppercase tracking-wide text-gray-700 transition-colors group-hover:text-[#0F766E] dark:text-gray-300 sm:text-sm">
                       {category.category_name}
                     </p>
                   </Link>
@@ -314,7 +317,7 @@ export default function HomePage() {
           />
         )}
 
-        <CustomerReviews reviews={reviews} />
+        <CustomerReviews reviews={reviews.slice(0, 3)} />
       </div>
     </div>
   );

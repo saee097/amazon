@@ -9,10 +9,22 @@ const poppins = Poppins({
   variable: "--font-poppins",
 });
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: "cover",
+};
+
+export const metadata = {
+  // title, description, icons, etc. can be added here
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={poppins.variable}>
-      <body className="bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 font-poppins antialiased min-h-screen flex flex-col">
+      <body className="bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 font-poppins antialiased min-h-screen flex flex-col overflow-x-hidden">
         <ThemeProvider>
           <ClientShell>{children}</ClientShell>
         </ThemeProvider>

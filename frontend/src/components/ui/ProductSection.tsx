@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { FiHeart, FiSearch } from "react-icons/fi";
+import { FiHeart } from "react-icons/fi";
 import ProductImage from "@/components/ui/ProductImage";
 import { containerStagger, cardHover, tapScale } from "@/lib/motion";
 
@@ -143,15 +143,6 @@ export default function ProductSection({
                           {...tapScale}
                         >
                           <FiHeart size={14} className="text-gray-700 dark:text-gray-300" />
-                        </motion.button>
-                        <motion.button
-                          type="button"
-                          aria-label="Quick view"
-                          className="w-8 h-8 bg-white dark:bg-gray-800 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 rounded-full"
-                          whileHover={{ scale: 1.15 }}
-                          {...tapScale}
-                        >
-                          <FiSearch size={14} className="text-gray-700 dark:text-gray-300" />
                         </motion.button>
                       </>
                     ) : undefined

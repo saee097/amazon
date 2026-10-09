@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "npm run lint",
     "seed": "tsx scripts/seed.ts",
+    "seed:6pm": "tsx scripts/seed-6pm-products.ts",
     "db:migrate": "node scripts/migrate.mjs",
     "db:test": "node scripts/test-db.mjs"
   },

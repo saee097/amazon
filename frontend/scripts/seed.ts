@@ -116,6 +116,108 @@ async function createUser(
   console.log(`✓ Created ${role}: ${email}`);
 }
 
+async function seedReviews() {
+  const { data: existing } = await supabase.from("reviews").select("id").limit(1);
+  if (existing && existing.length > 0) {
+    console.log("✓ Reviews already seeded");
+    return;
+  }
+
+  const customerEmail = process.env.SEED_CUSTOMER_EMAIL || "customer@amazonstore.com";
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("email", customerEmail)
+    .maybeSingle();
+
+  if (!profile?.id) {
+    console.log("⚠ Skipping reviews seed: customer profile not found");
+    return;
+  }
+
+  const { data: products } = await supabase
+    .from("products")
+    .select("id, slug")
+    .in("slug", ["premium-cotton-tshirt", "slim-fit-jeans", "floral-summer-dress"]);
+
+  if (!products || products.length === 0) {
+    console.log("⚠ Skipping reviews seed: products not found");
+    return;
+  }
+
+  const reviews = [
+    {
+      product_id: products.find((p) => p.slug === "premium-cotton-tshirt")?.id,
+      user_id: profile.id,
+      rating: 5,
+      comment: "Excellent quality and super comfortable. Love the fit and the material is so soft!",
+      status: "approved",
+    },
+    {
+      product_id: products.find((p) => p.slug === "premium-cotton-tshirt")?.id,
+      user_id: profile.id,
+      rating: 4,
+      comment: "Great t-shirt, soft material and true to size. Minor stitching near the collar.",
+      status: "approved",
+    },
+    {
+      product_id: products.find((p) => p.slug === "premium-cotton-tshirt")?.id,
+      user_id: profile.id,
+      rating: 5,
+      comment: "Fast shipping and the product looks exactly like the photo. Will order again!",
+      status: "approved",
+    },
+    {
+      product_id: products.find((p) => p.slug === "slim-fit-jeans")?.id,
+      user_id: profile.id,
+      rating: 5,
+      comment: "The best jeans I've owned. Perfect slim fit without being too tight.",
+      status: "approved",
+    },
+    {
+      product_id: products.find((p) => p.slug === "slim-fit-jeans")?.id,
+      user_id: profile.id,
+      rating: 4,
+      comment: "Good quality denim with great color. Slightly stiff at first but softened up.",
+      status: "approved",
+    },
+    {
+      product_id: products.find((p) => p.slug === "slim-fit-jeans")?.id,
+      user_id: profile.id,
+      rating: 4,
+      comment: "Love the fit and the price. Would recommend sizing up if you're between sizes.",
+      status: "approved",
+    },
+    {
+      product_id: products.find((p) => p.slug === "floral-summer-dress")?.id,
+      user_id: profile.id,
+      rating: 5,
+      comment: "Absolutely beautiful dress! The colors are vibrant and the fabric is lightweight.",
+      status: "approved",
+    },
+    {
+      product_id: products.find((p) => p.slug === "floral-summer-dress")?.id,
+      user_id: profile.id,
+      rating: 3,
+      comment: "Nice dress but runs a little small. Order one size up for a better fit.",
+      status: "approved",
+    },
+    {
+      product_id: products.find((p) => p.slug === "floral-summer-dress")?.id,
+      user_id: profile.id,
+      rating: 5,
+      comment: "Perfect for summer parties! The floral pattern is even prettier in person.",
+      status: "approved",
+    },
+  ].filter((r) => r.product_id !== undefined);
+
+  const { error } = await supabase.from("reviews").insert(reviews);
+  if (error) {
+    console.error("✗ Failed to seed reviews:", error.message);
+  } else {
+    console.log(`✓ Seeded ${reviews.length} product reviews`);
+  }
+}
 async function main() {
   console.log("Seeding demo users...\n");
 
@@ -135,16 +237,18 @@ async function main() {
     "Admin"
   );
 
-  await createUser(
-    process.env.SEED_SUPERADMIN_EMAIL || "superadmin@amazonstore.com",
-    process.env.SEED_SUPERADMIN_PASSWORD || "Super@123456",
-    "superadmin",
-    "Super",
-    "Admin"
-  );
+   await createUser(
+     process.env.SEED_SUPERADMIN_EMAIL || "superadmin@amazonstore.com",
+     process.env.SEED_SUPERADMIN_PASSWORD || "Super@123456",
+     "superadmin",
+     "Super",
+     "Admin"
+   );
 
-  console.log("\n✓ Seed complete!");
-  console.log("\nDemo credentials:");
+   await seedReviews();
+
+   console.log("\n✓ Seed complete!");
+   console.log("\nDemo credentials:");
   console.log(`  Customer:   ${process.env.SEED_CUSTOMER_EMAIL || "customer@amazonstore.com"}`);
   console.log(`  Admin:      ${process.env.SEED_ADMIN_EMAIL || "admin@amazonstore.com"}`);
   console.log(`  Superadmin: ${process.env.SEED_SUPERADMIN_EMAIL || "superadmin@amazonstore.com"}`);

@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { FiStar, FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import { fadeUp, containerStagger, tapScale } from "@/lib/motion";
+import { FiStar } from "react-icons/fi";
+import { fadeUp, containerStagger } from "@/lib/motion";
 
 export type Review = {
   _id: string;
@@ -33,31 +33,63 @@ export default function CustomerReviews({
   reviews,
 }: CustomerReviewsProps) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const [canPrev, setCanPrev] = useState(false);
-  const [canNext, setCanNext] = useState(true);
+  const [activePage, setActivePage] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
 
-  const updateArrows = useCallback(() => {
+  const getCardsPerPage = () =>
+    typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches ? 3 : 1;
+
+  const getPageCount = useCallback(
+    () => Math.max(1, Math.ceil(reviews.length / getCardsPerPage())),
+    [reviews.length]
+  );
+
+  const updateActivePage = useCallback(() => {
     const track = trackRef.current;
     if (!track) return;
-    const { scrollLeft, scrollWidth, clientWidth } = track;
-    setCanPrev(scrollLeft > 8);
-    setCanNext(scrollLeft + clientWidth < scrollWidth - 8);
-  }, []);
+    const { scrollLeft, clientWidth } = track;
+    const pageWidth = clientWidth || 1;
+    setActivePage(Math.min(getPageCount() - 1, Math.round(scrollLeft / pageWidth)));
+  }, [getPageCount]);
 
   useEffect(() => {
-    updateArrows();
+    updateActivePage();
     const track = trackRef.current;
     if (!track) return;
-    track.addEventListener("scroll", updateArrows, { passive: true });
-    return () => track.removeEventListener("scroll", updateArrows);
-  }, [updateArrows]);
+    track.addEventListener("scroll", updateActivePage, { passive: true });
+    return () => track.removeEventListener("scroll", updateActivePage);
+  }, [updateActivePage]);
 
-  const scrollByCard = (dir: number) => {
+  useEffect(() => {
     const track = trackRef.current;
-    const card = track?.querySelector<HTMLElement>(".review-card");
-    if (!track || !card) return;
-    const amount = card.offsetWidth + 24; // gap-6
-    track.scrollBy({ left: dir * amount, behavior: "smooth" });
+    if (!track || reviews.length < 2 || isPaused || !isSmallScreen) return;
+    const timer = window.setInterval(() => {
+      const pageCount = getPageCount();
+      const nextPage = activePage + 1 >= pageCount ? 0 : activePage + 1;
+      track.scrollTo({ left: nextPage * track.clientWidth, behavior: "smooth" });
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [activePage, getPageCount, isPaused, isSmallScreen, reviews.length]);
+
+  useEffect(() => {
+    const handleResize = () => updateActivePage();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [updateActivePage]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 639px)");
+    const updateScreenSize = () => setIsSmallScreen(mediaQuery.matches);
+    updateScreenSize();
+    mediaQuery.addEventListener("change", updateScreenSize);
+    return () => mediaQuery.removeEventListener("change", updateScreenSize);
+  }, []);
+
+  const goToPage = (page: number) => {
+    const track = trackRef.current;
+    if (!track) return;
+    track.scrollTo({ left: page * track.clientWidth, behavior: "smooth" });
   };
 
   if (!reviews.length) return null;
@@ -66,14 +98,11 @@ export default function CustomerReviews({
     <section className="mb-12">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-medium text-gray-800 dark:text-gray-200 tracking-wide uppercase">
+          <h2 className="text-xl sm:text-2xl font-medium text-gray-800 dark:text-gray-200 tracking-wide uppercase">
             {title}
           </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>
         </div>
-        <span className="text-xs text-gray-400 dark:text-gray-500">
-          {reviews.length} review{reviews.length === 1 ? "" : "s"}
-        </span>
       </div>
 
       <motion.div
@@ -81,23 +110,14 @@ export default function CustomerReviews({
         variants={containerStagger}
         initial="initial"
         animate="animate"
-        className="relative flex items-stretch gap-6 overflow-x-auto scroll-smooth snap-mandatory px-12 md:px-14 pb-2
-          [&::-webkit-scrollbar]:hidden [scrollbar-width:none] [-ms-overflow-style:none]"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onFocusCapture={() => setIsPaused(true)}
+        onBlurCapture={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsPaused(false);
+        }}
+        className="relative flex items-stretch gap-0 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 lg:gap-6 [&::-webkit-scrollbar]:hidden [scrollbar-width:none] [-ms-overflow-style:none]"
       >
-        {reviews.length > 1 && (
-          <motion.button
-            type="button"
-            aria-label="Previous review"
-            onClick={() => scrollByCard(-1)}
-            disabled={!canPrev}
-            whileHover={canPrev ? { scale: 1.08 } : undefined}
-            {...tapScale}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:border-[#0F766E] hover:text-[#0F766E] disabled:opacity-40 disabled:cursor-not-allowed transition"
-          >
-            <FiChevronLeft size={18} />
-          </motion.button>
-        )}
-
         {reviews.map((review) => {
           const customerName =
             review.customer?.name || review.customer?.first_name || "Anonymous";
@@ -106,11 +126,9 @@ export default function CustomerReviews({
             <motion.div
               key={review._id}
               variants={fadeUp}
-              whileHover={{ y: -6 }}
-              {...tapScale}
-              className="review-card flex-none snap-start w-full sm:w-1/2 lg:w-1/3"
+              className="review-card w-full flex-none snap-start sm:w-full lg:w-[calc((100%-3rem)/3)]"
             >
-              <div className="h-full flex flex-col bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 transition-colors hover:border-[#0F766E]">
+              <div className="h-full flex flex-col bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
                 <div className="flex items-center gap-0.5 mb-4">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <FiStar
@@ -141,13 +159,6 @@ export default function CustomerReviews({
                       </p>
                     )}
                   </div>
-                  {review.product && review.product.images?.[0]?.image_url && (
-                    <img
-                      src={review.product.images[0].image_url}
-                      alt={review.product.images[0].alt_text || review.product.title}
-                      className="w-10 h-10 rounded object-cover flex-shrink-0"
-                    />
-                  )}
                 </div>
                 {review.product && (
                   <Link
@@ -162,20 +173,21 @@ export default function CustomerReviews({
           );
         })}
 
-        {reviews.length > 1 && (
-          <motion.button
-            type="button"
-            aria-label="Next review"
-            onClick={() => scrollByCard(1)}
-            disabled={!canNext}
-            whileHover={canNext ? { scale: 1.08 } : undefined}
-            {...tapScale}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:border-[#0F766E] hover:text-[#0F766E] disabled:opacity-40 disabled:cursor-not-allowed transition"
-          >
-            <FiChevronRight size={18} />
-          </motion.button>
-        )}
       </motion.div>
+      {reviews.length > 1 && (
+        <div className="mt-4 flex justify-center gap-2 sm:hidden" role="group" aria-label="Choose review page">
+          {Array.from({ length: getPageCount() }, (_, page) => (
+            <button
+              key={page}
+              type="button"
+              aria-label={`Go to review page ${page + 1}`}
+              aria-current={activePage === page ? "true" : undefined}
+              onClick={() => goToPage(page)}
+              className={`h-2.5 rounded-full transition-all ${activePage === page ? "w-6 bg-[#0F766E]" : "w-2.5 bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500"}`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

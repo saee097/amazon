@@ -36,17 +36,14 @@ import {
   ListTree,
   ShieldAlert,
   ScrollText,
-  Sliders,
   ChevronsLeft,
   ChevronsRight,
   X,
   Activity,
   Store,
   User,
-  CheckCircle2,
   AlertTriangle,
   Info,
-  TrendingUp,
   ExternalLink,
   ChevronDown,
 } from "lucide-react";
@@ -341,9 +338,11 @@ export default function AdminLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() =>
+    typeof window !== "undefined" && window.localStorage.getItem("admin_sidebar_collapsed") === "true"
+  );
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser] = useState(() => getUser());
 
   // Search
   const [searchOpen, setSearchOpen] = useState(false);
@@ -359,20 +358,6 @@ export default function AdminLayout({ children }) {
   // User menu
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
-
-  // ── Bootstrap ──
-  useEffect(() => {
-    const user = getUser();
-    setCurrentUser(user);
-
-    const savedCollapsed = localStorage.getItem("admin_sidebar_collapsed");
-    if (savedCollapsed === "true") setCollapsed(true);
-  }, []);
-
-  // Close mobile sidebar on route change
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
 
   // Click-outside handler
   useEffect(() => {
@@ -478,7 +463,7 @@ export default function AdminLayout({ children }) {
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="relative h-full w-72">
+          <aside className="relative h-full w-[min(18rem,88vw)]">
             <SidebarContent
               collapsed={false}
               pathname={pathname}
@@ -566,7 +551,7 @@ export default function AdminLayout({ children }) {
                 <Search size={18} />
               </button>
               {searchOpen && (
-                <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+                <div className="absolute right-0 top-full mt-2 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                   <div className="border-b border-gray-200 p-3 dark:border-gray-700">
                     <div className="relative">
                       <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -611,7 +596,9 @@ export default function AdminLayout({ children }) {
             </div>
 
             {/* Dark mode toggle */}
-            <ThemeToggleButton aria-label="Toggle theme" />
+            {(currentUser?.role === ROLES.ADMIN || currentUser?.role === ROLES.SUPERADMIN) && (
+              <ThemeToggleButton aria-label="Toggle theme" />
+            )}
 
             {/* Notifications */}
             <div ref={notifRef} className="relative">
@@ -631,7 +618,7 @@ export default function AdminLayout({ children }) {
                 )}
               </button>
               {notifOpen && (
-                <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+                <div className="absolute right-0 top-full mt-2 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                   <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-700">
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Notifications</p>
                     <Link
@@ -740,7 +727,7 @@ export default function AdminLayout({ children }) {
         </header>
 
         {/* ── Page content ── */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        <main className="min-w-0 w-full flex-1 p-3 sm:p-6 lg:p-8">
           {children}
         </main>
 

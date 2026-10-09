@@ -31,22 +31,19 @@ async function loadProductsWithRelations(filters: {
   skip: number;
 }) {
   const supabase = getSupabaseAdmin();
+  const categoryRelation = filters.category ? "categories!inner" : "categories";
   let query = supabase
     .from("products")
-    .select("*, categories(*), brands(*), product_variants(*), product_images(*)", { count: "exact" })
+    .select(
+      `*, ${categoryRelation}(*), brands(*), product_variants(*), product_images(*)`,
+      { count: "exact" }
+    )
     .eq("status", "active");
 
-  let categoryId: string | null = null;
   let brandId: string | null = null;
 
   if (filters.category) {
-    const { data: catData } = await supabase
-      .from("categories")
-      .select("id")
-      .eq("slug", filters.category)
-      .single();
-    if (catData) categoryId = catData.id;
-    else return { data: [], count: 0, pagination: { page: filters.page, limit: filters.limit, total: 0, totalPages: 0 } };
+    query = query.eq("categories.slug", filters.category);
   }
 
   if (filters.brand) {
@@ -62,7 +59,6 @@ async function loadProductsWithRelations(filters: {
   if (filters.slug) query = query.eq("slug", filters.slug);
   if (filters.id) query = query.eq("id", filters.id);
   if (filters.q) query = query.ilike("title", `%${filters.q}%`);
-  if (categoryId) query = query.eq("category_id", categoryId);
   if (brandId) query = query.eq("brand_id", brandId);
   if (filters.minPrice) query = query.gte("price", filters.minPrice);
   if (filters.maxPrice) query = query.lte("price", filters.maxPrice);
@@ -98,14 +94,17 @@ async function loadProductsWithRelations(filters: {
   if (error) throw error;
 
   const products = (data || []).map((p) =>
-    mapProduct(p, {
-      category: p.categories,
-      brand: p.brands,
-      variants: p.product_variants || [],
-      images: (p.product_images || []).sort(
-        (a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order
-      ),
-    })
+     mapProduct(p, {
+       category: p.categories,
+       brand: p.brands,
+       variants: p.product_variants || [],
+       images: (p.product_images || []).sort(
+         (a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order
+       ),
+       reviews: (p.reviews || []).filter(
+         (r: { status?: string }) => r.status === "approved" || r.status === "active"
+       ),
+     })
   );
 
   const total = count || 0;

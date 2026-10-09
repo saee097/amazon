@@ -2,15 +2,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import api from "@/lib/api";
-import { FiHeart, FiSearch, FiStar, FiMinus, FiPlus, FiArrowLeft, FiShare, FiEdit2, FiX } from "react-icons/fi";
+import { FiHeart, FiStar, FiMinus, FiPlus, FiArrowLeft, FiShare, FiEdit2, FiX, FiChevronRight } from "react-icons/fi";
 import { FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa6";
 import ProductImageGallery from "@/components/ui/ProductImageGallery";
 import { getToken } from "@/lib/auth";
 import { notifyStoreUpdate } from "@/lib/storeEvents";
 import { ProductDetailSkeleton } from "@/components/ui/skeleton";
-import { containerStagger, scaleIn, fadeUp, cardHover, tapScale } from "@/lib/motion";
 type ProductDetail = {
   _id: string;
   title: string;
@@ -54,7 +53,6 @@ export default function ProductDetailPage() {
   const [addingToCart, setAddingToCart] = useState(false);
   const [cartMessage, setCartMessage] = useState<string>("");
   const [inWishlist, setInWishlist] = useState(false);
-  const [showReviews, setShowReviews] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewComment, setReviewComment] = useState("");
@@ -111,11 +109,11 @@ export default function ProductDetailPage() {
   const averageRating = product?.reviews?.length
     ? (product.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / product.reviews.length).toFixed(1)
     : "0.0";
-  const formatPrice = (price: number | undefined) => {
-    if (!price && price !== 0) return "$0";
-    return `$${price.toLocaleString()}`;
-  };
-  const productUrl =
+   const formatPrice = (price: number | undefined) => {
+     if (!price && price !== 0) return "$0";
+     return `$${price.toLocaleString()}`;
+   };
+   const productUrl =
     typeof window !== "undefined" ? window.location.href : "";
   const addToCart = async () => {
     if (!product || !inStock) return;
@@ -175,11 +173,15 @@ export default function ProductDetailPage() {
       setShowReviewForm(false);
       setReviewRating(0);
       setReviewComment("");
-      // Reload product to show new review
-      const res = await api.get(`/store/products/${productId}`);
-      setProduct(res.data.data);
-    } catch {
-      setReviewMessage("Failed to submit review. Please try again.");
+      // The review is pending approval, so refreshing the public product data is optional.
+      api.get(`/store/products/${productId}`)
+        .then((res) => setProduct(res.data.data))
+        .catch((error) => console.error("Review submitted, but product refresh failed:", error));
+    } catch (error) {
+      console.error("Failed to submit review:", error);
+      const responseMessage = (error as { response?: { data?: { message?: string } } })
+        .response?.data?.message;
+      setReviewMessage(responseMessage || "Failed to submit review. Please try again.");
     } finally {
       setSubmittingReview(false);
       setTimeout(() => setReviewMessage(""), 3000);
@@ -211,11 +213,11 @@ export default function ProductDetailPage() {
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-6">
           <Link href="/" className="hover:text-[#0F766E] transition">Home</Link>
-          <span>/</span>
+          <FiChevronRight size={12} aria-hidden="true" />
           <Link href="/products" className="hover:text-[#0F766E] transition">Products</Link>
           {product.category?.category_name && (
             <>
-              <span>/</span>
+              <FiChevronRight size={12} aria-hidden="true" />
               <Link
                 href={`/products?category=${product.category.slug || product.category.category_name.toLowerCase()}`}
                 className="hover:text-[#0F766E] transition"
@@ -224,7 +226,7 @@ export default function ProductDetailPage() {
               </Link>
             </>
           )}
-          <span>/</span>
+          <FiChevronRight size={12} aria-hidden="true" />
           <span className="text-gray-900 dark:text-gray-100 truncate max-w-[200px]">{product.title}</span>
         </nav>
         {/* Product */}
