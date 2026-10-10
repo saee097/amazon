@@ -18,7 +18,11 @@ export const viewport = {
 };
 
 export const metadata = {
-  // title, description, icons, etc. can be added here
+  title: "Amazon Store",
+  description: "Amazon e-commerce clone",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

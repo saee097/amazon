@@ -196,19 +196,17 @@ function SidebarContent({ collapsed, pathname, isSuperAdmin, currentUser, filter
           collapsed ? "justify-center" : "justify-between"
         }`}
       >
-        <Link href="/admin/dashboard" className={`flex items-center gap-2.5 min-w-0 ${collapsed ? "justify-center" : ""}`}>
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F766E] to-[#0d5e58] text-white">
-            <Activity size={18} />
-          </span>
-          {!collapsed && (
-            <div className="min-w-0 leading-tight">
-              <p className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">Amazon Admin</p>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-[#0F766E]">
-                {isSuperAdmin ? "Super Admin" : "Admin Panel"}
-              </p>
-            </div>
-          )}
-        </Link>
+<Link href="/admin/dashboard" className={`flex items-center gap-2.5 min-w-0 ${collapsed ? "justify-center" : ""}`}>
+                  <img src="/logo.png" alt="STORE" className="h-8 w-auto max-w-[160px] shrink-0 object-contain rounded-xl" />
+                  {!collapsed && (
+                    <div className="min-w-0 leading-tight">
+                      <p className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">Amazon Admin</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-[#0F766E]">
+                        {isSuperAdmin ? "Super Admin" : "Admin Panel"}
+                      </p>
+                    </div>
+                  )}
+                </Link>
         {onClose && (
           <button
             onClick={onClose}

@@ -108,7 +108,7 @@ export default function ClientShell({ children }: { children: React.ReactNode })
 
                 {/* Logo */}
                 <Link href="/" className="flex-shrink-0">
-                  <span className="text-lg font-bold tracking-wider text-gray-900 dark:text-gray-100 sm:text-xl">STORE</span>
+                  <img src="/logo.png" alt="STORE" className="h-12 w-auto max-w-[240px] object-contain" />
                 </Link>
 
                 {/* Desktop Search */}
@@ -161,7 +161,7 @@ export default function ClientShell({ children }: { children: React.ReactNode })
             <nav className="hidden border-t border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 lg:block">
               <div className="container mx-auto px-4">
                 <div className="flex h-10 min-w-max items-center gap-6 whitespace-nowrap text-sm font-medium text-gray-700 dark:text-gray-300 sm:gap-8">
-                  <Link href="/" className="shrink-0 hover:text-[#0F766E] dark:hover:text-[#0F766E]">Home</Link>
+                  <Link href="/" className="shrink-0 hover:text-[#0F766E] dark:hover:text-[#0F766E] ml-4">Home</Link>
                   <Link href="/products" className="shrink-0 hover:text-[#0F766E] dark:hover:text-[#0F766E]">Shop All</Link>
                   <Link href="/products?category=new" className="shrink-0 hover:text-[#0F766E] dark:hover:text-[#0F766E]">New Arrivals</Link>
                   <Link href="/products?category=sale" className="shrink-0 hover:text-[#0F766E] dark:hover:text-red-500">Sale</Link>
@@ -190,7 +190,9 @@ export default function ClientShell({ children }: { children: React.ReactNode })
                 className="relative flex h-full w-[min(20rem,85vw)] flex-col overflow-y-auto bg-white px-5 pt-[calc(env(safe-area-inset-top)+1rem)] pb-[calc(env(safe-area-inset-bottom)+1rem)] shadow-xl dark:bg-gray-900"
               >
                 <div className="mb-5 flex items-center justify-between">
-                  <Link href="/" onClick={() => setMobileOpen(false)} className="text-lg font-bold tracking-wider text-gray-900 dark:text-gray-100">STORE</Link>
+                  <Link href="/" onClick={() => setMobileOpen(false)} className="text-lg font-bold tracking-wider text-gray-900 dark:text-gray-100">
+                    <img src="/logo.png" alt="STORE" className="h-10 w-auto max-w-[180px] object-contain" />
+                  </Link>
                   <button
                     type="button"
                     onClick={() => setMobileOpen(false)}
@@ -239,7 +241,7 @@ export default function ClientShell({ children }: { children: React.ReactNode })
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
               <div className="lg:col-span-2">
                 <Link href="/" className="inline-block mb-4">
-                  <span className="text-2xl font-bold tracking-wider text-white">STORE</span>
+                  <img src="/logo.png" alt="STORE" className="h-10 w-auto max-w-[180px] object-contain brightness-0 invert" />
                 </Link>
                 <p className="text-gray-400 text-sm leading-relaxed max-w-sm mb-6">
                   Your one-stop destination for premium products. We curate the finest selection to elevate your lifestyle with quality and style.
