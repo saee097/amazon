@@ -132,6 +132,7 @@ async function getOrCreateCart(userId: string) {
       .single();
     cart = newCart;
   }
+  if (!cart) throw new Error("Failed to create cart for user");
   return cart;
 }
 
@@ -207,7 +208,7 @@ export async function handleStore(
     const { data: items } = await supabase
       .from("cart_items")
       .select("*, products(*, product_images(*), categories(*), brands(*), product_variants(*))")
-      .eq("cart_id", cart!.id);
+      .eq("cart_id", cart.id);
 
     const mappedItems = (items || []).map((item) => ({
       _id: item.id,
@@ -228,7 +229,7 @@ export async function handleStore(
       mappedItems.map((i) => ({ price: i.price, quantity: i.quantity }))
     );
 
-    return jsonOk({ _id: cart!.id, items: mappedItems, totals });
+    return jsonOk({ _id: cart.id, items: mappedItems, totals });
   }
 
   // DELETE /store/cart/items/:id
@@ -290,7 +291,7 @@ export async function handleStore(
     const { data: existing } = await supabase
       .from("cart_items")
       .select("*")
-      .eq("cart_id", cart!.id)
+      .eq("cart_id", cart.id)
       .eq("product_id", productId)
       .eq("variant_id", variant.id)
       .maybeSingle();
@@ -306,7 +307,7 @@ export async function handleStore(
         .eq("id", existing.id);
     } else {
       await supabase.from("cart_items").insert({
-        cart_id: cart!.id,
+        cart_id: cart.id,
         product_id: productId,
         variant_id: variant.id,
         quantity,
@@ -415,15 +416,22 @@ export async function handleStore(
       .eq("user_id", user!._id)
       .order("created_at", { ascending: false });
 
-    const result = [];
-    for (const order of orders || []) {
-      const { data: items } = await supabase
+    const orderList = orders || [];
+    const orderIds = orderList.map((o) => o.id);
+    const itemsByOrder = new Map<string, unknown[]>();
+    if (orderIds.length > 0) {
+      const { data: allItems } = await supabase
         .from("order_items")
         .select("*, products(*, product_images(*))")
-        .eq("order_id", order.id);
-      result.push(mapOrder(order, items || []));
+        .in("order_id", orderIds);
+      for (const item of allItems || []) {
+        const list = itemsByOrder.get(item.order_id) || [];
+        list.push(item);
+        itemsByOrder.set(item.order_id, list);
+      }
     }
 
+    const result = orderList.map((order) => mapOrder(order, itemsByOrder.get(order.id) || []));
     return jsonOk(result);
   }
 
@@ -546,7 +554,7 @@ export async function handleStore(
     const { data: items } = await supabase
       .from("cart_items")
       .select("*")
-      .eq("cart_id", cart!.id);
+      .eq("cart_id", cart.id);
 
     if (!items?.length) return jsonError("Cart is empty", 400);
 
@@ -684,6 +692,16 @@ export async function handleStore(
           // best-effort release
         }
       }
+      if (appliedCoupon) {
+        try {
+          await supabase
+            .from("coupons")
+            .update({ used_count: Math.max(0, (appliedCoupon.used_count || 0)) })
+            .eq("id", appliedCoupon.id);
+        } catch {
+          // best-effort coupon rollback
+        }
+      }
       return jsonError(err instanceof Error ? err.message : "Inventory reservation failed", 400);
     }
 
@@ -719,6 +737,16 @@ export async function handleStore(
           // best-effort release
         }
       }
+      if (appliedCoupon) {
+        try {
+          await supabase
+            .from("coupons")
+            .update({ used_count: Math.max(0, (appliedCoupon.used_count || 0)) })
+            .eq("id", appliedCoupon.id);
+        } catch {
+          // best-effort coupon rollback
+        }
+      }
       return jsonError(orderError.message, 400);
     }
 
@@ -732,7 +760,7 @@ export async function handleStore(
     }));
 
     await supabase.from("order_items").insert(orderItems);
-    await supabase.from("cart_items").delete().eq("cart_id", cart!.id);
+    await supabase.from("cart_items").delete().eq("cart_id", cart.id);
 
     await supabase.from("idempotency_keys").insert({
       key: idempotencyKey,

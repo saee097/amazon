@@ -5,6 +5,22 @@ import { requireAdmin } from "../../lib/auth";
 import { toMongoId, toMongoIds } from "../../lib/mapper";
 import { jsonError, jsonOk } from "../../lib/response";
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+async function parseJsonObject(request: NextRequest): Promise<{ data: Record<string, unknown> | null; error: ReturnType<typeof jsonError> | null }> {
+  try {
+    const body = await request.json();
+    if (!isPlainObject(body)) {
+      return { data: null, error: jsonError("Request body must be a JSON object", 400) };
+    }
+    return { data: body, error: null };
+  } catch {
+    return { data: null, error: jsonError("Invalid JSON body", 400) };
+  }
+}
+
 const RESOURCE_TABLES: Record<string, string> = {
   "/admin/collections": "collections",
   "/admin/support": "support_tickets",
@@ -51,18 +67,16 @@ export async function handleResource(
     }
 
 if (method === "POST" && !id) {
-    const body = await request.json();
-    console.log("[newsletter] Insert payload:", JSON.stringify(body));
+    const { data: body, error: parseError } = await parseJsonObject(request);
+    if (parseError) return parseError;
     const { data, error } = await supabase.from(table).insert(body).select().single();
-    if (error) {
-      console.error("[newsletter] Insert error:", JSON.stringify(error, null, 2));
-      return jsonError(error.message, 400);
-    }
+    if (error) return jsonError(error.message, 400);
     return jsonOk(toMongoId(data), 201);
   }
 
     if (method === "PUT" && id) {
-      const body = await request.json();
+      const { data: body, error: parseError } = await parseJsonObject(request);
+      if (parseError) return parseError;
       const { data, error } = await supabase.from(table).upsert({ ...body, setting_key: id }, { onConflict: "setting_key" }).select().single();
       if (error) return jsonError(error.message, 400);
       return jsonOk(toMongoId(data));
@@ -84,18 +98,16 @@ if (method === "POST" && !id) {
   }
 
   if (method === "POST" && !id) {
-    const body = await request.json();
-    console.log("[brands] Insert payload:", JSON.stringify(body));
+    const { data: body, error: parseError } = await parseJsonObject(request);
+    if (parseError) return parseError;
     const { data, error } = await supabase.from(table).insert(body).select().single();
-    if (error) {
-      console.error("[brands] Insert error:", JSON.stringify(error, null, 2));
-      return jsonError(error.message, 400);
-    }
+    if (error) return jsonError(error.message, 400);
     return jsonOk(toMongoId(data), 201);
   }
 
   if (method === "PUT" && id) {
-    const body = await request.json();
+    const { data: body, error: parseError } = await parseJsonObject(request);
+    if (parseError) return parseError;
     const { data, error } = await supabase.from(table).update(body).eq("id", id).select().single();
     if (error) return jsonError(error.message, 400);
     return jsonOk(toMongoId(data));
@@ -137,14 +149,16 @@ export async function handleGenericCrud(
   }
 
   if (method === "POST" && !id) {
-    const body = await request.json();
+    const { data: body, error: parseError } = await parseJsonObject(request);
+    if (parseError) return parseError;
     const { data, error } = await supabase.from(table).insert(body).select().single();
     if (error) return jsonError(error.message, 400);
     return jsonOk(toMongoId(data), 201);
   }
 
   if (method === "PUT" && id) {
-    const body = await request.json();
+    const { data: body, error: parseError } = await parseJsonObject(request);
+    if (parseError) return parseError;
     const { data, error } = await supabase.from(table).update(body).eq("id", id).select().single();
     if (error) return jsonError(error.message, 400);
     return jsonOk(toMongoId(data));

@@ -5,6 +5,8 @@ import { getSupabaseAdmin } from "@/server/supabase/admin";
 import { requireAdmin, requireAuth } from "../../lib/auth";
 import { mapBrand, mapCategory, mapProduct, toMongoId, toMongoIds } from "../../lib/mapper";
 import { jsonError, jsonOk } from "../../lib/response";
+import { validateJson } from "../../lib/validate";
+import { couponSchema, warehouseSchema, bannerSchema, menuItemSchema, brandSchema } from "../../lib/validation";
 
 function slugify(text: string) {
   return text
@@ -302,13 +304,14 @@ export async function handleProducts(
       const { error: authError } = await requireAdmin(request);
       if (authError) return authError;
 
-      const body = await request.json();
-      const slug = body.slug || slugify(body.brand_name || body.name || "brand");
+      const { data: body, error: validationError } = await validateJson(request, brandSchema);
+      if (validationError) return validationError;
+      const slug = body.slug || slugify(body.brand_name || "brand");
 
       const { data, error } = await supabase
         .from("brands")
         .insert({
-          brand_name: body.brand_name || body.name,
+          brand_name: body.brand_name,
           slug,
           description: body.description,
           logo_url: body.logo_url,
@@ -325,10 +328,10 @@ export async function handleProducts(
       const { error: authError } = await requireAdmin(request);
       if (authError) return authError;
 
-      const body = await request.json();
+      const { data: body, error: validationError } = await validateJson(request, brandSchema.partial());
+      if (validationError) return validationError;
       const updates: Record<string, unknown> = {};
       if (body.brand_name !== undefined) updates.brand_name = body.brand_name;
-      if (body.name !== undefined) updates.brand_name = body.name;
       if (body.slug !== undefined) updates.slug = body.slug;
       if (body.description !== undefined) updates.description = body.description;
       if (body.logo_url !== undefined) updates.logo_url = body.logo_url;
@@ -367,21 +370,18 @@ export async function handleProducts(
       const { error: authError } = await requireAdmin(request);
       if (authError) return authError;
 
-      const body = await request.json();
-      console.log("Banner create body:", body);
+      const { data: body, error: validationError } = await validateJson(request, bannerSchema);
+      if (validationError) return validationError;
       const cleanBody = {
         heading: body.heading,
-        subheading: body.subheading || null,
+        subheading: body.subheading ?? null,
         image: body.image,
-        link_url: body.link_url || null,
-        sort_order: body.sort_order ? Number(body.sort_order) : 0,
-        status: body.status || "active",
+        link_url: body.link_url ?? null,
+        sort_order: body.sort_order ?? 0,
+        status: body.status ?? "active",
       };
       const { data, error } = await supabase.from("banners").insert(cleanBody).select().single();
-      if (error) {
-        console.error("Banner insert error:", error);
-        return jsonError(error.message, 400);
-      }
+      if (error) return jsonError(error.message, 400);
       return jsonOk(toMongoId(data), 201);
     }
 
@@ -389,12 +389,13 @@ export async function handleProducts(
       const { error: authError } = await requireAdmin(request);
       if (authError) return authError;
 
-      const body = await request.json();
+      const { data: body, error: validationError } = await validateJson(request, bannerSchema.partial());
+      if (validationError) return validationError;
       const cleanBody: Record<string, unknown> = {};
       if (body.heading !== undefined) cleanBody.heading = body.heading;
-      if (body.subheading !== undefined) cleanBody.subheading = body.subheading || null;
+      if (body.subheading !== undefined) cleanBody.subheading = body.subheading ?? null;
       if (body.image !== undefined) cleanBody.image = body.image;
-      if (body.link_url !== undefined) cleanBody.link_url = body.link_url || null;
+      if (body.link_url !== undefined) cleanBody.link_url = body.link_url ?? null;
       if (body.sort_order !== undefined) cleanBody.sort_order = Number(body.sort_order);
       if (body.status !== undefined) cleanBody.status = body.status;
       const { data, error } = await supabase.from("banners").update(cleanBody).eq("id", id).select().single();
@@ -430,12 +431,13 @@ export async function handleProducts(
       const { error: authError } = await requireAdmin(request);
       if (authError) return authError;
 
-      const body = await request.json();
+      const { data: body, error: validationError } = await validateJson(request, menuItemSchema);
+      if (validationError) return validationError;
       const cleanBody = {
         title: body.title,
         url: body.url || "/",
-        sort_order: body.sort_order ? Number(body.sort_order) : 0,
-        status: body.status || "active",
+        sort_order: body.sort_order ?? 0,
+        status: body.status ?? "active",
       };
       const { data, error } = await supabase.from("menu_items").insert(cleanBody).select().single();
       if (error) return jsonError(error.message, 400);
@@ -446,7 +448,8 @@ export async function handleProducts(
       const { error: authError } = await requireAdmin(request);
       if (authError) return authError;
 
-      const body = await request.json();
+      const { data: body, error: validationError } = await validateJson(request, menuItemSchema.partial());
+      if (validationError) return validationError;
       const cleanBody: Record<string, unknown> = {};
       if (body.title !== undefined) cleanBody.title = body.title;
       if (body.url !== undefined) cleanBody.url = body.url || "/";
@@ -485,7 +488,8 @@ export async function handleProducts(
       const { error: authError } = await requireAdmin(request);
       if (authError) return authError;
 
-      const body = await request.json();
+      const { data: body, error: validationError } = await validateJson(request, warehouseSchema);
+      if (validationError) return validationError;
       const { data, error } = await supabase.from("warehouses").insert(body).select().single();
       if (error) return jsonError(error.message, 400);
       return jsonOk(toMongoId(data), 201);
@@ -495,7 +499,8 @@ export async function handleProducts(
       const { error: authError } = await requireAdmin(request);
       if (authError) return authError;
 
-      const body = await request.json();
+      const { data: body, error: validationError } = await validateJson(request, warehouseSchema.partial());
+      if (validationError) return validationError;
       const { data, error } = await supabase.from("warehouses").update(body).eq("id", id).select().single();
       if (error) return jsonError(error.message, 400);
       return jsonOk(toMongoId(data));
@@ -529,7 +534,8 @@ export async function handleProducts(
       const { error: authError } = await requireAdmin(request);
       if (authError) return authError;
 
-      const body = await request.json();
+      const { data: body, error: validationError } = await validateJson(request, couponSchema);
+      if (validationError) return validationError;
       const { data, error } = await supabase.from("coupons").insert(body).select().single();
       if (error) return jsonError(error.message, 400);
       return jsonOk(toMongoId(data), 201);
@@ -539,7 +545,8 @@ export async function handleProducts(
       const { error: authError } = await requireAdmin(request);
       if (authError) return authError;
 
-      const body = await request.json();
+      const { data: body, error: validationError } = await validateJson(request, couponSchema.partial());
+      if (validationError) return validationError;
       const { data, error } = await supabase.from("coupons").update(body).eq("id", id).select().single();
       if (error) return jsonError(error.message, 400);
       return jsonOk(toMongoId(data));

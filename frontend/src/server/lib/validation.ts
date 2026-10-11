@@ -170,6 +170,37 @@ export const inventoryAdjustSchema = z.object({
   notes: z.string().optional(),
 });
 
+export const roleSchema = z.object({
+  name: z.string().min(1, "Role name is required").max(100),
+  description: z.string().max(500).optional(),
+  permissions: z.array(z.string()).optional(),
+});
+
+export const permissionSchema = z.object({
+  name: z.string().min(1, "Permission name is required").max(100),
+  description: z.string().max(500).optional(),
+  resource: z.string().max(100).optional(),
+  action: z.string().max(50).optional(),
+});
+
+export const bannerSchema = z.object({
+  heading: z.string().min(1, "Heading is required").max(255),
+  subheading: z.string().max(500).optional().nullable(),
+  image: z.string().min(1, "Image is required"),
+  link_url: z.string().max(500).optional().nullable(),
+  sort_order: z.coerce.number().int().optional(),
+  status: z.enum(["active", "inactive"]).optional(),
+});
+
+export const menuItemSchema = z.object({
+  title: z.string().min(1, "Title is required").max(255),
+  url: z.string().max(500).optional(),
+  sort_order: z.coerce.number().int().optional(),
+  status: z.enum(["active", "inactive"]).optional(),
+});
+
+export const settingsUpdateSchema = z.record(z.string(), z.unknown());
+
 export const profileUpdateSchema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),

@@ -122,17 +122,26 @@ export async function handleAuth(
 
     const { email, password, firstName, lastName, username, phone, role, inviteCode } = body;
 
-    // Role gating: customer is open, admin/superadmin require invite codes
-    const ADMIN_INVITE = process.env.ADMIN_INVITE_CODE || "ADMIN-2025";
-    const SUPER_INVITE = process.env.SUPERADMIN_INVITE_CODE || "SUPER-2025";
+    // Role gating: customer is open, admin/superadmin require invite codes.
+    // Invite codes MUST be provided via environment variables — there are no
+    // insecure default values. If a privileged role is requested and the
+    // corresponding env var is missing, registration is refused.
+    const ADMIN_INVITE = process.env.ADMIN_INVITE_CODE;
+    const SUPER_INVITE = process.env.SUPERADMIN_INVITE_CODE;
     const requestedRole = (role || "customer").toString().toLowerCase();
     let assignedRole: "customer" | "admin" | "superadmin" = "customer";
     if (requestedRole === "superadmin") {
+      if (!SUPER_INVITE) {
+        return jsonError("Super-admin registration is not configured on this server", 403);
+      }
       if (!inviteCode || inviteCode !== SUPER_INVITE) {
         return jsonError("Invalid super-admin invite code", 403);
       }
       assignedRole = "superadmin";
     } else if (requestedRole === "admin") {
+      if (!ADMIN_INVITE) {
+        return jsonError("Admin registration is not configured on this server", 403);
+      }
       if (!inviteCode || inviteCode !== ADMIN_INVITE) {
         return jsonError("Invalid admin invite code", 403);
       }
@@ -170,9 +179,11 @@ export async function handleAuth(
       return jsonError(error.message, 400);
     }
 
-    // Upsert profile with the assigned role (trigger creates the row first)
+    // Upsert profile with the assigned role (trigger creates the row first).
+    // If the profile write fails, remove the just-created auth user so we
+    // don't leave an orphaned auth record with no usable profile.
     if (authData.user) {
-      await supabase
+      const { error: profileError } = await supabase
         .from("profiles")
         .update({
           first_name: firstName,
@@ -183,6 +194,11 @@ export async function handleAuth(
           email_verified: true,
         })
         .eq("id", authData.user.id);
+
+      if (profileError) {
+        await supabase.auth.admin.deleteUser(authData.user.id).catch(() => {});
+        return jsonError("Failed to complete registration. Please try again.", 500);
+      }
     }
 
     return jsonOk(
@@ -387,10 +403,15 @@ export async function handleAuth(
       // In dev mode without email service, still succeed
     }
 
+    // NOTE: resetCodes and the rate-limit `attempts` map are kept in-memory.
+    // In a serverless (Vercel) deployment these are per-instance and do not
+    // survive cold starts or share across instances. For multi-instance
+    // production, back them with a database table (e.g. password_reset_codes
+    // with TTL) and a rate-limit store. The reset code is NEVER returned to
+    // the client.
     return jsonRaw({
       success: true,
       message: "Verification code sent",
-      devCode: code,
     });
   }
 

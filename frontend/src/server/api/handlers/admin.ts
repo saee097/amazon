@@ -14,6 +14,8 @@ import {
 } from "../../lib/mapper";
 import { getPermissionsForRole } from "../../lib/permissions";
 import { jsonError, jsonOk, jsonData } from "../../lib/response";
+import { validateJson } from "../../lib/validate";
+import { categorySchema, roleSchema, permissionSchema, settingsUpdateSchema } from "../../lib/validation";
 
 export async function handleAdmin(
   method: string,
@@ -306,7 +308,9 @@ export async function handleAdmin(
 
   // POST /admin/categories
   if (method === "POST" && resource === "categories") {
-    const body = await request.json();
+    const { data: body, error: validationError } = await validateJson(request, categorySchema);
+    if (validationError) return validationError;
+
     const { data, error } = await supabase
       .from("categories")
       .insert(body)
@@ -326,7 +330,9 @@ export async function handleAdmin(
 
   // PUT /admin/categories/:id
   if (method === "PUT" && resource === "categories" && id) {
-    const body = await request.json();
+    const { data: body, error: validationError } = await validateJson(request, categorySchema.partial());
+    if (validationError) return validationError;
+
     const { data, error } = await supabase
       .from("categories")
       .update(body)
@@ -444,22 +450,34 @@ export async function handleAdmin(
       .from("orders")
       .select("*")
       .order("created_at", { ascending: false });
-    const result = [];
-    for (const order of orders || []) {
-      const { data: items } = await supabase
+
+    const orderList = orders || [];
+    const orderIds = orderList.map((o) => o.id);
+    const userIds = [...new Set(orderList.map((o) => o.user_id))];
+
+    const itemsByOrder = new Map<string, unknown[]>();
+    if (orderIds.length > 0) {
+      const { data: allItems } = await supabase
         .from("order_items")
         .select("*, products(*, product_images(*))")
-        .eq("order_id", order.id);
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", order.user_id)
-        .single();
-      result.push({
-        ...mapOrder(order, items || []),
-        customer: profile ? mapProfile(profile) : null,
-      });
+        .in("order_id", orderIds);
+      for (const item of allItems || []) {
+        const list = itemsByOrder.get(item.order_id) || [];
+        list.push(item);
+        itemsByOrder.set(item.order_id, list);
+      }
     }
+
+    const profileById = new Map<string, unknown>();
+    if (userIds.length > 0) {
+      const { data: profiles } = await supabase.from("profiles").select("*").in("id", userIds);
+      for (const p of profiles || []) profileById.set(p.id, p);
+    }
+
+    const result = orderList.map((order) => ({
+      ...mapOrder(order, itemsByOrder.get(order.id) || []),
+      customer: profileById.has(order.user_id) ? mapProfile(profileById.get(order.user_id) as Record<string, unknown>) : null,
+    }));
     return jsonOk(result);
   }
 
@@ -751,7 +769,7 @@ export async function handleAdmin(
     if (error) return jsonError(error.message, 400);
 
     const role = body.role || "customer";
-    await supabase
+    const { error: profileError } = await supabase
       .from("profiles")
       .update({
         first_name: body.first_name || body.firstName,
@@ -763,6 +781,11 @@ export async function handleAdmin(
         permissions: getPermissionsForRole(role),
       })
       .eq("id", authData.user.id);
+
+    if (profileError) {
+      await supabase.auth.admin.deleteUser(authData.user.id).catch(() => {});
+      return jsonError("Failed to create user profile", 500);
+    }
 
     const { data: profile } = await supabase
       .from("profiles")
@@ -882,7 +905,10 @@ export async function handleAdmin(
       })
       .select()
       .single();
-    if (error) return jsonError(error.message, 400);
+    if (error) {
+      await supabase.auth.admin.deleteUser(authUser.id).catch(() => {});
+      return jsonError(error.message, 400);
+    }
     return jsonOk(mapProfile(data), 201);
   }
 
@@ -925,7 +951,8 @@ export async function handleAdmin(
 
   // POST /admin/roles
   if (method === "POST" && resource === "roles") {
-    const body = await request.json();
+    const { data: body, error: validationError } = await validateJson(request, roleSchema);
+    if (validationError) return validationError;
     const { data, error } = await supabase
       .from("roles")
       .insert(body)
@@ -937,7 +964,8 @@ export async function handleAdmin(
 
   // PUT /admin/roles/:id
   if (method === "PUT" && resource === "roles" && id) {
-    const body = await request.json();
+    const { data: body, error: validationError } = await validateJson(request, roleSchema.partial());
+    if (validationError) return validationError;
     const { data, error } = await supabase
       .from("roles")
       .update(body)
@@ -966,7 +994,8 @@ export async function handleAdmin(
 
   // POST /admin/permissions
   if (method === "POST" && resource === "permissions") {
-    const body = await request.json();
+    const { data: body, error: validationError } = await validateJson(request, permissionSchema);
+    if (validationError) return validationError;
     const { data, error } = await supabase
       .from("permissions")
       .insert(body)
@@ -978,7 +1007,8 @@ export async function handleAdmin(
 
   // PUT /admin/permissions/:id
   if (method === "PUT" && resource === "permissions" && id) {
-    const body = await request.json();
+    const { data: body, error: validationError } = await validateJson(request, permissionSchema.partial());
+    if (validationError) return validationError;
     const { data, error } = await supabase
       .from("permissions")
       .update(body)
@@ -1008,8 +1038,9 @@ export async function handleAdmin(
 
   // PUT /admin/settings
   if (method === "PUT" && resource === "settings" && !id) {
-    const body = await request.json();
-    const categories = Object.keys(body);
+    const { data: body, error: validationError } = await validateJson(request, settingsUpdateSchema);
+    if (validationError) return validationError;
+    const categories = Object.keys(body as Record<string, unknown>);
     for (const category of categories) {
       await supabase
         .from("app_settings")
