@@ -2,9 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
   allowedDevOrigins: ["192.168.1.20", "localhost", "127.0.0.1"],
-  turbopack: {
-    root: __dirname,
-  },
   images: {
     remotePatterns: [
       {
